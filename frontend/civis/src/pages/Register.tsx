@@ -2,12 +2,10 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
-  findUserByMobile,
-  findUserByEmail,
-  saveUser,
-  savePassword,
-  generateUserId,
-} from '../utils/storage'
+  registerWithEmail,
+  requestRegisterOtp,
+  verifyRegisterOtp,
+} from '../api/client'
 import './Auth.css'
 
 type Tab = 'mobile' | 'gmail'
@@ -36,16 +34,21 @@ export default function Register() {
   const [loading, setLoading] = useState(false)
 
   /* ── Mobile registration ── */
-  function handleMobileSubmit(e: React.FormEvent) {
+  async function handleMobileSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     if (name.trim().length < 2) { setError('Enter your full name.'); return }
     if (!/^[6-9]\d{9}$/.test(mobile)) { setError('Enter a valid 10-digit mobile number.'); return }
-    if (findUserByMobile(mobile)) { setError('This mobile number is already registered.'); return }
     setLoading(true)
-    const generated = Math.floor(100000 + Math.random() * 900000).toString()
-    setDemoOtp(generated)
-    setTimeout(() => { setLoading(false); setStage('otp') }, 800)
+    try {
+      const response = await requestRegisterOtp(name.trim(), mobile)
+      setDemoOtp(response.otp)
+      setLoading(false)
+      setStage('otp')
+    } catch (err) {
+      setLoading(false)
+      setError(err instanceof Error ? err.message : 'Failed to send OTP.')
+    }
   }
 
   function handleOtpChange(value: string, index: number) {
@@ -62,52 +65,39 @@ export default function Register() {
     }
   }
 
-  function handleOtpSubmit(e: React.FormEvent) {
+  async function handleOtpSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     const code = otp.join('')
     if (code.length < 6) { setError('Enter all 6 digits.'); return }
-    if (code !== demoOtp) { setError('Incorrect OTP. Check the demo code above.'); return }
     setLoading(true)
-    const user = {
-      id: generateUserId(),
-      name: name.trim(),
-      mobile,
-      email: '',
-      authType: 'mobile' as const,
-      createdAt: new Date().toISOString(),
-    }
-    saveUser(user)
-    setTimeout(() => {
+    try {
+      const user = await verifyRegisterOtp(name.trim(), mobile, code)
       login(user)
       navigate('/dashboard')
-    }, 600)
+    } catch (err) {
+      setLoading(false)
+      setError(err instanceof Error ? err.message : 'Failed to verify OTP.')
+    }
   }
 
   /* ── Gmail registration ── */
-  function handleGmailSubmit(e: React.FormEvent) {
+  async function handleGmailSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     if (name.trim().length < 2) { setError('Enter your full name.'); return }
     if (!email.includes('@') || !email.includes('.')) { setError('Enter a valid email address.'); return }
-    if (findUserByEmail(email)) { setError('This email is already registered.'); return }
     if (password.length < 6) { setError('Password must be at least 6 characters.'); return }
     if (password !== confirmPass) { setError('Passwords do not match.'); return }
     setLoading(true)
-    const user = {
-      id: generateUserId(),
-      name: name.trim(),
-      mobile: '',
-      email,
-      authType: 'gmail' as const,
-      createdAt: new Date().toISOString(),
-    }
-    saveUser(user)
-    savePassword(user.id, password)
-    setTimeout(() => {
+    try {
+      const user = await registerWithEmail(name.trim(), email, password)
       login(user)
       navigate('/dashboard')
-    }, 600)
+    } catch (err) {
+      setLoading(false)
+      setError(err instanceof Error ? err.message : 'Failed to create account.')
+    }
   }
 
   return (

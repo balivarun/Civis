@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Navbar from './components/Navbar'
 import LandingPage from './components/LandingPage'
@@ -13,35 +14,37 @@ import './App.css'
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Full-screen pages (no shared Navbar) */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={
-            <ProtectedRoute><Dashboard /></ProtectedRoute>
-          } />
-          <Route path="/report" element={
-            <ProtectedRoute><ReportComplaint /></ProtectedRoute>
-          } />
-          <Route path="/complaint/:id" element={
-            <ProtectedRoute><ComplaintDetail /></ProtectedRoute>
-          } />
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Full-screen pages (no shared Navbar) */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/dashboard" element={
+              <ProtectedRoute><Dashboard /></ProtectedRoute>
+            } />
+            <Route path="/report" element={
+              <ProtectedRoute><ReportComplaint /></ProtectedRoute>
+            } />
+            <Route path="/complaint/:id" element={
+              <ProtectedRoute><ComplaintDetail /></ProtectedRoute>
+            } />
 
-          {/* Pages with shared Navbar */}
-          <Route path="/*" element={
-            <>
-              <Navbar />
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/how-it-works" element={<HowItWorks />} />
-              </Routes>
-            </>
-          } />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            {/* Pages with shared Navbar */}
+            <Route path="/*" element={
+              <>
+                <Navbar />
+                <Routes>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/how-it-works" element={<HowItWorks />} />
+                </Routes>
+              </>
+            } />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 

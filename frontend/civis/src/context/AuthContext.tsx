@@ -1,13 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-
-export interface User {
-  id: string
-  name: string
-  mobile: string
-  email: string
-  authType: 'mobile' | 'gmail'
-  createdAt: string
-}
+import type { User } from '../api/client'
 
 interface AuthContextValue {
   user: User | null

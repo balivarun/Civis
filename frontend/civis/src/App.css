@@ -10,11 +10,38 @@ html {
   scroll-behavior: smooth;
 }
 
+html[data-theme='light'] {
+  --app-bg: #f8fafc;
+  --app-surface: #ffffff;
+  --app-surface-soft: #f0f7ff;
+  --app-text: #1f2937;
+  --app-text-strong: #111827;
+  --app-text-soft: #4b5563;
+  --app-text-muted: #64748b;
+  --app-border: #e2e8f0;
+  --app-brand: #1a6fbf;
+  --app-brand-strong: #155a9c;
+}
+
+html[data-theme='dark'] {
+  --app-bg: #09111d;
+  --app-surface: #111c2d;
+  --app-surface-soft: #16243a;
+  --app-text: #d7e3f4;
+  --app-text-strong: #f8fbff;
+  --app-text-soft: #afbdd1;
+  --app-text-muted: #8ea1b8;
+  --app-border: #243246;
+  --app-brand: #68a8ff;
+  --app-brand-strong: #8bc1ff;
+}
+
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f8fafc;
-  color: #1f2937;
+  background: var(--app-bg);
+  color: var(--app-text);
   min-width: 320px;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 #root {

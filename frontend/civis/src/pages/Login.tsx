@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import {
-  findUserByMobile,
-  findUserByEmail,
-  checkPassword,
-} from '../utils/storage'
+  loginWithEmail,
+  requestLoginOtp,
+  verifyLoginOtp,
+} from '../api/client'
 import './Auth.css'
 
 type Tab = 'mobile' | 'gmail'
@@ -30,25 +30,23 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
 
   /* ── Mobile: send OTP ── */
-  function handleMobileSubmit(e: React.FormEvent) {
+  async function handleMobileSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     if (!/^[6-9]\d{9}$/.test(mobile)) {
       setError('Enter a valid 10-digit mobile number.')
       return
     }
-    const user = findUserByMobile(mobile)
-    if (!user) {
-      setError('No account found for this number. Please register first.')
-      return
-    }
     setLoading(true)
-    const generated = Math.floor(100000 + Math.random() * 900000).toString()
-    setDemoOtp(generated)
-    setTimeout(() => {
+    try {
+      const response = await requestLoginOtp(mobile)
+      setDemoOtp(response.otp)
       setLoading(false)
       setStage('otp')
-    }, 800)
+    } catch (err) {
+      setLoading(false)
+      setError(err instanceof Error ? err.message : 'Failed to send OTP.')
+    }
   }
 
   /* ── OTP: verify ── */
@@ -68,22 +66,24 @@ export default function Login() {
     }
   }
 
-  function handleOtpSubmit(e: React.FormEvent) {
+  async function handleOtpSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     const code = otp.join('')
     if (code.length < 6) { setError('Enter all 6 digits.'); return }
-    if (code !== demoOtp) { setError('Incorrect OTP. Check the demo code above.'); return }
     setLoading(true)
-    setTimeout(() => {
-      const user = findUserByMobile(mobile)!
+    try {
+      const user = await verifyLoginOtp(mobile, code)
       login(user)
       navigate('/dashboard')
-    }, 600)
+    } catch (err) {
+      setLoading(false)
+      setError(err instanceof Error ? err.message : 'Failed to verify OTP.')
+    }
   }
 
   /* ── Gmail: sign in ── */
-  function handleGmailSubmit(e: React.FormEvent) {
+  async function handleGmailSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     if (!email.includes('@') || !email.includes('.')) {
@@ -94,20 +94,15 @@ export default function Login() {
       setError('Password must be at least 6 characters.')
       return
     }
-    const user = findUserByEmail(email)
-    if (!user) {
-      setError('No account found for this email. Please register first.')
-      return
-    }
-    if (!checkPassword(user.id, password)) {
-      setError('Incorrect password.')
-      return
-    }
     setLoading(true)
-    setTimeout(() => {
+    try {
+      const user = await loginWithEmail(email, password)
       login(user)
       navigate('/dashboard')
-    }, 600)
+    } catch (err) {
+      setLoading(false)
+      setError(err instanceof Error ? err.message : 'Failed to sign in.')
+    }
   }
 
   function resetForm() {

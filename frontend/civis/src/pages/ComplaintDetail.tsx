@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getComplaintById } from '../utils/storage'
+import { getComplaintById, type Complaint } from '../api/client'
 import './ComplaintDetail.css'
 
 const statusOrder = ['Submitted', 'Acknowledged', 'Under Review', 'In Progress', 'Resolved']
@@ -14,7 +15,36 @@ const statusColor: Record<string, string> = {
 
 export default function ComplaintDetail() {
   const { id } = useParams<{ id: string }>()
-  const complaint = id ? getComplaintById(id) : undefined
+  const [complaint, setComplaint] = useState<Complaint | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadComplaint() {
+      if (!id) {
+        setLoading(false)
+        return
+      }
+      try {
+        setComplaint(await getComplaintById(id))
+      } catch {
+        setComplaint(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    void loadComplaint()
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="cd-not-found">
+        <div className="cd-nf-icon">⏳</div>
+        <h2>Loading complaint</h2>
+        <p>Please wait while we fetch the complaint details.</p>
+      </div>
+    )
+  }
 
   if (!complaint) {
     return (

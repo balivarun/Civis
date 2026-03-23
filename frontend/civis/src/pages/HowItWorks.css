@@ -358,3 +358,104 @@
     align-items: flex-start;
   }
 }
+
+html[data-theme='dark'] .hiw-page {
+  background: var(--app-bg);
+  color: var(--app-text);
+}
+
+html[data-theme='dark'] .hiw-hero {
+  background: linear-gradient(135deg, #0d1a2c 0%, #204d84 100%);
+}
+
+html[data-theme='dark'] .hiw-badge,
+html[data-theme='dark'] .step-tip {
+  background: rgba(104, 168, 255, 0.14);
+  color: #bfdcff;
+}
+
+html[data-theme='dark'] .hiw-cta-btn {
+  background: #dce9ff;
+  color: #0d1b30;
+}
+
+html[data-theme='dark'] .hiw-cta-btn:hover {
+  background: #ffffff;
+  color: #0d1b30;
+}
+
+html[data-theme='dark'] .step-num {
+  background: var(--app-brand);
+}
+
+html[data-theme='dark'] .step-connector {
+  background: #29405f;
+}
+
+html[data-theme='dark'] .step-body,
+html[data-theme='dark'] .faq-item {
+  background: var(--app-surface);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.24);
+}
+
+html[data-theme='dark'] .step-body {
+  border-left-color: var(--app-brand);
+}
+
+html[data-theme='dark'] .step-body h3,
+html[data-theme='dark'] .hiw-faq h2,
+html[data-theme='dark'] .hiw-bottom-cta h2,
+html[data-theme='dark'] .faq-item summary {
+  color: var(--app-text-strong);
+}
+
+html[data-theme='dark'] .step-body p,
+html[data-theme='dark'] .faq-item p {
+  color: var(--app-text-soft);
+}
+
+html[data-theme='dark'] .faq-item p {
+  border-top-color: var(--app-border);
+}
+
+html[data-theme='dark'] .faq-item summary::after,
+html[data-theme='dark'] .btn-ghost {
+  color: var(--app-brand);
+}
+
+html[data-theme='dark'] .hiw-lifecycle {
+  background: #050b15;
+}
+
+html[data-theme='dark'] .lifecycle-sub {
+  color: #85b9ff;
+}
+
+html[data-theme='dark'] .lifecycle-dot {
+  background: #85b9ff;
+  border-color: #b8d7ff;
+}
+
+html[data-theme='dark'] .lifecycle-line {
+  background: #29405f;
+}
+
+html[data-theme='dark'] .hiw-bottom-cta {
+  background: #101a2a;
+}
+
+html[data-theme='dark'] .btn-primary {
+  background: var(--app-brand);
+}
+
+html[data-theme='dark'] .btn-primary:hover {
+  background: var(--app-brand-strong);
+}
+
+html[data-theme='dark'] .btn-ghost {
+  border-color: var(--app-brand);
+}
+
+html[data-theme='dark'] .btn-ghost:hover {
+  background: rgba(104, 168, 255, 0.12);
+}

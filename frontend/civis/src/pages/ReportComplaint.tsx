@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { saveComplaint, generateComplaintId } from '../utils/storage'
-import type { Complaint } from '../utils/storage'
+import { createComplaint } from '../api/client'
 import './ReportComplaint.css'
 
 const categories = [
@@ -54,9 +53,7 @@ export default function ReportComplaint() {
     e.preventDefault()
     if (!user) return
     setSubmitting(true)
-    const id = generateComplaintId()
-    const complaint: Complaint = {
-      id,
+    createComplaint({
       userId: user.id,
       category,
       categoryIcon,
@@ -65,21 +62,14 @@ export default function ReportComplaint() {
       location: location.trim(),
       landmark: landmark.trim(),
       priority,
-      status: 'Submitted',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      timeline: [
-        {
-          status: 'Submitted',
-          note: 'Your complaint has been received and is under processing.',
-          date: new Date().toISOString(),
-        },
-      ],
-    }
-    saveComplaint(complaint)
-    setTimeout(() => {
-      navigate(`/complaint/${id}`)
-    }, 600)
+    })
+      .then((complaint) => {
+        navigate(`/complaint/${complaint.id}`)
+      })
+      .catch((err) => {
+        setSubmitting(false)
+        setError(err instanceof Error ? err.message : 'Failed to submit complaint.')
+      })
   }
 
   const progressPct = (step / 4) * 100

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { getComplaintsByUser, type Complaint } from '../utils/storage'
+import { getComplaintsByUser, type Complaint } from '../api/client'
 import './Dashboard.css'
 
 const statusColor: Record<string, string> = {
@@ -16,9 +16,19 @@ export default function Dashboard() {
   const { user, logout } = useAuth()
   const [complaints, setComplaints] = useState<Complaint[]>([])
   const [filter, setFilter] = useState<string>('All')
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    if (user) setComplaints(getComplaintsByUser(user.id))
+    async function loadComplaints() {
+      if (!user) return
+      try {
+        setComplaints(await getComplaintsByUser(user.id))
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load complaints.')
+      }
+    }
+
+    void loadComplaints()
   }, [user])
 
   const statuses = ['All', 'Submitted', 'Acknowledged', 'Under Review', 'In Progress', 'Resolved']
@@ -112,8 +122,8 @@ export default function Dashboard() {
         {filtered.length === 0 ? (
           <div className="db-empty">
             <div className="empty-icon">📋</div>
-            <h3>No complaints yet</h3>
-            <p>File your first complaint and help improve your city.</p>
+            <h3>{error ? 'Could not load complaints' : 'No complaints yet'}</h3>
+            <p>{error || 'File your first complaint and help improve your city.'}</p>
             <Link to="/report" className="btn-file">File a Complaint</Link>
           </div>
         ) : (

@@ -1,4 +1,4 @@
-import type { User } from '../context/AuthContext'
+import type { User } from '../api/client'
 
 export interface Complaint {
   id: string

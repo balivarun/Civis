@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import './Navbar.css'
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { user, isLoggedIn, logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const close = () => setMenuOpen(false)
 
@@ -36,6 +38,16 @@ export default function Navbar() {
         </button>
 
         <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
+          <li>
+            <button
+              type="button"
+              className="theme-trigger"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+            </button>
+          </li>
           <li><NavLink to="/" end onClick={close}>Home</NavLink></li>
           <li><NavLink to="/how-it-works" onClick={close}>How It Works</NavLink></li>
           <li><a href="/#categories" onClick={close}>Categories</a></li>

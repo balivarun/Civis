@@ -66,6 +66,23 @@
   color: #1a6fbf;
 }
 
+.theme-trigger {
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  padding: 0.45rem 0.95rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-trigger:hover {
+  border-color: #1a6fbf;
+  color: #1a6fbf;
+}
+
 /* Login button */
 .btn-login {
   border: 1.5px solid #1a6fbf !important;
@@ -188,6 +205,12 @@
     border-bottom: 1px solid #f1f5f9;
   }
 
+  .theme-trigger {
+    width: calc(100% - 3rem);
+    margin: 0.75rem 1.5rem 0;
+    justify-content: center;
+  }
+
   .btn-login,
   .btn-report {
     display: block;
@@ -197,4 +220,58 @@
   }
 
   .nav-user { gap: 0.75rem; }
+}
+
+html[data-theme='dark'] .navbar {
+  background: rgba(9, 17, 29, 0.88);
+  box-shadow: 0 1px 0 rgba(36, 50, 70, 0.9), 0 8px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(16px);
+}
+
+html[data-theme='dark'] .navbar-brand {
+  color: var(--app-text-strong);
+}
+
+html[data-theme='dark'] .nav-links a {
+  color: var(--app-text);
+}
+
+html[data-theme='dark'] .nav-links a:hover,
+html[data-theme='dark'] .nav-links a.active {
+  color: var(--app-brand);
+}
+
+html[data-theme='dark'] .nav-user-name {
+  color: var(--app-text);
+}
+
+html[data-theme='dark'] .btn-logout {
+  border-color: var(--app-border);
+  color: var(--app-text-muted);
+}
+
+html[data-theme='dark'] .bar {
+  background: var(--app-text-strong);
+}
+
+html[data-theme='dark'] .theme-trigger {
+  background: var(--app-surface);
+  border-color: var(--app-border);
+  color: var(--app-text);
+}
+
+html[data-theme='dark'] .theme-trigger:hover {
+  border-color: var(--app-brand);
+  color: var(--app-brand);
+}
+
+@media (max-width: 900px) {
+  html[data-theme='dark'] .nav-links {
+    background: var(--app-surface);
+  }
+
+  html[data-theme='dark'] .nav-links a,
+  html[data-theme='dark'] .nav-links .nav-user {
+    border-bottom-color: var(--app-border);
+  }
 }
