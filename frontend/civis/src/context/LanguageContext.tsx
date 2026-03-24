@@ -9,11 +9,11 @@ type LanguageContextType = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  // Initialize from cookie or default to 'en'
+  // Use localStorage instead of cookies for absolute reliability in SPAs
   const getInitialLang = () => {
-    if (typeof document !== 'undefined') {
-      const match = document.cookie.match(/googtrans=\/en\/(hi|en)/);
-      if (match && match[1] === 'hi') return 'hi';
+    if (typeof localStorage !== 'undefined') {
+      const stored = localStorage.getItem('appLang');
+      if (stored === 'hi') return 'hi';
     }
     return 'en';
   };
@@ -48,28 +48,34 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     document.head.appendChild(style);
   }, []);
 
+  const triggerGoogleTranslate = (targetLang: 'en' | 'hi') => {
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      const select = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
+      if (select) {
+        clearInterval(interval);
+        // Force reset the translation back to English first to clear cache
+        select.value = 'en';
+        select.dispatchEvent(new Event('change'));
+        
+        if (targetLang === 'hi') {
+          // Then aggressively force the Hindi translation
+          setTimeout(() => {
+            select.value = 'hi';
+            select.dispatchEvent(new Event('change'));
+          }, 150);
+        }
+      }
+      if (attempts > 50) clearInterval(interval); // Give up after 5s
+    }, 100);
+  };
+
   const toggleLanguage = () => {
     const nextLang = language === 'en' ? 'hi' : 'en';
     setLanguage(nextLang);
-    
-    // Set cookie to remember language preference
-    document.cookie = `googtrans=/en/${nextLang}; path=/;`;
-    
-    // Programmatically trigger the hidden Google Translate dropdown
-    const select = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
-    if (select) {
-      if (nextLang === 'en') {
-        // To properly clear translation, sometimes we need to restore
-        const iframe = document.querySelector('iframe.goog-te-banner-frame') as HTMLIFrameElement;
-        if (iframe) {
-          const innerDoc = iframe.contentDocument || iframe.contentWindow?.document;
-          const restoreBtn = innerDoc?.querySelector('.goog-te-button button') as HTMLButtonElement | null;
-          if (restoreBtn) restoreBtn.click();
-        }
-      }
-      select.value = nextLang;
-      select.dispatchEvent(new Event('change'));
-    }
+    localStorage.setItem('appLang', nextLang);
+    triggerGoogleTranslate(nextLang);
   };
 
   return (
@@ -86,25 +92,30 @@ export function TranslateRouteObserver() {
   const { language } = useLanguage();
 
   useEffect(() => {
+    // On every single route change, if we are supposed to be in Hindi,
+    // we must clear the Google internal state and vigorously force a re-trigger.
+    // This perfectly bypasses React's virtual DOM replacements!
     if (language === 'hi') {
-      // Re-trigger translation slightly after DOM updates
-      const trigger = () => {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
         const select = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
         if (select) {
-          // Toggle to EN then back to HI to force a re-pass of the DOM
+          clearInterval(interval);
           select.value = 'en';
           select.dispatchEvent(new Event('change'));
+          
           setTimeout(() => {
             select.value = 'hi';
             select.dispatchEvent(new Event('change'));
-          }, 50);
+          }, 150);
         }
-      };
+        if (attempts > 50) clearInterval(interval);
+      }, 100);
       
-      const timer = setTimeout(trigger, 150);
-      return () => clearTimeout(timer);
+      return () => clearInterval(interval);
     }
-  }, [location.pathname, language]);
+  }, [location.pathname, language]); // Added location.pathname to re-trigger intensely
 
   return null;
 }
