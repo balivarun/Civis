@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTranslation } from '../context/TranslationContext'
 import {
   loginWithEmail,
   requestLoginOtp,
@@ -14,6 +15,7 @@ type Stage = 'input' | 'otp'
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const [tab, setTab] = useState<Tab>('mobile')
   const [stage, setStage] = useState<Stage>('input')
@@ -125,15 +127,14 @@ export default function Login() {
             </div>
             <span>Civis</span>
           </Link>
-          <h2>Sign in to report & track civic issues in your area.</h2>
+          <h2>{t('auth.loginSub')}</h2>
           <ul className="auth-perks">
-            <li><span>🛣</span> Roads &amp; Potholes</li>
-            <li><span>💡</span> Street Lights</li>
-            <li><span>🚰</span> Water Supply</li>
-            <li><span>🗑</span> Garbage &amp; Sanitation</li>
-            <li><span>🌳</span> Parks &amp; Public Spaces</li>
+            <li><span>🛣</span> {t('categories.roads')}</li>
+            <li><span>💡</span> {t('categories.lights')}</li>
+            <li><span>🚰</span> {t('categories.water')}</li>
+            <li><span>🗑</span> {t('categories.garbage')}</li>
+            <li><span>🌳</span> {t('categories.parks')}</li>
           </ul>
-          <div className="auth-stat-pill">18,400+ complaints filed &nbsp;·&nbsp; 70% resolved</div>
         </div>
       </div>
 
@@ -143,8 +144,8 @@ export default function Login() {
           {stage === 'input' ? (
             <>
               <div className="auth-card-header">
-                <h1>Welcome back</h1>
-                <p>Sign in to your Civis account</p>
+                <h1>{t('auth.loginTitle')}</h1>
+                <p>{t('auth.loginSub')}</p>
               </div>
 
               <div className="tab-row">
@@ -161,7 +162,7 @@ export default function Login() {
               {tab === 'mobile' && (
                 <form className="auth-form" onSubmit={handleMobileSubmit} noValidate>
                   <div className="field-group">
-                    <label htmlFor="mobile">Mobile Number</label>
+                    <label htmlFor="mobile">{t('auth.mobileLabel')}</label>
                     <div className="phone-wrap">
                       <span className="dial-code">+91</span>
                       <input id="mobile" type="tel" inputMode="numeric" maxLength={10}
@@ -180,13 +181,13 @@ export default function Login() {
               {tab === 'gmail' && (
                 <form className="auth-form" onSubmit={handleGmailSubmit} noValidate>
                   <div className="field-group">
-                    <label htmlFor="email">Email Address</label>
+                    <label htmlFor="email">{t('auth.emailLabel')}</label>
                     <input id="email" type="email" placeholder="you@gmail.com"
                       value={email} onChange={(e) => setEmail(e.target.value)}
                       autoFocus required />
                   </div>
                   <div className="field-group">
-                    <label htmlFor="password">Password</label>
+                    <label htmlFor="password">{t('auth.passLabel')}</label>
                     <div className="pass-wrap">
                       <input id="password" type={showPass ? 'text' : 'password'}
                         placeholder="Your password" value={password}
@@ -199,15 +200,19 @@ export default function Login() {
                   </div>
                   {error && <div className="form-error">⚠ {error}</div>}
                   <button type="submit" className="submit-btn" disabled={loading}>
-                    {loading ? <span className="btn-spinner" /> : 'Sign In'}
+                    {loading ? <span className="btn-spinner" /> : t('auth.loginBtn')}
                   </button>
                 </form>
               )}
 
               <p className="switch-prompt">
-                Don't have an account?{' '}
-                <Link to="/register" className="switch-link">Create one free</Link>
+                {t('auth.noAccount')}{' '}
+                <Link to="/register" className="switch-link">{t('auth.signUp')}</Link>
               </p>
+              
+              <div style={{marginTop: '1.5rem', fontSize: '0.85rem', color: '#64748b', textAlign: 'center'}}>
+                {t('auth.testCreds')}
+              </div>
             </>
           ) : (
             <>
@@ -217,7 +222,7 @@ export default function Login() {
               </div>
 
               {demoOtp && (
-                <div className="demo-otp-box">
+               <div className="demo-otp-box">
                   <span className="demo-label">Demo OTP (no SMS service)</span>
                   <span className="demo-code">{demoOtp}</span>
                 </div>

@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
+import { useTranslation } from '../context/TranslationContext'
 import './Navbar.css'
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { user, isLoggedIn, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const close = () => setMenuOpen(false)
 
@@ -48,26 +50,26 @@ export default function Navbar() {
               {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
             </button>
           </li>
-          <li><NavLink to="/" end onClick={close}>Home</NavLink></li>
-          <li><NavLink to="/how-it-works" onClick={close}>How It Works</NavLink></li>
-          <li><a href="/#categories" onClick={close}>Categories</a></li>
+          <li><NavLink to="/" end onClick={close}>{t('nav.home')}</NavLink></li>
+          <li><NavLink to="/how-it-works" onClick={close}>{t('nav.howItWorks')}</NavLink></li>
+          <li><a href="/#categories" onClick={close}>{t('nav.categories')}</a></li>
 
           {isLoggedIn ? (
             <>
-              <li><NavLink to="/dashboard" onClick={close}>Dashboard</NavLink></li>
-              <li><NavLink to="/report" className="btn-report" onClick={close}>+ Report Issue</NavLink></li>
+              <li><NavLink to="/dashboard" onClick={close}>{t('nav.dashboard')}</NavLink></li>
+              <li><NavLink to="/report" className="btn-report" onClick={close}>{t('nav.reportIssue')}</NavLink></li>
               <li>
                 <div className="nav-user">
                   <div className="nav-avatar">{user?.name.charAt(0).toUpperCase()}</div>
                   <span className="nav-user-name">{user?.name.split(' ')[0]}</span>
-                  <button className="btn-logout" onClick={handleLogout}>Sign Out</button>
+                  <button className="btn-logout" onClick={handleLogout}>{t('nav.signOut')}</button>
                 </div>
               </li>
             </>
           ) : (
             <>
-              <li><Link to="/login" className="btn-login" onClick={close}>Login</Link></li>
-              <li><Link to="/register" className="btn-report" onClick={close}>Get Started</Link></li>
+              <li><Link to="/login" className="btn-login" onClick={close}>{t('nav.login')}</Link></li>
+              <li><Link to="/register" className="btn-report" onClick={close}>{t('nav.getStarted')}</Link></li>
             </>
           )}
         </ul>

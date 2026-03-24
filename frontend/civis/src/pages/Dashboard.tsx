@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTranslation } from '../context/TranslationContext'
 import { getComplaintsByUser, type Complaint } from '../api/client'
 import './Dashboard.css'
 
@@ -14,6 +15,7 @@ const statusColor: Record<string, string> = {
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
+  const { t } = useTranslation()
   const [complaints, setComplaints] = useState<Complaint[]>([])
   const [filter, setFilter] = useState<string>('All')
   const [error, setError] = useState('')
@@ -32,6 +34,18 @@ export default function Dashboard() {
   }, [user])
 
   const statuses = ['All', 'Submitted', 'Acknowledged', 'Under Review', 'In Progress', 'Resolved']
+  // To keep internal logic working, 'All' etc. remain English strings, but we can display translated states if needed.
+  // We'll leave the chip text mapping to a helper function if needed. Let's map display values for chips:
+  const getStatusDisplay = (s: string) => {
+    if (s === 'All') return t('dashboard.filterAll');
+    if (s === 'Submitted') return t('howItWorks.stages.submitted');
+    if (s === 'Acknowledged') return t('howItWorks.stages.acknowledged');
+    if (s === 'Under Review') return t('howItWorks.stages.underReview');
+    if (s === 'In Progress') return t('howItWorks.stages.inProgress');
+    if (s === 'Resolved') return t('howItWorks.stages.resolved');
+    return s;
+  }
+
   const filtered = filter === 'All' ? complaints : complaints.filter((c) => c.status === filter)
 
   const resolved = complaints.filter((c) => c.status === 'Resolved').length
@@ -53,13 +67,13 @@ export default function Dashboard() {
 
         <nav className="db-nav">
           <Link to="/dashboard" className="db-nav-item active">
-            <span>🏠</span> Dashboard
+            <span>🏠</span> {t('nav.dashboard')}
           </Link>
           <Link to="/report" className="db-nav-item">
-            <span>📝</span> File Complaint
+            <span>📝</span> {t('nav.reportIssue')}
           </Link>
           <Link to="/how-it-works" className="db-nav-item">
-            <span>❓</span> How It Works
+            <span>❓</span> {t('nav.howItWorks')}
           </Link>
         </nav>
 
@@ -77,11 +91,11 @@ export default function Dashboard() {
       <main className="db-main">
         <header className="db-header">
           <div>
-            <h1>My Dashboard For Civis</h1>
-            <p>Track all your filed complaints here.</p>
+            <h1>{t('dashboard.title')}</h1>
+            <p>{t('dashboard.subtitle')}</p>
           </div>
           <Link to="/report" className="btn-file">
-            + File New Complaint
+            {t('dashboard.fileNew')}
           </Link>
         </header>
 
@@ -89,21 +103,21 @@ export default function Dashboard() {
         <div className="db-stats">
           <div className="db-stat-card">
             <span className="db-stat-num">{complaints.length}</span>
-            <span className="db-stat-label">Total Filed</span>
+            <span className="db-stat-label">{t('dashboard.totalFiled')}</span>
           </div>
           <div className="db-stat-card active">
             <span className="db-stat-num">{pending}</span>
-            <span className="db-stat-label">In Progress</span>
+            <span className="db-stat-label">{t('dashboard.inProgress')}</span>
           </div>
           <div className="db-stat-card resolved">
             <span className="db-stat-num">{resolved}</span>
-            <span className="db-stat-label">Resolved</span>
+            <span className="db-stat-label">{t('dashboard.resolved')}</span>
           </div>
           <div className="db-stat-card rate">
             <span className="db-stat-num">
               {complaints.length ? Math.round((resolved / complaints.length) * 100) : 0}%
             </span>
-            <span className="db-stat-label">Resolution Rate</span>
+            <span className="db-stat-label">{t('dashboard.resolutionRate')}</span>
           </div>
         </div>
 
@@ -113,7 +127,7 @@ export default function Dashboard() {
             <button key={s}
               className={`filter-chip ${filter === s ? 'active' : ''}`}
               onClick={() => setFilter(s)}>
-              {s}
+              {getStatusDisplay(s)}
             </button>
           ))}
         </div>
@@ -122,9 +136,9 @@ export default function Dashboard() {
         {filtered.length === 0 ? (
           <div className="db-empty">
             <div className="empty-icon">📋</div>
-            <h3>{error ? 'Could not load complaints' : 'No complaints yet'}</h3>
-            <p>{error || 'File your first complaint and help improve your city.'}</p>
-            <Link to="/report" className="btn-file">File a Complaint</Link>
+            <h3>{error ? t('dashboard.emptyTitleError') : t('dashboard.emptyTitle')}</h3>
+            <p>{error || t('dashboard.emptyDesc')}</p>
+            <Link to="/report" className="btn-file">{t('dashboard.emptyBtn')}</Link>
           </div>
         ) : (
           <div className="db-list">
@@ -147,7 +161,7 @@ export default function Dashboard() {
                   <span className="db-priority" data-p={c.priority}>{c.priority}</span>
                   <span className="db-status-badge"
                     style={{ background: statusColor[c.status] + '22', color: statusColor[c.status] }}>
-                    {c.status}
+                    {getStatusDisplay(c.status)}
                   </span>
                   <span className="db-arrow">→</span>
                 </div>

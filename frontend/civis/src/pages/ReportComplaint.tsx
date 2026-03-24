@@ -1,31 +1,33 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTranslation } from '../context/TranslationContext'
 import { createComplaint } from '../api/client'
 import './ReportComplaint.css'
-
-const categories = [
-  { icon: '🛣', label: 'Roads & Potholes' },
-  { icon: '💡', label: 'Street Lights' },
-  { icon: '🚰', label: 'Water Supply' },
-  { icon: '🗑', label: 'Garbage & Sanitation' },
-  { icon: '🌳', label: 'Parks & Trees' },
-  { icon: '🚧', label: 'Drainage & Flooding' },
-  { icon: '🏗', label: 'Footpaths & Bridges' },
-  { icon: '📶', label: 'Public WiFi & Signals' },
-  { icon: '🚌', label: 'Public Transport' },
-  { icon: '🐕', label: 'Stray Animals' },
-]
-
-const priorities = [
-  { value: 'Low', desc: 'Minor inconvenience, not urgent' },
-  { value: 'Medium', desc: 'Affects daily commute or routine' },
-  { value: 'High', desc: 'Safety risk, needs immediate action' },
-]
 
 export default function ReportComplaint() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { t } = useTranslation()
+
+  const categories = [
+    { icon: '🛣', label: t('categories.roads'), val: 'Roads & Potholes' },
+    { icon: '💡', label: t('categories.lights'), val: 'Street Lights' },
+    { icon: '🚰', label: t('categories.water'), val: 'Water Supply' },
+    { icon: '🗑', label: t('categories.garbage'), val: 'Garbage & Sanitation' },
+    { icon: '🌳', label: t('categories.parks'), val: 'Parks & Trees' },
+    { icon: '🚧', label: t('categories.drainage'), val: 'Drainage & Flooding' },
+    { icon: '🏗', label: t('categories.bridges'), val: 'Footpaths & Bridges' },
+    { icon: '📶', label: t('categories.wifi'), val: 'Public WiFi & Signals' },
+    { icon: '🚌', label: t('categories.transport'), val: 'Public Transport' },
+    { icon: '🐕', label: t('categories.animals'), val: 'Stray Animals' },
+  ]
+
+  const priorities = [
+    { value: 'Low', display: t('priorities.low'), desc: t('priorities.lowDesc') },
+    { value: 'Medium', display: t('priorities.medium'), desc: t('priorities.mediumDesc') },
+    { value: 'High', display: t('priorities.high'), desc: t('priorities.highDesc') },
+  ]
 
   const [step, setStep] = useState(1)
   const [category, setCategory] = useState('')
@@ -40,12 +42,12 @@ export default function ReportComplaint() {
 
   function goNext() {
     setError('')
-    if (step === 1 && !category) { setError('Please select a category.'); return }
+    if (step === 1 && !category) { setError(t('report.errCategory')); return }
     if (step === 2) {
-      if (!title.trim()) { setError('Please enter a complaint title.'); return }
-      if (description.trim().length < 20) { setError('Description must be at least 20 characters.'); return }
+      if (!title.trim()) { setError(t('report.errTitle')); return }
+      if (description.trim().length < 20) { setError(t('report.errDesc')); return }
     }
-    if (step === 3 && !location.trim()) { setError('Please enter the location.'); return }
+    if (step === 3 && !location.trim()) { setError(t('report.errLoc')); return }
     setStep((s) => s + 1)
   }
 
@@ -74,6 +76,14 @@ export default function ReportComplaint() {
 
   const progressPct = (step / 4) * 100
 
+  const getStepName = (i: number) => {
+    if (i === 1) return t('report.step1');
+    if (i === 2) return t('report.step2');
+    if (i === 3) return t('report.step3');
+    if (i === 4) return t('report.step4');
+    return '';
+  }
+
   return (
     <div className="report-page">
       <div className="report-left">
@@ -87,16 +97,16 @@ export default function ReportComplaint() {
           <span>Civis</span>
         </Link>
         <div className="report-steps-nav">
-          {['Category', 'Details', 'Location', 'Review'].map((s, i) => (
-            <div key={s} className={`rstep ${step === i + 1 ? 'active' : ''} ${step > i + 1 ? 'done' : ''}`}>
-              <div className="rstep-dot">{step > i + 1 ? '✓' : i + 1}</div>
-              <span>{s}</span>
+          {[1,2,3,4].map((i) => (
+            <div key={i} className={`rstep ${step === i ? 'active' : ''} ${step > i ? 'done' : ''}`}>
+              <div className="rstep-dot">{step > i ? '✓' : i}</div>
+              <span>{getStepName(i)}</span>
             </div>
           ))}
         </div>
         <div className="report-tip">
           <span>💡</span>
-          <p>Clear complaints with exact location get resolved 2x faster.</p>
+          <p>{t('report.tip')}</p>
         </div>
       </div>
 
@@ -109,12 +119,12 @@ export default function ReportComplaint() {
 
           <div className="report-card-header">
             <h1>
-              {step === 1 && 'What type of issue is it?'}
-              {step === 2 && 'Describe the problem'}
-              {step === 3 && 'Where is the issue?'}
-              {step === 4 && 'Review & Submit'}
+              {step === 1 && t('report.title1')}
+              {step === 2 && t('report.title2')}
+              {step === 3 && t('report.title3')}
+              {step === 4 && t('report.title4')}
             </h1>
-            <p>Step {step} of 4</p>
+            <p>{t('report.stepXof4', { step: step.toString() })}</p>
           </div>
 
           {/* Step 1: Category */}
@@ -122,9 +132,9 @@ export default function ReportComplaint() {
             <div className="cat-grid">
               {categories.map((c) => (
                 <button
-                  key={c.label}
-                  className={`cat-option ${category === c.label ? 'selected' : ''}`}
-                  onClick={() => { setCategory(c.label); setCategoryIcon(c.icon); setError('') }}
+                  key={c.val}
+                  className={`cat-option ${category === c.val ? 'selected' : ''}`}
+                  onClick={() => { setCategory(c.val); setCategoryIcon(c.icon); setError('') }}
                   type="button"
                 >
                   <span className="cat-opt-icon">{c.icon}</span>
@@ -138,27 +148,27 @@ export default function ReportComplaint() {
           {step === 2 && (
             <div className="report-fields">
               <div className="field-group">
-                <label>Complaint Title <span className="req">*</span></label>
-                <input type="text" placeholder="e.g. Deep pothole on MG Road near bus stop"
+                <label>{t('report.titleLabel')} <span className="req">*</span></label>
+                <input type="text" placeholder={t('report.titlePlaceholder')}
                   value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
                 <span className="char-hint">{title.length}/100</span>
               </div>
               <div className="field-group">
-                <label>Description <span className="req">*</span></label>
-                <textarea placeholder="Describe the issue in detail — size, how long it's been there, how it affects you..."
+                <label>{t('report.descLabel')} <span className="req">*</span></label>
+                <textarea placeholder={t('report.descPlaceholder')}
                   value={description} onChange={(e) => setDescription(e.target.value)}
                   rows={5} maxLength={500} />
                 <span className="char-hint">{description.length}/500</span>
               </div>
               <div className="field-group">
-                <label>Priority</label>
+                <label>{t('report.priorityLabel')}</label>
                 <div className="priority-options">
                   {priorities.map((p) => (
                     <button key={p.value} type="button"
                       className={`priority-opt ${priority === p.value ? 'selected' : ''}`}
                       data-p={p.value}
                       onClick={() => setPriority(p.value as 'Low' | 'Medium' | 'High')}>
-                      <strong>{p.value}</strong>
+                      <strong>{p.display}</strong>
                       <span>{p.desc}</span>
                     </button>
                   ))}
@@ -171,18 +181,18 @@ export default function ReportComplaint() {
           {step === 3 && (
             <div className="report-fields">
               <div className="field-group">
-                <label>Area / Street / Ward <span className="req">*</span></label>
-                <input type="text" placeholder="e.g. Sector 14, MG Road, Ward 7"
+                <label>{t('report.locLabel')} <span className="req">*</span></label>
+                <input type="text" placeholder={t('report.locPlaceholder')}
                   value={location} onChange={(e) => setLocation(e.target.value)} autoFocus />
               </div>
               <div className="field-group">
-                <label>Landmark (optional)</label>
-                <input type="text" placeholder="e.g. Near HDFC Bank, behind City Mall"
+                <label>{t('report.landmarkLabel')}</label>
+                <input type="text" placeholder={t('report.landmarkPlaceholder')}
                   value={landmark} onChange={(e) => setLandmark(e.target.value)} />
               </div>
               <div className="map-placeholder">
                 <span>🗺</span>
-                <p>Map pin coming soon (connect to Maps API)</p>
+                <p>{t('report.mapComingSoon')}</p>
               </div>
             </div>
           )}
@@ -192,33 +202,33 @@ export default function ReportComplaint() {
             <form onSubmit={handleSubmit}>
               <div className="review-card">
                 <div className="review-row">
-                  <span>Category</span>
-                  <strong>{categoryIcon} {category}</strong>
+                  <span>{t('report.step1')}</span>
+                  <strong>{categoryIcon} {categories.find(c => c.val === category)?.label || category}</strong>
                 </div>
                 <div className="review-row">
-                  <span>Title</span>
+                  <span>{t('report.titleLabel')}</span>
                   <strong>{title}</strong>
                 </div>
                 <div className="review-row">
-                  <span>Description</span>
+                  <span>{t('report.descLabel')}</span>
                   <strong>{description}</strong>
                 </div>
                 <div className="review-row">
-                  <span>Location</span>
+                  <span>{t('report.locLabel')}</span>
                   <strong>{location}{landmark ? `, near ${landmark}` : ''}</strong>
                 </div>
                 <div className="review-row">
-                  <span>Priority</span>
-                  <strong data-p={priority}>{priority}</strong>
+                  <span>{t('report.priorityLabel')}</span>
+                  <strong data-p={priority}>{priorities.find(p => p.value === priority)?.display || priority}</strong>
                 </div>
                 <div className="review-row">
-                  <span>Filed by</span>
+                  <span>{t('report.reviewFiledBy')}</span>
                   <strong>{user?.name}</strong>
                 </div>
               </div>
               {error && <div className="form-error">⚠ {error}</div>}
               <button type="submit" className="submit-btn" disabled={submitting}>
-                {submitting ? <span className="btn-spinner" /> : '✅ Submit Complaint'}
+                {submitting ? <span className="btn-spinner" /> : t('report.submitBtn')}
               </button>
             </form>
           )}
@@ -230,11 +240,11 @@ export default function ReportComplaint() {
             <div className="report-nav-btns">
               {step > 1 && (
                 <button className="back-btn" onClick={() => { setStep((s) => s - 1); setError('') }}>
-                  ← Back
+                  {t('report.backBtn')}
                 </button>
               )}
               <button className="next-btn" onClick={goNext}>
-                {step === 3 ? 'Review →' : 'Next →'}
+                {step === 3 ? t('report.reviewNextBtn') : t('report.nextBtn')}
               </button>
             </div>
           )}

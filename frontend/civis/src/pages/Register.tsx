@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTranslation } from '../context/TranslationContext'
 import {
   registerWithEmail,
   requestRegisterOtp,
@@ -14,6 +15,7 @@ type Stage = 'form' | 'otp'
 export default function Register() {
   const { login } = useAuth()
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const [tab, setTab] = useState<Tab>('mobile')
   const [stage, setStage] = useState<Stage>('form')
@@ -113,11 +115,11 @@ export default function Register() {
             </div>
             <span>Civis</span>
           </Link>
-          <h2>Join thousands of citizens making their cities better.</h2>
+          <h2>{t('auth.registerSub')}</h2>
           <div className="auth-steps-mini">
-            <div className="mini-step"><span>1</span><p>Create your free account</p></div>
-            <div className="mini-step"><span>2</span><p>Report any civic issue</p></div>
-            <div className="mini-step"><span>3</span><p>Track resolution in real time</p></div>
+            <div className="mini-step"><span>1</span><p>{t('howItWorks.step1Title')}</p></div>
+            <div className="mini-step"><span>2</span><p>{t('howItWorks.step4Title')}</p></div>
+            <div className="mini-step"><span>3</span><p>{t('howItWorks.step5Title')}</p></div>
           </div>
           <div className="auth-stat-pill">Free forever &nbsp;·&nbsp; No spam &nbsp;·&nbsp; Anonymous option</div>
         </div>
@@ -129,7 +131,7 @@ export default function Register() {
           {stage === 'form' ? (
             <>
               <div className="auth-card-header">
-                <h1>Create Account</h1>
+                <h1>{t('auth.registerTitle')}</h1>
                 <p>It's free and takes under a minute</p>
               </div>
 
@@ -147,12 +149,12 @@ export default function Register() {
               {tab === 'mobile' && (
                 <form className="auth-form" onSubmit={handleMobileSubmit} noValidate>
                   <div className="field-group">
-                    <label>Full Name</label>
+                    <label>{t('auth.nameLabel')}</label>
                     <input type="text" placeholder="Rahul Sharma" value={name}
                       onChange={(e) => setName(e.target.value)} autoFocus required />
                   </div>
                   <div className="field-group">
-                    <label>Mobile Number</label>
+                    <label>{t('auth.mobileLabel')}</label>
                     <div className="phone-wrap">
                       <span className="dial-code">+91</span>
                       <input type="tel" inputMode="numeric" maxLength={10}
@@ -171,17 +173,17 @@ export default function Register() {
               {tab === 'gmail' && (
                 <form className="auth-form" onSubmit={handleGmailSubmit} noValidate>
                   <div className="field-group">
-                    <label>Full Name</label>
+                    <label>{t('auth.nameLabel')}</label>
                     <input type="text" placeholder="Rahul Sharma" value={name}
                       onChange={(e) => setName(e.target.value)} autoFocus required />
                   </div>
                   <div className="field-group">
-                    <label>Email Address</label>
+                    <label>{t('auth.emailLabel')}</label>
                     <input type="email" placeholder="you@gmail.com" value={email}
                       onChange={(e) => setEmail(e.target.value)} required />
                   </div>
                   <div className="field-group">
-                    <label>Create Password</label>
+                    <label>{t('auth.passLabel')}</label>
                     <div className="pass-wrap">
                       <input type={showPass ? 'text' : 'password'}
                         placeholder="Min. 6 characters" value={password}
@@ -200,14 +202,14 @@ export default function Register() {
                   </div>
                   {error && <div className="form-error">⚠ {error}</div>}
                   <button type="submit" className="submit-btn" disabled={loading}>
-                    {loading ? <span className="btn-spinner" /> : 'Create Account'}
+                    {loading ? <span className="btn-spinner" /> : t('auth.registerBtn')}
                   </button>
                 </form>
               )}
 
               <p className="switch-prompt">
-                Already have an account?{' '}
-                <Link to="/login" className="switch-link">Sign in</Link>
+                {t('auth.hasAccount')}{' '}
+                <Link to="/login" className="switch-link">{t('auth.signIn')}</Link>
               </p>
             </>
           ) : (

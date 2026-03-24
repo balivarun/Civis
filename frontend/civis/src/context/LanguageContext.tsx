@@ -61,10 +61,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         
         if (targetLang === 'hi') {
           // Then aggressively force the Hindi translation
+          // We use 400ms because 150ms is too fast for Google's iframe IPC
           setTimeout(() => {
             select.value = 'hi';
             select.dispatchEvent(new Event('change'));
-          }, 150);
+          }, 400); 
         }
       }
       if (attempts > 50) clearInterval(interval); // Give up after 5s
@@ -90,11 +91,22 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 export function TranslateRouteObserver() {
   const location = useLocation();
   const { language } = useLanguage();
+  const [prevPath, setPrevPath] = useState(location.pathname);
 
   useEffect(() => {
-    // On every single route change, if we are supposed to be in Hindi,
-    // we must clear the Google internal state and vigorously force a re-trigger.
-    // This perfectly bypasses React's virtual DOM replacements!
+    // If language is Hindi and user navigates manually in the SPA
+    if (language === 'hi' && prevPath !== location.pathname) {
+      // The only bulletproof way to guarantee that Google Translate processes 
+      // heavily dynamic React router pages is to force a native browser reload.
+      // This drops the Virtual DOM diff engine and forces a clean parse.
+      window.location.reload();
+    }
+    setPrevPath(location.pathname);
+  }, [location.pathname, language, prevPath]);
+
+  useEffect(() => {
+    // When the component initially mounts (e.g., after the reload above),
+    // trigger the translation vigorously if we are supposed to be in Hindi.
     if (language === 'hi') {
       let attempts = 0;
       const interval = setInterval(() => {
@@ -102,20 +114,14 @@ export function TranslateRouteObserver() {
         const select = document.querySelector('.goog-te-combo') as HTMLSelectElement | null;
         if (select) {
           clearInterval(interval);
-          select.value = 'en';
+          select.value = 'hi';
           select.dispatchEvent(new Event('change'));
-          
-          setTimeout(() => {
-            select.value = 'hi';
-            select.dispatchEvent(new Event('change'));
-          }, 150);
         }
         if (attempts > 50) clearInterval(interval);
       }, 100);
-      
       return () => clearInterval(interval);
     }
-  }, [location.pathname, language]); // Added location.pathname to re-trigger intensely
+  }, []); // Only on mount
 
   return null;
 }
