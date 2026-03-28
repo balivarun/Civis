@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -28,27 +29,24 @@ public class ComplaintService {
     }
 
     public List<Complaint> getComplaintsByUser(String userId) {
-        return complaintRepository.findByUserId(userId);
+        return complaintRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
     public Complaint getComplaintById(String id) {
-        Complaint complaint = complaintRepository.findById(id);
-        if (complaint == null) {
-            throw new ResponseStatusException(NOT_FOUND, "Complaint not found.");
-        }
-        return complaint;
+        return complaintRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Complaint not found."));
     }
 
     public Complaint createComplaint(CreateComplaintRequest request) {
-        User user = userRepository.findById(request.userId());
+        User user = userRepository.findById(request.userId()).orElse(null);
         if (user == null) {
             throw new ResponseStatusException(BAD_REQUEST, "Missing user.");
         }
 
         Instant now = Instant.now();
         Complaint complaint = new Complaint(
-                complaintRepository.nextId(),
-                user.id(),
+                "CIV-" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase(),
+                user.getId(),
                 request.category().trim(),
                 request.categoryIcon(),
                 request.title().trim(),

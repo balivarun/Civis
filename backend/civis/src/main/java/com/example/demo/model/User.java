@@ -1,13 +1,99 @@
 package com.example.demo.model;
 
+import jakarta.persistence.*;
 import java.time.Instant;
 
-public record User(
-        String id,
-        String name,
-        String mobile,
-        String email,
-        AuthType authType,
-        Instant createdAt
-) {
+@Entity
+@Table(name = "users")
+public class User {
+
+    @Id
+    private String id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(unique = true)
+    private String mobile;
+
+    @Column(unique = true)
+    private String email;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AuthType authType;
+
+    private String password;
+
+    @Column(nullable = false)
+    private Instant createdAt;
+
+    public User() {
+    }
+
+    public User(String id, String name, String mobile, String email, AuthType authType, String password, Instant createdAt) {
+        this.id = id;
+        this.name = name;
+        this.mobile = mobile;
+        this.email = email;
+        this.authType = authType;
+        this.password = password;
+        this.createdAt = createdAt;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public AuthType getAuthType() {
+        return authType;
+    }
+
+    public void setAuthType(AuthType authType) {
+        this.authType = authType;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
 }

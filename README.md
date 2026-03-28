@@ -1,12 +1,14 @@
 # Civis
 
-A Smart Civic Issue Reporting Platform that allows citizens to report and track local civic issues.
+A civic issue reporting platform for filing and tracking local complaints.
 
 ## Tech Stack
 
 ### Backend
 - **Java 25**
 - **Spring Boot 4.0.3**
+- **Spring Data JPA**
+- **PostgreSQL**
 - **Gradle** (build tool)
 
 ### Frontend
@@ -40,17 +42,41 @@ Civis/
 - Java 25+
 - Node.js 18+
 - npm
+- PostgreSQL 16+
 
-### Backend
+### Database
+
+Create a PostgreSQL database named `civis` and make sure your server is reachable.
+
+This project currently uses PostgreSQL on `localhost:5433` by default.
+
+### Backend Setup
+
+Create a local env file:
 
 ```bash
 cd backend/civis
-./gradlew bootRun
+cp .env.example .env
 ```
 
-The server starts at `http://localhost:8080`.
+Edit `.env`:
 
-### Frontend
+```env
+DB_URL=jdbc:postgresql://localhost:5433/civis
+DB_USERNAME=postgres
+DB_PASSWORD=your_postgres_password
+```
+
+### Run Backend
+
+```bash
+cd backend/civis
+./run-postgres.sh
+```
+
+The backend starts at `http://localhost:8080/api`.
+
+### Run Frontend
 
 ```bash
 cd frontend/civis
@@ -60,6 +86,12 @@ npm run dev
 
 The dev server starts at `http://localhost:5173`.
 
+## Notes
+
+- The frontend uses backend APIs for auth and complaint data.
+- There is no frontend `localStorage` persistence for users or complaints.
+- Current auth state is held in memory, so refreshing the browser logs the user out.
+
 ## Available Frontend Scripts
 
 | Command | Description |
@@ -68,5 +100,3 @@ The dev server starts at `http://localhost:5173`.
 | `npm run build` | Build for production |
 | `npm run lint` | Run ESLint |
 | `npm run preview` | Preview production build |
-
-## Use our App

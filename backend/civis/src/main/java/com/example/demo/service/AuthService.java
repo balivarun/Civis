@@ -8,14 +8,17 @@ import com.example.demo.dto.AuthDtos.MobileOtpRequest;
 import com.example.demo.dto.AuthDtos.MobileOtpVerifyRequest;
 import com.example.demo.dto.AuthDtos.OtpResponse;
 import com.example.demo.model.AuthType;
+import com.example.demo.model.OtpToken;
 import com.example.demo.model.User;
-import com.example.demo.repository.OtpRepository;
+import com.example.demo.repository.OtpTokenRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.time.Instant;
+import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -23,91 +26,95 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 @Service
 public class AuthService {
 
+    private static final Duration OTP_TTL = Duration.ofMinutes(5);
+
     private final UserRepository userRepository;
-    private final OtpRepository otpRepository;
+    private final OtpTokenRepository otpRepository;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public AuthService(UserRepository userRepository, OtpRepository otpRepository) {
+    public AuthService(UserRepository userRepository, OtpTokenRepository otpRepository) {
         this.userRepository = userRepository;
         this.otpRepository = otpRepository;
     }
 
     public OtpResponse requestRegistrationOtp(MobileOtpRequest request) {
-        if (userRepository.findByMobile(request.mobile()) != null) {
+        if (userRepository.findByMobile(request.mobile()).isPresent()) {
             throw new ResponseStatusException(BAD_REQUEST, "This mobile number is already registered.");
         }
         String otp = generateOtp();
-        otpRepository.save(otpKey("register", request.mobile()), otp);
+        String key = otpKey("register", request.mobile());
+        otpRepository.save(new OtpToken(key, otp, Instant.now().plus(OTP_TTL)));
         return new OtpResponse(otp);
     }
 
     public User verifyRegistrationOtp(MobileOtpVerifyRequest request) {
         String key = otpKey("register", request.mobile());
-        if (!otpRepository.matches(key, request.otp())) {
+        if (!matchesOtp(key, request.otp())) {
             throw new ResponseStatusException(BAD_REQUEST, "Incorrect OTP. Check the demo code above.");
         }
-        if (userRepository.findByMobile(request.mobile()) != null) {
+        if (userRepository.findByMobile(request.mobile()).isPresent()) {
             throw new ResponseStatusException(BAD_REQUEST, "This mobile number is already registered.");
         }
 
         User user = new User(
-                userRepository.nextUserId(),
+                "u_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16),
                 request.name().trim(),
                 request.mobile(),
                 "",
                 AuthType.mobile,
+                "",
                 Instant.now()
         );
-        otpRepository.remove(key);
+        otpRepository.deleteById(key);
         return userRepository.save(user);
     }
 
     public User registerWithEmail(EmailRegisterRequest request) {
-        if (userRepository.findByEmail(request.email()) != null) {
+        if (userRepository.findByEmail(request.email()).isPresent()) {
             throw new ResponseStatusException(BAD_REQUEST, "This email is already registered.");
         }
 
         User user = new User(
-                userRepository.nextUserId(),
+                "u_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16),
                 request.name().trim(),
                 "",
                 request.email().trim(),
                 AuthType.gmail,
+                request.password(),
                 Instant.now()
         );
-        userRepository.save(user);
-        userRepository.savePassword(user.id(), request.password());
-        return user;
+        return userRepository.save(user);
     }
 
     public OtpResponse requestLoginOtp(MobileLoginOtpRequest request) {
-        if (userRepository.findByMobile(request.mobile()) == null) {
+        if (userRepository.findByMobile(request.mobile()).isEmpty()) {
             throw new ResponseStatusException(BAD_REQUEST, "No account found for this number. Please register first.");
         }
         String otp = generateOtp();
-        otpRepository.save(otpKey("login", request.mobile()), otp);
+        String key = otpKey("login", request.mobile());
+        otpRepository.save(new OtpToken(key, otp, Instant.now().plus(OTP_TTL)));
         return new OtpResponse(otp);
     }
 
     public User verifyLoginOtp(MobileLoginOtpVerifyRequest request) {
         String key = otpKey("login", request.mobile());
-        if (!otpRepository.matches(key, request.otp())) {
+        if (!matchesOtp(key, request.otp())) {
             throw new ResponseStatusException(BAD_REQUEST, "Incorrect OTP. Check the demo code above.");
         }
-        User user = userRepository.findByMobile(request.mobile());
+        User user = userRepository.findByMobile(request.mobile()).orElse(null);
         if (user == null) {
             throw new ResponseStatusException(BAD_REQUEST, "No account found for this number. Please register first.");
         }
-        otpRepository.remove(key);
+        otpRepository.deleteById(key);
         return user;
     }
 
     public User loginWithEmail(EmailLoginRequest request) {
-        User user = userRepository.findByEmail(request.email());
+        User user = userRepository.findByEmail(request.email()).orElse(null);
         if (user == null) {
             throw new ResponseStatusException(BAD_REQUEST, "No account found for this email. Please register first.");
         }
-        if (!userRepository.passwordMatches(user.id(), request.password())) {
+        if (!request.password().equals(user.getPassword())) {
             throw new ResponseStatusException(UNAUTHORIZED, "Incorrect password.");
         }
         return user;
@@ -115,6 +122,13 @@ public class AuthService {
 
     private String generateOtp() {
         return String.valueOf(100000 + secureRandom.nextInt(900000));
+    }
+
+    private boolean matchesOtp(String key, String otp) {
+        return otpRepository.findById(key)
+                .filter(stored -> stored.getExpiresAt().isAfter(Instant.now()))
+                .map(stored -> stored.getOtp().equals(otp))
+                .orElse(false);
     }
 
     private String otpKey(String flow, String mobile) {

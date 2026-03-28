@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState } from 'react'
 import type { User } from '../api/client'
 
 interface AuthContextValue {
@@ -16,22 +16,7 @@ const AuthContext = createContext<AuthContextValue>({
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    try {
-      const stored = localStorage.getItem('civis_session')
-      return stored ? JSON.parse(stored) : null
-    } catch {
-      return null
-    }
-  })
-
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem('civis_session', JSON.stringify(user))
-    } else {
-      localStorage.removeItem('civis_session')
-    }
-  }, [user])
+  const [user, setUser] = useState<User | null>(null)
 
   function login(u: User) {
     setUser(u)
