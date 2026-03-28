@@ -1,7 +1,8 @@
-FROM gradle:8.14.3-jdk25-alpine AS build
+FROM eclipse-temurin:25-jdk-alpine AS build
 WORKDIR /app
 COPY . .
-RUN gradle bootJar --no-daemon
+RUN chmod +x gradlew
+RUN ./gradlew bootJar --no-daemon
 
 FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
