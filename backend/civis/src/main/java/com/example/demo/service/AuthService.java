@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Service
@@ -60,9 +61,9 @@ public class AuthService {
                 "u_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16),
                 request.name().trim(),
                 request.mobile(),
-                "",
+                null,
                 AuthType.mobile,
-                "",
+                null,
                 Instant.now()
         );
         otpRepository.deleteById(key);
@@ -77,7 +78,7 @@ public class AuthService {
         User user = new User(
                 "u_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16),
                 request.name().trim(),
-                "",
+                null,
                 request.email().trim(),
                 AuthType.gmail,
                 request.password(),
