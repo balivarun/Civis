@@ -1,6 +1,8 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -31,10 +33,12 @@ public class Complaint {
     private String landmark;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(nullable = false)
     private Status status;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(nullable = false)
     private Priority priority;
 
