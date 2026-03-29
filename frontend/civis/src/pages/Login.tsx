@@ -209,10 +209,6 @@ export default function Login() {
                 {t('auth.noAccount')}{' '}
                 <Link to="/register" className="switch-link">{t('auth.signUp')}</Link>
               </p>
-              
-              <div style={{marginTop: '1.5rem', fontSize: '0.85rem', color: '#64748b', textAlign: 'center'}}>
-                {t('auth.testCreds')}
-              </div>
             </>
           ) : (
             <>

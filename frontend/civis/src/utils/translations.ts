@@ -170,8 +170,7 @@ export const translations = {
       mobileLabel: 'Mobile Number',
       registerBtn: 'Create Account',
       hasAccount: 'Already have an account?',
-      signIn: 'Log in here',
-      testCreds: 'Use test@example.com / 123456 to test'
+      signIn: 'Log in here'
     },
     detail: {
       loadingBtn: 'Loading complaint',
@@ -362,8 +361,7 @@ export const translations = {
       mobileLabel: 'मोबाइल नंबर',
       registerBtn: 'खाता बनाएँ',
       hasAccount: 'क्या आपके पास पहले से खाता है?',
-      signIn: 'यहाँ लॉग इन करें',
-      testCreds: 'टेस्ट करने के लिए test@example.com / 123456 का उपयोग करें'
+      signIn: 'यहाँ लॉग इन करें'
     },
     detail: {
       loadingBtn: 'शिकायत लोड हो रही है',
