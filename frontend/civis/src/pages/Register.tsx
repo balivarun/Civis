@@ -74,8 +74,8 @@ export default function Register() {
     if (code.length < 6) { setError('Enter all 6 digits.'); return }
     setLoading(true)
     try {
-      const user = await verifyRegisterOtp(name.trim(), mobile, code)
-      login(user)
+      const response = await verifyRegisterOtp(name.trim(), mobile, code)
+      login(response.user, response.token)
       navigate('/dashboard')
     } catch (err) {
       setLoading(false)
@@ -93,8 +93,8 @@ export default function Register() {
     if (password !== confirmPass) { setError('Passwords do not match.'); return }
     setLoading(true)
     try {
-      const user = await registerWithEmail(name.trim(), email, password)
-      login(user)
+      const response = await registerWithEmail(name.trim(), email, password)
+      login(response.user, response.token)
       navigate('/dashboard')
     } catch (err) {
       setLoading(false)

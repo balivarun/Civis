@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import com.example.demo.model.User;
 
 public final class AuthDtos {
 
@@ -74,5 +75,8 @@ public final class AuthDtos {
     }
 
     public record OtpResponse(String message, String otp) {
+    }
+
+    public record AuthResponse(User user, String token) {
     }
 }

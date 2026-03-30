@@ -92,11 +92,6 @@ The dev server starts at `http://localhost:5173`.
 - There is no frontend `localStorage` persistence for users or complaints.
 - Current auth state is held in memory, so refreshing the browser logs the user out.
 
-## Current Limitations
-
-- This repo is currently an MVP backend, so compared to mature civic portals it still lacks features like admin workflows, department routing, attachments, notifications, JWT/session security, analytics, and escalation logic.
-- OTP is returned directly in API responses and passwords are plain text in the current code. This is acceptable for demo/dev use, but not production-safe.
-
 ## Available Frontend Scripts
 
 | Command | Description |

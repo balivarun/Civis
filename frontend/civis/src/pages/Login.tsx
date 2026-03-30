@@ -75,8 +75,8 @@ export default function Login() {
     if (code.length < 6) { setError('Enter all 6 digits.'); return }
     setLoading(true)
     try {
-      const user = await verifyLoginOtp(mobile, code)
-      login(user)
+      const response = await verifyLoginOtp(mobile, code)
+      login(response.user, response.token)
       navigate('/dashboard')
     } catch (err) {
       setLoading(false)
@@ -98,8 +98,8 @@ export default function Login() {
     }
     setLoading(true)
     try {
-      const user = await loginWithEmail(email, password)
-      login(user)
+      const response = await loginWithEmail(email, password)
+      login(response.user, response.token)
       navigate('/dashboard')
     } catch (err) {
       setLoading(false)

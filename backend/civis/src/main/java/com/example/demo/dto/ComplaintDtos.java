@@ -11,8 +11,6 @@ public final class ComplaintDtos {
     }
 
     public record CreateComplaintRequest(
-            @NotBlank(message = "Missing user.")
-            String userId,
             @NotBlank(message = "Please select a category.")
             String category,
             @NotBlank(message = "Please select a category.")

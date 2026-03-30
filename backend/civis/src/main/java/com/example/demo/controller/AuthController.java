@@ -2,12 +2,14 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.AuthDtos.EmailLoginRequest;
 import com.example.demo.dto.AuthDtos.EmailRegisterRequest;
+import com.example.demo.dto.AuthDtos.AuthResponse;
 import com.example.demo.dto.AuthDtos.MobileLoginOtpRequest;
 import com.example.demo.dto.AuthDtos.MobileLoginOtpVerifyRequest;
 import com.example.demo.dto.AuthDtos.MobileOtpRequest;
 import com.example.demo.dto.AuthDtos.MobileOtpVerifyRequest;
 import com.example.demo.dto.AuthDtos.OtpResponse;
 import com.example.demo.model.User;
+import com.example.demo.security.JwtService;
 import com.example.demo.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,9 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtService jwtService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, JwtService jwtService) {
         this.authService = authService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/register/mobile/request-otp")
@@ -31,13 +35,15 @@ public class AuthController {
     }
 
     @PostMapping("/register/mobile/verify")
-    public User verifyRegisterOtp(@Valid @RequestBody MobileOtpVerifyRequest request) {
-        return authService.verifyRegistrationOtp(request);
+    public AuthResponse verifyRegisterOtp(@Valid @RequestBody MobileOtpVerifyRequest request) {
+        User user = authService.verifyRegistrationOtp(request);
+        return new AuthResponse(user, jwtService.generateToken(user.getId()));
     }
 
     @PostMapping("/register/email")
-    public User registerWithEmail(@Valid @RequestBody EmailRegisterRequest request) {
-        return authService.registerWithEmail(request);
+    public AuthResponse registerWithEmail(@Valid @RequestBody EmailRegisterRequest request) {
+        User user = authService.registerWithEmail(request);
+        return new AuthResponse(user, jwtService.generateToken(user.getId()));
     }
 
     @PostMapping("/login/mobile/request-otp")
@@ -46,12 +52,14 @@ public class AuthController {
     }
 
     @PostMapping("/login/mobile/verify")
-    public User verifyLoginOtp(@Valid @RequestBody MobileLoginOtpVerifyRequest request) {
-        return authService.verifyLoginOtp(request);
+    public AuthResponse verifyLoginOtp(@Valid @RequestBody MobileLoginOtpVerifyRequest request) {
+        User user = authService.verifyLoginOtp(request);
+        return new AuthResponse(user, jwtService.generateToken(user.getId()));
     }
 
     @PostMapping("/login/email")
-    public User loginWithEmail(@Valid @RequestBody EmailLoginRequest request) {
-        return authService.loginWithEmail(request);
+    public AuthResponse loginWithEmail(@Valid @RequestBody EmailLoginRequest request) {
+        User user = authService.loginWithEmail(request);
+        return new AuthResponse(user, jwtService.generateToken(user.getId()));
     }
 }

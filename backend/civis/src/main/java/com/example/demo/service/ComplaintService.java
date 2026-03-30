@@ -32,13 +32,17 @@ public class ComplaintService {
         return complaintRepository.findByUserIdOrderByCreatedAtDesc(userId);
     }
 
-    public Complaint getComplaintById(String id) {
-        return complaintRepository.findById(id)
+    public Complaint getComplaintById(String id, String requesterUserId) {
+        Complaint complaint = complaintRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Complaint not found."));
+        if (!complaint.getUserId().equals(requesterUserId)) {
+            throw new ResponseStatusException(NOT_FOUND, "Complaint not found.");
+        }
+        return complaint;
     }
 
-    public Complaint createComplaint(CreateComplaintRequest request) {
-        User user = userRepository.findById(request.userId()).orElse(null);
+    public Complaint createComplaint(String requesterUserId, CreateComplaintRequest request) {
+        User user = userRepository.findById(requesterUserId).orElse(null);
         if (user == null) {
             throw new ResponseStatusException(BAD_REQUEST, "Missing user.");
         }
@@ -46,7 +50,7 @@ public class ComplaintService {
         Instant now = Instant.now();
         Complaint complaint = new Complaint(
                 "CIV-" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase(),
-                user.getId(),
+                requesterUserId,
                 request.category().trim(),
                 request.categoryIcon(),
                 request.title().trim(),

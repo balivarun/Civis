@@ -56,7 +56,6 @@ export default function ReportComplaint() {
     if (!user) return
     setSubmitting(true)
     createComplaint({
-      userId: user.id,
       category,
       categoryIcon,
       title: title.trim(),

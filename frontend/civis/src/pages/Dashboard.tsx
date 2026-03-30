@@ -24,7 +24,7 @@ export default function Dashboard() {
     async function loadComplaints() {
       if (!user) return
       try {
-        setComplaints(await getComplaintsByUser(user.id))
+        setComplaints(await getComplaintsByUser())
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load complaints.')
       }

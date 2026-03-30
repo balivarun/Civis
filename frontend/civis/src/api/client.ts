@@ -7,6 +7,11 @@ export interface User {
   createdAt: string
 }
 
+export interface AuthResponse {
+  user: User
+  token: string
+}
+
 export interface Complaint {
   id: string
   userId: string
@@ -34,11 +39,20 @@ export interface OtpResponse {
 }
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
+let authToken: string | null = null
+
+export function setAuthToken(token: string | null) {
+  authToken = token
+}
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const headers: Record<string, string> = {}
+  if (options.body) headers['Content-Type'] = 'application/json'
+  if (authToken) headers.Authorization = `Bearer ${authToken}`
+
   const response = await fetch(`${API_BASE_URL}/api${path}`, {
     method: options.method ?? 'GET',
-    headers: options.body ? { 'Content-Type': 'application/json' } : undefined,
+    headers: Object.keys(headers).length ? headers : undefined,
     body: options.body ? JSON.stringify(options.body) : undefined,
   })
 
@@ -64,14 +78,14 @@ export async function requestRegisterOtp(name: string, mobile: string) {
 }
 
 export async function verifyRegisterOtp(name: string, mobile: string, otp: string) {
-  return request<User>('/auth/register/mobile/verify', {
+  return request<AuthResponse>('/auth/register/mobile/verify', {
     method: 'POST',
     body: { name, mobile, otp },
   })
 }
 
 export async function registerWithEmail(name: string, email: string, password: string) {
-  return request<User>('/auth/register/email', {
+  return request<AuthResponse>('/auth/register/email', {
     method: 'POST',
     body: { name, email, password },
   })
@@ -85,21 +99,21 @@ export async function requestLoginOtp(mobile: string) {
 }
 
 export async function verifyLoginOtp(mobile: string, otp: string) {
-  return request<User>('/auth/login/mobile/verify', {
+  return request<AuthResponse>('/auth/login/mobile/verify', {
     method: 'POST',
     body: { mobile, otp },
   })
 }
 
 export async function loginWithEmail(email: string, password: string) {
-  return request<User>('/auth/login/email', {
+  return request<AuthResponse>('/auth/login/email', {
     method: 'POST',
     body: { email, password },
   })
 }
 
-export async function getComplaintsByUser(userId: string) {
-  return request<Complaint[]>(`/complaints?userId=${encodeURIComponent(userId)}`)
+export async function getComplaintsByUser() {
+  return request<Complaint[]>('/complaints')
 }
 
 export async function getComplaintById(id: string) {
@@ -107,7 +121,6 @@ export async function getComplaintById(id: string) {
 }
 
 export async function createComplaint(payload: {
-  userId: string
   category: string
   categoryIcon: string
   title: string
