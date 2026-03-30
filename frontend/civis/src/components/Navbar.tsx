@@ -14,7 +14,7 @@ export default function Navbar() {
   const close = () => setMenuOpen(false)
 
   function handleLogout() {
-    logout()
+    void logout()
     close()
     navigate('/')
   }

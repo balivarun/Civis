@@ -54,6 +54,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     method: options.method ?? 'GET',
     headers: Object.keys(headers).length ? headers : undefined,
     body: options.body ? JSON.stringify(options.body) : undefined,
+    credentials: 'include',
   })
 
   if (!response.ok) {
@@ -110,6 +111,14 @@ export async function loginWithEmail(email: string, password: string) {
     method: 'POST',
     body: { email, password },
   })
+}
+
+export async function refreshSession() {
+  return request<AuthResponse>('/auth/refresh', { method: 'POST' })
+}
+
+export async function logoutSession() {
+  return request<{ message: string }>('/auth/logout', { method: 'POST' })
 }
 
 export async function getComplaintsByUser() {
