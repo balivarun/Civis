@@ -44,7 +44,7 @@ export default function Register() {
     setLoading(true)
     try {
       const response = await requestRegisterOtp(name.trim(), mobile)
-      setDemoOtp(response.otp)
+      setDemoOtp(response.otp ?? '')
       setLoading(false)
       setStage('otp')
     } catch (err) {

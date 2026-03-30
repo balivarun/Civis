@@ -73,6 +73,6 @@ public final class AuthDtos {
     ) {
     }
 
-    public record OtpResponse(String otp) {
+    public record OtpResponse(String message, String otp) {
     }
 }

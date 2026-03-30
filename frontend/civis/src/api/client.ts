@@ -28,6 +28,11 @@ type RequestOptions = {
   body?: unknown
 }
 
+export interface OtpResponse {
+  message: string
+  otp: string | null
+}
+
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -52,7 +57,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 }
 
 export async function requestRegisterOtp(name: string, mobile: string) {
-  return request<{ otp: string }>('/auth/register/mobile/request-otp', {
+  return request<OtpResponse>('/auth/register/mobile/request-otp', {
     method: 'POST',
     body: { name, mobile },
   })
@@ -73,7 +78,7 @@ export async function registerWithEmail(name: string, email: string, password: s
 }
 
 export async function requestLoginOtp(mobile: string) {
-  return request<{ otp: string }>('/auth/login/mobile/request-otp', {
+  return request<OtpResponse>('/auth/login/mobile/request-otp', {
     method: 'POST',
     body: { mobile },
   })

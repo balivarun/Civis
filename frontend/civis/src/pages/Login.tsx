@@ -42,7 +42,7 @@ export default function Login() {
     setLoading(true)
     try {
       const response = await requestLoginOtp(mobile)
-      setDemoOtp(response.otp)
+      setDemoOtp(response.otp ?? '')
       setLoading(false)
       setStage('otp')
     } catch (err) {

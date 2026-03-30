@@ -12,6 +12,9 @@ import com.example.demo.model.OtpToken;
 import com.example.demo.model.User;
 import com.example.demo.repository.OtpTokenRepository;
 import com.example.demo.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,7 +24,6 @@ import java.time.Instant;
 import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Service
@@ -31,11 +33,18 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final OtpTokenRepository otpRepository;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final SecureRandom secureRandom = new SecureRandom();
+    private final boolean exposeOtpInResponse;
 
-    public AuthService(UserRepository userRepository, OtpTokenRepository otpRepository) {
+    public AuthService(
+            UserRepository userRepository,
+            OtpTokenRepository otpRepository,
+            @Value("${app.auth.expose-otp:false}") boolean exposeOtpInResponse
+    ) {
         this.userRepository = userRepository;
         this.otpRepository = otpRepository;
+        this.exposeOtpInResponse = exposeOtpInResponse;
     }
 
     public OtpResponse requestRegistrationOtp(MobileOtpRequest request) {
@@ -45,7 +54,7 @@ public class AuthService {
         String otp = generateOtp();
         String key = otpKey("register", request.mobile());
         otpRepository.save(new OtpToken(key, otp, Instant.now().plus(OTP_TTL)));
-        return new OtpResponse(otp);
+        return otpResponse(otp);
     }
 
     public User verifyRegistrationOtp(MobileOtpVerifyRequest request) {
@@ -81,7 +90,7 @@ public class AuthService {
                 null,
                 request.email().trim(),
                 AuthType.gmail,
-                request.password(),
+                passwordEncoder.encode(request.password()),
                 Instant.now()
         );
         return userRepository.save(user);
@@ -94,7 +103,7 @@ public class AuthService {
         String otp = generateOtp();
         String key = otpKey("login", request.mobile());
         otpRepository.save(new OtpToken(key, otp, Instant.now().plus(OTP_TTL)));
-        return new OtpResponse(otp);
+        return otpResponse(otp);
     }
 
     public User verifyLoginOtp(MobileLoginOtpVerifyRequest request) {
@@ -115,10 +124,20 @@ public class AuthService {
         if (user == null) {
             throw new ResponseStatusException(BAD_REQUEST, "No account found for this email. Please register first.");
         }
-        if (!request.password().equals(user.getPassword())) {
+        String storedPassword = user.getPassword();
+        if (storedPassword == null || storedPassword.isBlank()) {
             throw new ResponseStatusException(UNAUTHORIZED, "Incorrect password.");
         }
-        return user;
+        if (passwordEncoder.matches(request.password(), storedPassword)) {
+            return user;
+        }
+        // Backward compatibility: migrate old plain-text passwords on successful login.
+        if (request.password().equals(storedPassword)) {
+            user.setPassword(passwordEncoder.encode(request.password()));
+            userRepository.save(user);
+            return user;
+        }
+        throw new ResponseStatusException(UNAUTHORIZED, "Incorrect password.");
     }
 
     private String generateOtp() {
@@ -134,5 +153,12 @@ public class AuthService {
 
     private String otpKey(String flow, String mobile) {
         return flow + ":" + mobile;
+    }
+
+    private OtpResponse otpResponse(String otp) {
+        return new OtpResponse(
+                "OTP generated successfully.",
+                exposeOtpInResponse ? otp : null
+        );
     }
 }
