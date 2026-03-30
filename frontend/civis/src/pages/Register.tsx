@@ -11,6 +11,9 @@ import './Auth.css'
 
 type Tab = 'mobile' | 'gmail'
 type Stage = 'form' | 'otp'
+const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/
+const STRONG_PASSWORD_MESSAGE =
+  'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.'
 
 export default function Register() {
   const { login } = useAuth()
@@ -34,6 +37,15 @@ export default function Register() {
 
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const passwordChecks = {
+    minLength: password.length >= 8,
+    upper: /[A-Z]/.test(password),
+    lower: /[a-z]/.test(password),
+    number: /\d/.test(password),
+    special: /[^A-Za-z\d]/.test(password),
+  }
+  const hasTypedPassword = password.length > 0
 
   /* ── Mobile registration ── */
   async function handleMobileSubmit(e: React.FormEvent) {
@@ -89,7 +101,7 @@ export default function Register() {
     setError('')
     if (name.trim().length < 2) { setError('Enter your full name.'); return }
     if (!email.includes('@') || !email.includes('.')) { setError('Enter a valid email address.'); return }
-    if (password.length < 6) { setError('Password must be at least 6 characters.'); return }
+    if (!STRONG_PASSWORD_REGEX.test(password)) { setError(STRONG_PASSWORD_MESSAGE); return }
     if (password !== confirmPass) { setError('Passwords do not match.'); return }
     setLoading(true)
     try {
@@ -186,13 +198,30 @@ export default function Register() {
                     <label>{t('auth.passLabel')}</label>
                     <div className="pass-wrap">
                       <input type={showPass ? 'text' : 'password'}
-                        placeholder="Min. 6 characters" value={password}
+                        placeholder="Min. 8 chars, Aa1@" value={password}
                         onChange={(e) => setPassword(e.target.value)} required />
                       <button type="button" className="eye-btn"
                         onClick={() => setShowPass((p) => !p)}>
                         {showPass ? '🙈' : '👁'}
                       </button>
                     </div>
+                    <ul className="password-rules">
+                      <li className={passwordChecks.minLength ? 'valid' : hasTypedPassword ? 'invalid' : 'pending'}>
+                        At least 8 characters
+                      </li>
+                      <li className={passwordChecks.upper ? 'valid' : hasTypedPassword ? 'invalid' : 'pending'}>
+                        At least 1 uppercase letter (A-Z)
+                      </li>
+                      <li className={passwordChecks.lower ? 'valid' : hasTypedPassword ? 'invalid' : 'pending'}>
+                        At least 1 lowercase letter (a-z)
+                      </li>
+                      <li className={passwordChecks.number ? 'valid' : hasTypedPassword ? 'invalid' : 'pending'}>
+                        At least 1 number (0-9)
+                      </li>
+                      <li className={passwordChecks.special ? 'valid' : hasTypedPassword ? 'invalid' : 'pending'}>
+                        At least 1 special character (e.g. @, #, $, !)
+                      </li>
+                    </ul>
                   </div>
                   <div className="field-group">
                     <label>Confirm Password</label>

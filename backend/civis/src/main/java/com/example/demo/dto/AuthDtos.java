@@ -58,8 +58,12 @@ public final class AuthDtos {
             @NotBlank(message = "Enter a valid email address.")
             @Email(message = "Enter a valid email address.")
             String email,
-            @NotBlank(message = "Password must be at least 6 characters.")
-            @Size(min = 6, message = "Password must be at least 6 characters.")
+            @NotBlank(message = "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.")
+            @Size(min = 8, message = "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.")
+            @Pattern(
+                    regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$",
+                    message = "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
+            )
             String password
     ) {
     }

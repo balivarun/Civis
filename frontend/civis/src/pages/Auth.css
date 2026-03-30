@@ -318,6 +318,26 @@
   opacity: 0.7;
 }
 
+.password-rules {
+  margin: 0.35rem 0 0;
+  padding-left: 1rem;
+  color: #64748b;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.password-rules li.valid {
+  color: #16a34a;
+}
+
+.password-rules li.invalid {
+  color: #dc2626;
+}
+
+.password-rules li.pending {
+  color: #64748b;
+}
+
 .eye-btn:hover { opacity: 1; }
 
 /* Error */
