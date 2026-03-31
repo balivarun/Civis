@@ -65,6 +65,13 @@ Edit `.env`:
 DB_URL=jdbc:postgresql://localhost:5433/civis
 DB_USERNAME=postgres
 DB_PASSWORD=your_postgres_password
+JWT_SECRET=replace_with_base64_secret
+JWT_TTL_HOURS=24
+REFRESH_TOKEN_TTL_DAYS=30
+REFRESH_COOKIE_SECURE=false
+REFRESH_COOKIE_SAME_SITE=Lax
+REFRESH_COOKIE_DOMAIN=
+APP_AUTH_EXPOSE_OTP=true
 ```
 
 ### Run Backend
@@ -88,9 +95,37 @@ The dev server starts at `http://localhost:5173`.
 
 ## Notes
 
-- The frontend uses backend APIs for auth and complaint data.
-- There is no frontend `localStorage` persistence for users or complaints.
-- Current auth state is held in memory, so refreshing the browser logs the user out.
+- Auth uses short-lived JWT access tokens plus HTTP-only refresh-token cookies.
+- Complaint APIs are protected; user identity is derived from JWT, not from client `userId` input.
+- Session is restored on page refresh via `POST /api/auth/refresh` (cookie-based).
+- Passwords are stored as BCrypt hashes.
+- Email registration enforces strong passwords: at least 8 chars with uppercase, lowercase, number, and special character.
+- OTP is hidden by default (`APP_AUTH_EXPOSE_OTP=false`) and should be integrated with SMS in production.
+
+## Production Env Checklist
+
+Set these on your backend host (Render/other):
+
+```env
+SPRING_PROFILES_ACTIVE=postgres
+DB_URL=jdbc:postgresql://<host>:<port>/<db>
+DB_USERNAME=<user>
+DB_PASSWORD=<password>
+JWT_SECRET=<base64_secret>
+JWT_TTL_HOURS=24
+REFRESH_TOKEN_TTL_DAYS=30
+REFRESH_COOKIE_SECURE=true
+REFRESH_COOKIE_SAME_SITE=None
+REFRESH_COOKIE_DOMAIN=
+APP_AUTH_EXPOSE_OTP=false
+APP_CORS_ALLOWED_ORIGIN_PATTERNS=https://<your-vercel-domain>,http://localhost:*,http://127.0.0.1:*
+```
+
+For frontend (Vercel):
+
+```env
+VITE_API_BASE_URL=https://<your-render-backend>
+```
 
 ## Available Frontend Scripts
 

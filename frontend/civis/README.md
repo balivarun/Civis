@@ -25,7 +25,17 @@ http://localhost:8080/api
 
 - Users and complaints are loaded from the backend, not from browser storage.
 - The app does not use `localStorage` or `sessionStorage` for app data.
-- Auth session is in-memory only, so a page refresh clears the logged-in state.
+- Access token is kept in memory and attached as `Authorization: Bearer <token>`.
+- Session survives refresh through backend-issued HTTP-only refresh-token cookie (`/api/auth/refresh`).
+- Complaint APIs require authentication and are scoped to the logged-in user.
+
+## Required Frontend Env
+
+Set on Vercel (or your frontend host):
+
+```env
+VITE_API_BASE_URL=https://<your-backend-domain>
+```
 
 ## Scripts
 
