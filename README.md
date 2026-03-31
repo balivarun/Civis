@@ -18,22 +18,117 @@ A civic issue reporting platform for filing and tracking local complaints.
 
 ## Project Structure
 
-```
+```text
 Civis/
+├── .gitignore
+├── README.md
 ├── backend/
-│   └── civis/          # Spring Boot application
-│       ├── src/
-│       │   └── main/
-│       │       └── java/com/example/demo/
-│       │           └── CivisApplication.java
-│       └── build.gradle
+│   └── civis/
+│       ├── .dockerignore
+│       ├── .env.example
+│       ├── .gitattributes
+│       ├── .gitignore
+│       ├── Dockerfile
+│       ├── build.gradle
+│       ├── gradle/
+│       │   └── wrapper/
+│       │       ├── gradle-wrapper.jar
+│       │       └── gradle-wrapper.properties
+│       ├── gradlew
+│       ├── gradlew.bat
+│       ├── run-postgres.sh
+│       ├── settings.gradle
+│       └── src/
+│           ├── main/
+│           │   ├── java/com/example/demo/
+│           │   │   ├── CivisApplication.java
+│           │   │   ├── config/
+│           │   │   │   ├── CorsConfig.java
+│           │   │   │   └── SecurityConfig.java
+│           │   │   ├── controller/
+│           │   │   │   ├── AuthController.java
+│           │   │   │   ├── ComplaintController.java
+│           │   │   │   └── GlobalExceptionHandler.java
+│           │   │   ├── dto/
+│           │   │   │   ├── AuthDtos.java
+│           │   │   │   └── ComplaintDtos.java
+│           │   │   ├── model/
+│           │   │   │   ├── AuthType.java
+│           │   │   │   ├── Complaint.java
+│           │   │   │   ├── OtpToken.java
+│           │   │   │   ├── Priority.java
+│           │   │   │   ├── RefreshToken.java
+│           │   │   │   ├── Status.java
+│           │   │   │   ├── TimelineEntry.java
+│           │   │   │   └── User.java
+│           │   │   ├── repository/
+│           │   │   │   ├── ComplaintRepository.java
+│           │   │   │   ├── OtpRepository.java
+│           │   │   │   ├── OtpTokenRepository.java
+│           │   │   │   ├── RefreshTokenRepository.java
+│           │   │   │   └── UserRepository.java
+│           │   │   ├── security/
+│           │   │   │   ├── JwtAuthenticationFilter.java
+│           │   │   │   └── JwtService.java
+│           │   │   └── service/
+│           │   │       ├── AuthService.java
+│           │   │       ├── ComplaintService.java
+│           │   │       └── RefreshTokenService.java
+│           │   └── resources/
+│           │       ├── application-postgres.properties
+│           │       └── application.properties
+│           └── test/java/com/example/demo/
+│               └── CivisApplicationTests.java
 └── frontend/
-    └── civis/          # React + TypeScript application
-        ├── src/
-        │   ├── App.tsx
-        │   └── main.tsx
+    └── civis/
+        ├── .gitignore
+        ├── README.md
+        ├── eslint.config.js
         ├── index.html
-        └── package.json
+        ├── package-lock.json
+        ├── package.json
+        ├── public/
+        │   └── vite.svg
+        ├── src/
+        │   ├── App.css
+        │   ├── App.tsx
+        │   ├── api/
+        │   │   └── client.ts
+        │   ├── assets/
+        │   │   └── react.svg
+        │   ├── components/
+        │   │   ├── LandingPage.css
+        │   │   ├── LandingPage.tsx
+        │   │   ├── LanguageToggle.css
+        │   │   ├── LanguageToggle.tsx
+        │   │   ├── Navbar.css
+        │   │   ├── Navbar.tsx
+        │   │   └── ProtectedRoute.tsx
+        │   ├── context/
+        │   │   ├── AuthContext.tsx
+        │   │   ├── LanguageContext.tsx
+        │   │   ├── ThemeContext.tsx
+        │   │   └── TranslationContext.tsx
+        │   ├── index.css
+        │   ├── main.tsx
+        │   ├── pages/
+        │   │   ├── Auth.css
+        │   │   ├── ComplaintDetail.css
+        │   │   ├── ComplaintDetail.tsx
+        │   │   ├── Dashboard.css
+        │   │   ├── Dashboard.tsx
+        │   │   ├── HowItWorks.css
+        │   │   ├── HowItWorks.tsx
+        │   │   ├── Login.tsx
+        │   │   ├── Register.tsx
+        │   │   ├── ReportComplaint.css
+        │   │   └── ReportComplaint.tsx
+        │   └── utils/
+        │       └── translations.ts
+        ├── tsconfig.app.json
+        ├── tsconfig.json
+        ├── tsconfig.node.json
+        └── vite.config.ts
 ```
 
 ## Getting Started
