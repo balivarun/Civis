@@ -1,17 +1,28 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import * as L from 'leaflet'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from '../context/TranslationContext'
 import { createComplaint } from '../api/client'
 import './ReportComplaint.css'
 
 const MIN_DESCRIPTION_LENGTH = 30
+const DEFAULT_MAP_CENTER = { lat: 20.5937, lng: 78.9629 }
+
+type MapPosition = {
+  lat: number
+  lng: number
+}
 
 function generateDescriptionFromTitle(rawTitle: string) {
   const title = rawTitle.trim().replace(/\.$/, '')
   if (!title) return ''
 
   return `Issue reported: ${title}. This problem is affecting nearby residents and needs attention from the concerned civic department.`
+}
+
+function formatPinnedLocation(position: MapPosition) {
+  return `Lat ${position.lat.toFixed(5)}, Lng ${position.lng.toFixed(5)}`
 }
 
 export default function ReportComplaint() {
@@ -49,6 +60,72 @@ export default function ReportComplaint() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false)
+  const [selectedPosition, setSelectedPosition] = useState<MapPosition | null>(null)
+  const [isLocating, setIsLocating] = useState(false)
+  const [mapMessage, setMapMessage] = useState('')
+  const mapElementRef = useRef<HTMLDivElement | null>(null)
+  const mapRef = useRef<L.Map | null>(null)
+  const markerRef = useRef<L.CircleMarker | null>(null)
+
+  useEffect(() => {
+    if (step !== 3 || !mapElementRef.current || mapRef.current) return
+
+    const map = L.map(mapElementRef.current, {
+      zoomControl: true,
+      scrollWheelZoom: true,
+    }).setView([DEFAULT_MAP_CENTER.lat, DEFAULT_MAP_CENTER.lng], 5)
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(map)
+
+    map.on('click', (event: L.LeafletMouseEvent) => {
+      handlePickPosition({ lat: event.latlng.lat, lng: event.latlng.lng }, 'map')
+    })
+
+    mapRef.current = map
+
+    return () => {
+      markerRef.current = null
+      mapRef.current?.remove()
+      mapRef.current = null
+    }
+  }, [step, t])
+
+  useEffect(() => {
+    if (step !== 3 || !mapRef.current) return
+
+    window.setTimeout(() => {
+      mapRef.current?.invalidateSize()
+    }, 0)
+  }, [step])
+
+  useEffect(() => {
+    if (!mapRef.current) return
+
+    if (!selectedPosition) {
+      markerRef.current?.remove()
+      markerRef.current = null
+      mapRef.current.setView([DEFAULT_MAP_CENTER.lat, DEFAULT_MAP_CENTER.lng], 5)
+      return
+    }
+
+    const latLng: L.LatLngExpression = [selectedPosition.lat, selectedPosition.lng]
+
+    if (!markerRef.current) {
+      markerRef.current = L.circleMarker(latLng, {
+        radius: 10,
+        color: '#1a6fbf',
+        fillColor: '#38bdf8',
+        fillOpacity: 0.75,
+        weight: 3,
+      }).addTo(mapRef.current)
+    } else {
+      markerRef.current.setLatLng(latLng)
+    }
+
+    mapRef.current.flyTo(latLng, 16, { duration: 0.6 })
+  }, [selectedPosition])
 
   function goNext() {
     setError('')
@@ -73,6 +150,46 @@ export default function ReportComplaint() {
       setDescription(generateDescriptionFromTitle(title))
       setIsGeneratingDescription(false)
     }, 350)
+  }
+
+  function handlePickPosition(position: MapPosition, source: 'map' | 'device') {
+    setSelectedPosition(position)
+    setLocation((currentLocation) => {
+      const trimmedLocation = currentLocation.trim()
+      if (!trimmedLocation || trimmedLocation.startsWith('Lat ')) {
+        return formatPinnedLocation(position)
+      }
+      return trimmedLocation
+    })
+    setMapMessage(source === 'device' ? t('report.mapLocated') : t('report.mapPinned'))
+    setError('')
+  }
+
+  function handleUseCurrentLocation() {
+    if (!navigator.geolocation) {
+      setError(t('report.mapUnsupported'))
+      return
+    }
+
+    setIsLocating(true)
+    setMapMessage('')
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        handlePickPosition(
+          {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          },
+          'device',
+        )
+        setIsLocating(false)
+      },
+      () => {
+        setIsLocating(false)
+        setError(t('report.mapLocationError'))
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    )
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -134,7 +251,7 @@ export default function ReportComplaint() {
       </div>
 
       <div className="report-right">
-        <div className="report-card">
+        <div className={`report-card ${step === 3 ? 'report-card-map' : ''}`}>
           {/* Progress bar */}
           <div className="report-progress-bar">
             <div className="report-progress-fill" style={{ width: `${progressPct}%` }} />
@@ -224,9 +341,21 @@ export default function ReportComplaint() {
                 <input type="text" placeholder={t('report.landmarkPlaceholder')}
                   value={landmark} onChange={(e) => setLandmark(e.target.value)} />
               </div>
-              <div className="map-placeholder">
-                <span>🗺</span>
-                <p>{t('report.mapComingSoon')}</p>
+              <div className="map-panel">
+                <div className="map-panel-header">
+                  <div>
+                    <strong>{t('report.mapTitle')}</strong>
+                    <p>{t('report.mapHelp')}</p>
+                  </div>
+                  <button type="button" className="map-action-btn" onClick={handleUseCurrentLocation} disabled={isLocating}>
+                    {isLocating ? t('report.mapLocating') : t('report.mapUseCurrent')}
+                  </button>
+                </div>
+                <div ref={mapElementRef} className="report-map" />
+                <div className="map-panel-footer">
+                  <span>{selectedPosition ? `${t('report.mapSelected')} ${formatPinnedLocation(selectedPosition)}` : t('report.mapHint')}</span>
+                  {mapMessage && <strong>{mapMessage}</strong>}
+                </div>
               </div>
             </div>
           )}

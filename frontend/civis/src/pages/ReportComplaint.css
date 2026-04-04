@@ -114,6 +114,10 @@
   border: 1px solid #e2e8f0;
 }
 
+.report-card-map {
+  max-width: 860px;
+}
+
 /* Progress */
 .report-progress-bar {
   height: 4px;
@@ -301,22 +305,73 @@
 .priority-opt.selected[data-p="Medium"] { border-color: #f59e0b; background: #fffbeb; }
 .priority-opt.selected[data-p="Low"] { border-color: #22c55e; background: #f0fdf4; }
 
-/* Map placeholder */
-.map-placeholder {
-  background: #f8fafc;
-  border: 2px dashed #e2e8f0;
-  border-radius: 12px;
-  height: 140px;
+.map-panel {
+  background: linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
+  border: 1px solid #d9e8fb;
+  border-radius: 16px;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  color: #94a3b8;
+  gap: 0.9rem;
 }
 
-.map-placeholder span { font-size: 2rem; }
-.map-placeholder p { font-size: 0.85rem; margin: 0; }
+.map-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.map-panel-header strong {
+  display: block;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.map-panel-header p {
+  margin: 0.2rem 0 0;
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.map-action-btn {
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #1a6fbf, #1d4ed8);
+  color: #fff;
+  padding: 0.7rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.map-action-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.report-map {
+  height: 320px;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #c7dbf6;
+}
+
+.map-panel-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+.map-panel-footer strong {
+  color: #1d4ed8;
+  font-weight: 700;
+}
 
 /* Review */
 .review-card {
@@ -451,4 +506,9 @@
   .submit-btn { margin-left: 1.5rem; margin-right: 1.5rem; width: auto; }
   .field-label-row { align-items: flex-start; flex-direction: column; }
   .ai-generate-btn { width: 100%; justify-content: center; }
+  .map-panel-header,
+  .map-panel-footer { flex-direction: column; }
+  .map-action-btn { width: 100%; }
+  .report-map { height: 240px; }
+  .report-card-map { max-width: 100%; }
 }
