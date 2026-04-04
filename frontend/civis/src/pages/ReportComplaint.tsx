@@ -5,6 +5,15 @@ import { useTranslation } from '../context/TranslationContext'
 import { createComplaint } from '../api/client'
 import './ReportComplaint.css'
 
+const MIN_DESCRIPTION_LENGTH = 30
+
+function generateDescriptionFromTitle(rawTitle: string) {
+  const title = rawTitle.trim().replace(/\.$/, '')
+  if (!title) return ''
+
+  return `Issue reported: ${title}. This problem is affecting nearby residents and needs attention from the concerned civic department.`
+}
+
 export default function ReportComplaint() {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -39,16 +48,31 @@ export default function ReportComplaint() {
   const [priority, setPriority] = useState<'Low' | 'Medium' | 'High'>('Medium')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false)
 
   function goNext() {
     setError('')
     if (step === 1 && !category) { setError(t('report.errCategory')); return }
     if (step === 2) {
       if (!title.trim()) { setError(t('report.errTitle')); return }
-      if (description.trim().length < 20) { setError(t('report.errDesc')); return }
+      if (description.trim().length < MIN_DESCRIPTION_LENGTH) { setError(t('report.errDesc')); return }
     }
     if (step === 3 && !location.trim()) { setError(t('report.errLoc')); return }
     setStep((s) => s + 1)
+  }
+
+  function handleGenerateDescription() {
+    if (!title.trim()) {
+      setError(t('report.errTitle'))
+      return
+    }
+
+    setError('')
+    setIsGeneratingDescription(true)
+    window.setTimeout(() => {
+      setDescription(generateDescriptionFromTitle(title))
+      setIsGeneratingDescription(false)
+    }, 350)
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -153,7 +177,18 @@ export default function ReportComplaint() {
                 <span className="char-hint">{title.length}/100</span>
               </div>
               <div className="field-group">
-                <label>{t('report.descLabel')} <span className="req">*</span></label>
+                <div className="field-label-row">
+                  <label>{t('report.descLabel')} <span className="req">*</span></label>
+                  <button
+                    type="button"
+                    className="ai-generate-btn"
+                    onClick={handleGenerateDescription}
+                    disabled={isGeneratingDescription}
+                  >
+                    {isGeneratingDescription ? t('report.aiGenerating') : t('report.aiGenerate')}
+                  </button>
+                </div>
+                <p className="field-helper">{t('report.aiHelp')}</p>
                 <textarea placeholder={t('report.descPlaceholder')}
                   value={description} onChange={(e) => setDescription(e.target.value)}
                   rows={5} maxLength={500} />

@@ -17,8 +17,8 @@ public final class ComplaintDtos {
             String categoryIcon,
             @NotBlank(message = "Please enter a complaint title.")
             String title,
-            @NotBlank(message = "Description must be at least 20 characters.")
-            @Size(min = 20, message = "Description must be at least 20 characters.")
+            @NotBlank(message = "Description must be at least 30 characters.")
+            @Size(min = 30, message = "Description must be at least 30 characters.")
             String description,
             @NotBlank(message = "Please enter the location.")
             String location,

@@ -47,3 +47,64 @@ body {
 #root {
   width: 100%;
 }
+
+.backend-banner {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: min(720px, calc(100vw - 2rem));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #f5c2c7;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #fff7ed, #fff1f2);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  color: #7f1d1d;
+}
+
+.backend-banner__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.backend-banner__content strong {
+  font-size: 0.95rem;
+}
+
+.backend-banner__content span {
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.backend-banner button {
+  border: none;
+  border-radius: 999px;
+  background: #b91c1c;
+  color: #fff;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.backend-banner button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+@media (max-width: 640px) {
+  .backend-banner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .backend-banner button {
+    width: 100%;
+  }
+}

@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { TranslationProvider } from './context/TranslationContext'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -13,38 +13,65 @@ import ReportComplaint from './pages/ReportComplaint'
 import ComplaintDetail from './pages/ComplaintDetail'
 import './App.css'
 
+function BackendStatusBanner() {
+  const { backendUnavailable, backendMessage, retrySession, isReady } = useAuth()
+
+  if (!backendUnavailable) return null
+
+  return (
+    <div className="backend-banner" role="status" aria-live="polite">
+      <div className="backend-banner__content">
+        <strong>Backend unavailable</strong>
+        <span>{backendMessage}</span>
+      </div>
+      <button type="button" onClick={() => void retrySession()} disabled={!isReady}>
+        Retry connection
+      </button>
+    </div>
+  )
+}
+
+function AppRoutes() {
+  return (
+    <>
+      <BackendStatusBanner />
+      <BrowserRouter>
+        <Routes>
+          {/* Full-screen pages (no shared Navbar) */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/dashboard" element={
+            <ProtectedRoute><Dashboard /></ProtectedRoute>
+          } />
+          <Route path="/report" element={
+            <ProtectedRoute><ReportComplaint /></ProtectedRoute>
+          } />
+          <Route path="/complaint/:id" element={
+            <ProtectedRoute><ComplaintDetail /></ProtectedRoute>
+          } />
+
+          {/* Pages with shared Navbar */}
+          <Route path="/*" element={
+            <>
+              <Navbar />
+              <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
+              </Routes>
+            </>
+          } />
+        </Routes>
+      </BrowserRouter>
+    </>
+  )
+}
+
 function App() {
   return (
     <ThemeProvider>
       <TranslationProvider>
         <AuthProvider>
-          <BrowserRouter>
-            <Routes>
-              {/* Full-screen pages (no shared Navbar) */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/dashboard" element={
-              <ProtectedRoute><Dashboard /></ProtectedRoute>
-            } />
-            <Route path="/report" element={
-              <ProtectedRoute><ReportComplaint /></ProtectedRoute>
-            } />
-            <Route path="/complaint/:id" element={
-              <ProtectedRoute><ComplaintDetail /></ProtectedRoute>
-            } />
-
-            {/* Pages with shared Navbar */}
-            <Route path="/*" element={
-              <>
-                <Navbar />
-                <Routes>
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/how-it-works" element={<HowItWorks />} />
-                </Routes>
-              </>
-            } />
-          </Routes>
-        </BrowserRouter>
+          <AppRoutes />
         </AuthProvider>
       </TranslationProvider>
     </ThemeProvider>

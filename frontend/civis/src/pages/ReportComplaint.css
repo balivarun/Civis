@@ -203,6 +203,43 @@
   letter-spacing: 0.5px;
 }
 
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.field-helper {
+  margin: -0.1rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.ai-generate-btn {
+  border: 1px solid #bfdbfe;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  color: #1d4ed8;
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.ai-generate-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.15);
+}
+
+.ai-generate-btn:disabled {
+  cursor: wait;
+  opacity: 0.75;
+}
+
 .req { color: #ef4444; }
 
 .field-group input,
@@ -412,4 +449,6 @@
   .review-card,
   .form-error,
   .submit-btn { margin-left: 1.5rem; margin-right: 1.5rem; width: auto; }
+  .field-label-row { align-items: flex-start; flex-direction: column; }
+  .ai-generate-btn { width: 100%; justify-content: center; }
 }

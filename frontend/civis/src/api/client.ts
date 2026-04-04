@@ -38,6 +38,8 @@ export interface OtpResponse {
   otp: string | null
 }
 
+export const BACKEND_UNAVAILABLE_MESSAGE = 'Backend is offline. Start the API server on http://localhost:8080 and try again.'
+
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
 let authToken: string | null = null
 
@@ -50,12 +52,18 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   if (options.body) headers['Content-Type'] = 'application/json'
   if (authToken) headers.Authorization = `Bearer ${authToken}`
 
-  const response = await fetch(`${API_BASE_URL}/api${path}`, {
-    method: options.method ?? 'GET',
-    headers: Object.keys(headers).length ? headers : undefined,
-    body: options.body ? JSON.stringify(options.body) : undefined,
-    credentials: 'include',
-  })
+  let response: Response
+
+  try {
+    response = await fetch(`${API_BASE_URL}/api${path}`, {
+      method: options.method ?? 'GET',
+      headers: Object.keys(headers).length ? headers : undefined,
+      body: options.body ? JSON.stringify(options.body) : undefined,
+      credentials: 'include',
+    })
+  } catch {
+    throw new Error(BACKEND_UNAVAILABLE_MESSAGE)
+  }
 
   if (!response.ok) {
     let message = 'Something went wrong.'

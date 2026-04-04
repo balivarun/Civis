@@ -119,7 +119,10 @@ export const translations = {
       titleLabel: 'Complaint Title',
       titlePlaceholder: 'e.g. Deep pothole on MG Road near bus stop',
       descLabel: 'Description',
-      descPlaceholder: 'Describe the issue in detail — size, how long it has been there, how it affects you...',
+      descPlaceholder: 'Describe the issue in detail in at least 30 characters — size, how long it has been there, how it affects you...',
+      aiGenerate: 'Generate with AI',
+      aiGenerating: 'Generating...',
+      aiHelp: 'Use the title to generate a description draft, then edit it before submitting.',
       priorityLabel: 'Priority',
       locLabel: 'Area / Street / Ward',
       locPlaceholder: 'e.g. Sector 14, MG Road, Ward 7',
@@ -133,7 +136,7 @@ export const translations = {
       reviewNextBtn: 'Review →',
       errCategory: 'Please select a category.',
       errTitle: 'Please enter a complaint title.',
-      errDesc: 'Description must be at least 20 characters.',
+      errDesc: 'Description must be at least 30 characters.',
       errLoc: 'Please enter the location.'
     },
     categories: {
@@ -310,7 +313,10 @@ export const translations = {
       titleLabel: 'शिकायत का शीर्षक',
       titlePlaceholder: 'जैसे बस स्टॉप के पास एमजी रोड पर गहरा गड्ढा',
       descLabel: 'विवरण',
-      descPlaceholder: 'समस्या का विस्तार से वर्णन करें — आकार, यह कब से है, यह आपको कैसे प्रभावित करता है...',
+      descPlaceholder: 'समस्या का कम से कम 30 वर्णों में विस्तार से वर्णन करें — आकार, यह कब से है, यह आपको कैसे प्रभावित करता है...',
+      aiGenerate: 'AI से जनरेट करें',
+      aiGenerating: 'जनरेट हो रहा है...',
+      aiHelp: 'शीर्षक से विवरण का ड्राफ्ट बनाएं, फिर सबमिट करने से पहले उसे संपादित करें।',
       priorityLabel: 'प्राथमिकता',
       locLabel: 'क्षेत्र / सड़क / वार्ड',
       locPlaceholder: 'जैसे सेक्टर 14, एमजी रोड, वार्ड 7',
@@ -324,7 +330,7 @@ export const translations = {
       reviewNextBtn: 'समीक्षा →',
       errCategory: 'कृपया एक श्रेणी चुनें।',
       errTitle: 'कृपया शिकायत का शीर्षक दर्ज करें।',
-      errDesc: 'विवरण कम से कम 20 वर्णों का होना चाहिए।',
+      errDesc: 'विवरण कम से कम 30 वर्णों का होना चाहिए।',
       errLoc: 'कृपया स्थान दर्ज करें।'
     },
     categories: {
