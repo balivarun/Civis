@@ -17,12 +17,11 @@ export default function Login() {
   const navigate = useNavigate()
   const { t } = useTranslation()
 
-  const [tab, setTab] = useState<Tab>('mobile')
+  const [tab, setTab] = useState<Tab>('gmail')
   const [stage, setStage] = useState<Stage>('input')
 
   const [mobile, setMobile] = useState('')
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
-  const [demoOtp, setDemoOtp] = useState('')
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -41,8 +40,7 @@ export default function Login() {
     }
     setLoading(true)
     try {
-      const response = await requestLoginOtp(mobile)
-      setDemoOtp(response.otp ?? '')
+      await requestLoginOtp(mobile)
       setLoading(false)
       setStage('otp')
     } catch (err) {
@@ -110,7 +108,6 @@ export default function Login() {
   function resetForm() {
     setStage('input')
     setOtp(['', '', '', '', '', ''])
-    setDemoOtp('')
     setError('')
   }
 
@@ -216,13 +213,6 @@ export default function Login() {
                 <h1>Verify OTP</h1>
                 <p>Sent to +91 {mobile}</p>
               </div>
-
-              {demoOtp && (
-               <div className="demo-otp-box">
-                  <span className="demo-label">Demo OTP (no SMS service)</span>
-                  <span className="demo-code">{demoOtp}</span>
-                </div>
-              )}
 
               <form className="auth-form" onSubmit={handleOtpSubmit} noValidate>
                 <div className="otp-grid">

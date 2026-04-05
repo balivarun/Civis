@@ -33,6 +33,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final OtpTokenRepository otpRepository;
+    private final SmsSender smsSender;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final SecureRandom secureRandom = new SecureRandom();
     private final boolean exposeOtpInResponse;
@@ -40,10 +41,12 @@ public class AuthService {
     public AuthService(
             UserRepository userRepository,
             OtpTokenRepository otpRepository,
+            SmsSender smsSender,
             @Value("${app.auth.expose-otp:false}") boolean exposeOtpInResponse
     ) {
         this.userRepository = userRepository;
         this.otpRepository = otpRepository;
+        this.smsSender = smsSender;
         this.exposeOtpInResponse = exposeOtpInResponse;
     }
 
@@ -54,13 +57,14 @@ public class AuthService {
         String otp = generateOtp();
         String key = otpKey("register", request.mobile());
         otpRepository.save(new OtpToken(key, otp, Instant.now().plus(OTP_TTL)));
+        smsSender.sendOtp(request.mobile(), otp);
         return otpResponse(otp);
     }
 
     public User verifyRegistrationOtp(MobileOtpVerifyRequest request) {
         String key = otpKey("register", request.mobile());
         if (!matchesOtp(key, request.otp())) {
-            throw new ResponseStatusException(BAD_REQUEST, "Incorrect OTP. Check the demo code above.");
+            throw new ResponseStatusException(BAD_REQUEST, "Incorrect OTP.");
         }
         if (userRepository.findByMobile(request.mobile()).isPresent()) {
             throw new ResponseStatusException(BAD_REQUEST, "This mobile number is already registered.");
@@ -103,13 +107,14 @@ public class AuthService {
         String otp = generateOtp();
         String key = otpKey("login", request.mobile());
         otpRepository.save(new OtpToken(key, otp, Instant.now().plus(OTP_TTL)));
+        smsSender.sendOtp(request.mobile(), otp);
         return otpResponse(otp);
     }
 
     public User verifyLoginOtp(MobileLoginOtpVerifyRequest request) {
         String key = otpKey("login", request.mobile());
         if (!matchesOtp(key, request.otp())) {
-            throw new ResponseStatusException(BAD_REQUEST, "Incorrect OTP. Check the demo code above.");
+            throw new ResponseStatusException(BAD_REQUEST, "Incorrect OTP.");
         }
         User user = userRepository.findByMobile(request.mobile()).orElse(null);
         if (user == null) {

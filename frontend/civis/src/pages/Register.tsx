@@ -20,7 +20,7 @@ export default function Register() {
   const navigate = useNavigate()
   const { t } = useTranslation()
 
-  const [tab, setTab] = useState<Tab>('mobile')
+  const [tab, setTab] = useState<Tab>('gmail')
   const [stage, setStage] = useState<Stage>('form')
 
   // Form fields
@@ -33,7 +33,6 @@ export default function Register() {
 
   // OTP
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
-  const [demoOtp, setDemoOtp] = useState('')
 
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -55,8 +54,7 @@ export default function Register() {
     if (!/^[6-9]\d{9}$/.test(mobile)) { setError('Enter a valid 10-digit mobile number.'); return }
     setLoading(true)
     try {
-      const response = await requestRegisterOtp(name.trim(), mobile)
-      setDemoOtp(response.otp ?? '')
+      await requestRegisterOtp(name.trim(), mobile)
       setLoading(false)
       setStage('otp')
     } catch (err) {
@@ -247,13 +245,6 @@ export default function Register() {
                 <h1>Verify OTP</h1>
                 <p>Sent to +91 {mobile}</p>
               </div>
-
-              {demoOtp && (
-                <div className="demo-otp-box">
-                  <span className="demo-label">Demo OTP (no SMS service)</span>
-                  <span className="demo-code">{demoOtp}</span>
-                </div>
-              )}
 
               <form className="auth-form" onSubmit={handleOtpSubmit} noValidate>
                 <div className="otp-grid">
