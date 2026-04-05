@@ -2,12 +2,14 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.ComplaintDtos.CreateComplaintRequest;
 import com.example.demo.dto.ComplaintDtos.AdminComplaintSummary;
+import com.example.demo.dto.ComplaintDtos.UpdateComplaintStatusRequest;
 import com.example.demo.model.Complaint;
 import com.example.demo.service.ComplaintService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +35,15 @@ public class ComplaintController {
     @GetMapping("/admin/all")
     public List<AdminComplaintSummary> getAllComplaintsForAdmin(Authentication authentication) {
         return complaintService.getAllComplaintsForAdmin(authentication.getName());
+    }
+
+    @PatchMapping("/admin/{id}/status")
+    public Complaint updateComplaintStatus(
+            @PathVariable String id,
+            @Valid @RequestBody UpdateComplaintStatusRequest request,
+            Authentication authentication
+    ) {
+        return complaintService.updateComplaintStatusForAdmin(id, request, authentication.getName());
     }
 
     @GetMapping("/{id}")

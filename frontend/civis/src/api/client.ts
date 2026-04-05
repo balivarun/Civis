@@ -48,7 +48,7 @@ export interface AdminComplaintSummary {
 }
 
 type RequestOptions = {
-  method?: 'GET' | 'POST'
+  method?: 'GET' | 'POST' | 'PATCH'
   body?: unknown
 }
 
@@ -158,6 +158,13 @@ export async function getComplaintById(id: string) {
 
 export async function getAdminComplaints() {
   return request<AdminComplaintSummary[]>('/complaints/admin/all')
+}
+
+export async function updateAdminComplaintStatus(id: string, status: Complaint['status']) {
+  return request<Complaint>(`/complaints/admin/${encodeURIComponent(id)}/status`, {
+    method: 'PATCH',
+    body: { status },
+  })
 }
 
 export async function createComplaint(payload: {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from '../context/TranslationContext'
-import { getAdminComplaints, type AdminComplaintSummary } from '../api/client'
+import { getAdminComplaints, updateAdminComplaintStatus, type AdminComplaintSummary, type Complaint } from '../api/client'
 import './Dashboard.css'
 
 const statusColor: Record<string, string> = {
@@ -21,6 +21,7 @@ export default function AdminDashboard() {
   const [categoryFilter, setCategoryFilter] = useState<string>('All')
   const [query, setQuery] = useState('')
   const [error, setError] = useState('')
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadComplaints() {
@@ -35,6 +36,7 @@ export default function AdminDashboard() {
   }, [])
 
   const statuses = ['All', 'Submitted', 'Acknowledged', 'Under Review', 'In Progress', 'Resolved']
+  const adminStatusOptions: Complaint['status'][] = ['Submitted', 'Acknowledged', 'Under Review', 'In Progress', 'Resolved']
   const categories = ['All', ...new Set(complaints.map((c) => c.category))]
 
   const getStatusDisplay = (s: string) => {
@@ -64,6 +66,29 @@ export default function AdminDashboard() {
   })
   const resolved = complaints.filter((c) => c.status === 'Resolved').length
   const pending = complaints.filter((c) => c.status !== 'Resolved').length
+
+  async function handleStatusChange(complaintId: string, status: Complaint['status']) {
+    setError('')
+    setUpdatingId(complaintId)
+    try {
+      const updated = await updateAdminComplaintStatus(complaintId, status)
+      setComplaints((current) =>
+        current.map((complaint) =>
+          complaint.id === complaintId
+            ? {
+                ...complaint,
+                status: updated.status,
+                updatedAt: updated.updatedAt,
+              }
+            : complaint,
+        ),
+      )
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update complaint status.')
+    } finally {
+      setUpdatingId(null)
+    }
+  }
 
   return (
     <div className="db-page">
@@ -178,6 +203,7 @@ export default function AdminDashboard() {
                   <th>{t('admin.tableLocation')}</th>
                   <th>{t('admin.tablePriority')}</th>
                   <th>{t('admin.tableStatus')}</th>
+                  <th>{t('admin.tableAdminAction')}</th>
                   <th>{t('admin.tableFiledOn')}</th>
                 </tr>
               </thead>
@@ -210,6 +236,20 @@ export default function AdminDashboard() {
                       >
                         {getStatusDisplay(c.status)}
                       </span>
+                    </td>
+                    <td>
+                      <select
+                        className="admin-status-select"
+                        value={c.status}
+                        disabled={updatingId === c.id}
+                        onChange={(e) => void handleStatusChange(c.id, e.target.value as Complaint['status'])}
+                      >
+                        {adminStatusOptions.map((status) => (
+                          <option key={status} value={status}>
+                            {getStatusDisplay(status)}
+                          </option>
+                        ))}
+                      </select>
                     </td>
                     <td>{new Date(c.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                   </tr>

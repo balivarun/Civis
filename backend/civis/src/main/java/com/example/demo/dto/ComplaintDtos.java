@@ -31,6 +31,12 @@ public final class ComplaintDtos {
     ) {
     }
 
+    public record UpdateComplaintStatusRequest(
+            @NotNull(message = "Please select a status.")
+            Status status
+    ) {
+    }
+
     public record AdminComplaintSummary(
             String id,
             String userId,

@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.ComplaintDtos.CreateComplaintRequest;
 import com.example.demo.dto.ComplaintDtos.AdminComplaintSummary;
+import com.example.demo.dto.ComplaintDtos.UpdateComplaintStatusRequest;
 import com.example.demo.model.Complaint;
 import com.example.demo.model.Status;
 import com.example.demo.model.TimelineEntry;
@@ -84,6 +85,30 @@ public class ComplaintService {
                 .toList();
     }
 
+    public Complaint updateComplaintStatusForAdmin(
+            String complaintId,
+            UpdateComplaintStatusRequest request,
+            String requesterUserId
+    ) {
+        if (!isAdmin(requesterUserId)) {
+            throw new ResponseStatusException(NOT_FOUND, "Complaint not found.");
+        }
+
+        Complaint complaint = complaintRepository.findById(complaintId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Complaint not found."));
+
+        Instant now = Instant.now();
+        complaint.setStatus(request.status());
+        complaint.setUpdatedAt(now);
+        complaint.getTimeline().add(new TimelineEntry(
+                request.status().toString(),
+                statusNote(request.status()),
+                now
+        ));
+
+        return complaintRepository.save(complaint);
+    }
+
     public Complaint createComplaint(String requesterUserId, CreateComplaintRequest request) {
         User user = userRepository.findById(requesterUserId).orElse(null);
         if (user == null) {
@@ -120,5 +145,15 @@ public class ComplaintService {
 
     private String defaultString(String value) {
         return value == null ? "" : value;
+    }
+
+    private String statusNote(Status status) {
+        return switch (status) {
+            case Submitted -> "Complaint status was set to submitted by the admin team.";
+            case Acknowledged -> "Complaint has been acknowledged by the admin team.";
+            case Under_Review -> "Complaint is currently under review.";
+            case In_Progress -> "Work on this complaint is now in progress.";
+            case Resolved -> "Complaint has been marked as resolved by the admin team.";
+        };
     }
 }
