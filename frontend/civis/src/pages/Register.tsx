@@ -11,6 +11,7 @@ import './Auth.css'
 
 type Tab = 'mobile' | 'gmail'
 type Stage = 'form' | 'otp'
+type Mode = 'user' | 'admin'
 const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/
 const STRONG_PASSWORD_MESSAGE =
   'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.'
@@ -20,6 +21,7 @@ export default function Register() {
   const navigate = useNavigate()
   const { t } = useTranslation()
 
+  const [mode, setMode] = useState<Mode>('user')
   const [tab, setTab] = useState<Tab>('gmail')
   const [stage, setStage] = useState<Stage>('form')
 
@@ -86,7 +88,7 @@ export default function Register() {
     try {
       const response = await verifyRegisterOtp(name.trim(), mobile, code)
       login(response.user, response.token)
-      navigate('/dashboard')
+      navigate(response.user.admin ? '/admin/dashboard' : '/dashboard')
     } catch (err) {
       setLoading(false)
       setError(err instanceof Error ? err.message : 'Failed to verify OTP.')
@@ -103,9 +105,9 @@ export default function Register() {
     if (password !== confirmPass) { setError('Passwords do not match.'); return }
     setLoading(true)
     try {
-      const response = await registerWithEmail(name.trim(), email, password)
+      const response = await registerWithEmail(name.trim(), email, password, mode === 'admin')
       login(response.user, response.token)
-      navigate('/dashboard')
+      navigate(response.user.admin ? '/admin/dashboard' : '/dashboard')
     } catch (err) {
       setLoading(false)
       setError(err instanceof Error ? err.message : 'Failed to create account.')
@@ -141,22 +143,35 @@ export default function Register() {
           {stage === 'form' ? (
             <>
               <div className="auth-card-header">
-                <h1>{t('auth.registerTitle')}</h1>
-                <p>It's free and takes under a minute</p>
+                <h1>{mode === 'admin' ? 'Create Admin Account' : t('auth.registerTitle')}</h1>
+                <p>{mode === 'admin' ? 'Only approved admin emails can create admin accounts.' : "It's free and takes under a minute"}</p>
               </div>
 
-              <div className="tab-row">
-                <button className={`tab-btn ${tab === 'mobile' ? 'active' : ''}`}
-                  onClick={() => { setTab('mobile'); setError('') }}>
-                  📱 Mobile OTP
+              <div className="tab-row role-row">
+                <button className={`tab-btn ${mode === 'user' ? 'active' : ''}`}
+                  onClick={() => { setMode('user'); setError('') }}>
+                  Citizen
                 </button>
-                <button className={`tab-btn ${tab === 'gmail' ? 'active' : ''}`}
-                  onClick={() => { setTab('gmail'); setError('') }}>
-                  ✉ Email
+                <button className={`tab-btn ${mode === 'admin' ? 'active' : ''}`}
+                  onClick={() => { setMode('admin'); setTab('gmail'); setError('') }}>
+                  Admin
                 </button>
               </div>
 
-              {tab === 'mobile' && (
+              {mode === 'user' && (
+                <div className="tab-row">
+                  <button className={`tab-btn ${tab === 'mobile' ? 'active' : ''}`}
+                    onClick={() => { setTab('mobile'); setError('') }}>
+                    📱 Mobile OTP
+                  </button>
+                  <button className={`tab-btn ${tab === 'gmail' ? 'active' : ''}`}
+                    onClick={() => { setTab('gmail'); setError('') }}>
+                    ✉ Email
+                  </button>
+                </div>
+              )}
+
+              {mode === 'user' && tab === 'mobile' && (
                 <form className="auth-form" onSubmit={handleMobileSubmit} noValidate>
                   <div className="field-group">
                     <label>{t('auth.nameLabel')}</label>
@@ -180,7 +195,7 @@ export default function Register() {
                 </form>
               )}
 
-              {tab === 'gmail' && (
+              {(mode === 'admin' || tab === 'gmail') && (
                 <form className="auth-form" onSubmit={handleGmailSubmit} noValidate>
                   <div className="field-group">
                     <label>{t('auth.nameLabel')}</label>
@@ -188,8 +203,8 @@ export default function Register() {
                       onChange={(e) => setName(e.target.value)} autoFocus required />
                   </div>
                   <div className="field-group">
-                    <label>{t('auth.emailLabel')}</label>
-                    <input type="email" placeholder="you@gmail.com" value={email}
+                    <label>{mode === 'admin' ? 'Admin Email' : t('auth.emailLabel')}</label>
+                    <input type="email" placeholder={mode === 'admin' ? 'admin@city.gov.in' : 'you@gmail.com'} value={email}
                       onChange={(e) => setEmail(e.target.value)} required />
                   </div>
                   <div className="field-group">

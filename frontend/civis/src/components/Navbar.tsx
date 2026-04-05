@@ -57,6 +57,7 @@ export default function Navbar() {
           {isLoggedIn ? (
             <>
               <li><NavLink to="/dashboard" onClick={close}>{t('nav.dashboard')}</NavLink></li>
+              {user?.admin && <li><NavLink to="/admin/dashboard" onClick={close}>{t('nav.adminDashboard')}</NavLink></li>}
               <li><NavLink to="/report" className="btn-report" onClick={close}>{t('nav.reportIssue')}</NavLink></li>
               <li>
                 <div className="nav-user">

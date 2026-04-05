@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.ComplaintDtos.CreateComplaintRequest;
+import com.example.demo.dto.ComplaintDtos.AdminComplaintSummary;
 import com.example.demo.model.Complaint;
 import com.example.demo.service.ComplaintService;
 import jakarta.validation.Valid;
@@ -27,6 +28,11 @@ public class ComplaintController {
     @GetMapping
     public List<Complaint> getComplaintsByUser(Authentication authentication) {
         return complaintService.getComplaintsByUser(authentication.getName());
+    }
+
+    @GetMapping("/admin/all")
+    public List<AdminComplaintSummary> getAllComplaintsForAdmin(Authentication authentication) {
+        return complaintService.getAllComplaintsForAdmin(authentication.getName());
     }
 
     @GetMapping("/{id}")

@@ -10,6 +10,7 @@ import com.example.demo.dto.AuthDtos.MobileOtpVerifyRequest;
 import com.example.demo.dto.AuthDtos.OtpResponse;
 import com.example.demo.model.User;
 import com.example.demo.security.JwtService;
+import com.example.demo.service.AdminAccessService;
 import com.example.demo.service.AuthService;
 import com.example.demo.service.RefreshTokenService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,6 +34,7 @@ public class AuthController {
     private static final String REFRESH_COOKIE_NAME = "civis_refresh_token";
 
     private final AuthService authService;
+    private final AdminAccessService adminAccessService;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
     private final boolean refreshCookieSecure;
@@ -42,6 +44,7 @@ public class AuthController {
 
     public AuthController(
             AuthService authService,
+            AdminAccessService adminAccessService,
             JwtService jwtService,
             RefreshTokenService refreshTokenService,
             @Value("${app.auth.refresh-cookie-secure:true}") boolean refreshCookieSecure,
@@ -50,6 +53,7 @@ public class AuthController {
             @Value("${app.auth.refresh-token-ttl-days:30}") long refreshTokenTtlDays
     ) {
         this.authService = authService;
+        this.adminAccessService = adminAccessService;
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
         this.refreshCookieSecure = refreshCookieSecure;
@@ -67,14 +71,14 @@ public class AuthController {
     public AuthResponse verifyRegisterOtp(@Valid @RequestBody MobileOtpVerifyRequest request, HttpServletResponse response) {
         User user = authService.verifyRegistrationOtp(request);
         setRefreshCookie(response, refreshTokenService.issueToken(user.getId()));
-        return new AuthResponse(user, jwtService.generateToken(user.getId()));
+        return new AuthResponse(adminAccessService.decorate(user), jwtService.generateToken(user.getId()));
     }
 
     @PostMapping("/register/email")
     public AuthResponse registerWithEmail(@Valid @RequestBody EmailRegisterRequest request, HttpServletResponse response) {
         User user = authService.registerWithEmail(request);
         setRefreshCookie(response, refreshTokenService.issueToken(user.getId()));
-        return new AuthResponse(user, jwtService.generateToken(user.getId()));
+        return new AuthResponse(adminAccessService.decorate(user), jwtService.generateToken(user.getId()));
     }
 
     @PostMapping("/login/mobile/request-otp")
@@ -86,14 +90,14 @@ public class AuthController {
     public AuthResponse verifyLoginOtp(@Valid @RequestBody MobileLoginOtpVerifyRequest request, HttpServletResponse response) {
         User user = authService.verifyLoginOtp(request);
         setRefreshCookie(response, refreshTokenService.issueToken(user.getId()));
-        return new AuthResponse(user, jwtService.generateToken(user.getId()));
+        return new AuthResponse(adminAccessService.decorate(user), jwtService.generateToken(user.getId()));
     }
 
     @PostMapping("/login/email")
     public AuthResponse loginWithEmail(@Valid @RequestBody EmailLoginRequest request, HttpServletResponse response) {
         User user = authService.loginWithEmail(request);
         setRefreshCookie(response, refreshTokenService.issueToken(user.getId()));
-        return new AuthResponse(user, jwtService.generateToken(user.getId()));
+        return new AuthResponse(adminAccessService.decorate(user), jwtService.generateToken(user.getId()));
     }
 
     @PostMapping("/refresh")
@@ -110,7 +114,7 @@ public class AuthController {
         User user = refreshTokenService.consumeAndRotate(refreshToken);
         refreshTokenService.revoke(refreshToken);
         setRefreshCookie(response, refreshTokenService.issueToken(user.getId()));
-        return new AuthResponse(user, jwtService.generateToken(user.getId()));
+        return new AuthResponse(adminAccessService.decorate(user), jwtService.generateToken(user.getId()));
     }
 
     @PostMapping("/logout")

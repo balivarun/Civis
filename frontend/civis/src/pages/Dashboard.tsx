@@ -69,6 +69,11 @@ export default function Dashboard() {
           <Link to="/dashboard" className="db-nav-item active">
             <span>🏠</span> {t('nav.dashboard')}
           </Link>
+          {user?.admin && (
+            <Link to="/admin/dashboard" className="db-nav-item">
+              <span>🛡</span> {t('nav.adminDashboard')}
+            </Link>
+          )}
           <Link to="/report" className="db-nav-item">
             <span>📝</span> {t('nav.reportIssue')}
           </Link>

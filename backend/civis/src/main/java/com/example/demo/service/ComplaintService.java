@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.ComplaintDtos.CreateComplaintRequest;
+import com.example.demo.dto.ComplaintDtos.AdminComplaintSummary;
 import com.example.demo.model.Complaint;
 import com.example.demo.model.Status;
 import com.example.demo.model.TimelineEntry;
@@ -11,7 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -22,10 +25,16 @@ public class ComplaintService {
 
     private final ComplaintRepository complaintRepository;
     private final UserRepository userRepository;
+    private final AdminAccessService adminAccessService;
 
-    public ComplaintService(ComplaintRepository complaintRepository, UserRepository userRepository) {
+    public ComplaintService(
+            ComplaintRepository complaintRepository,
+            UserRepository userRepository,
+            AdminAccessService adminAccessService
+    ) {
         this.complaintRepository = complaintRepository;
         this.userRepository = userRepository;
+        this.adminAccessService = adminAccessService;
     }
 
     public List<Complaint> getComplaintsByUser(String userId) {
@@ -35,10 +44,44 @@ public class ComplaintService {
     public Complaint getComplaintById(String id, String requesterUserId) {
         Complaint complaint = complaintRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND, "Complaint not found."));
-        if (!complaint.getUserId().equals(requesterUserId)) {
+        if (!complaint.getUserId().equals(requesterUserId) && !isAdmin(requesterUserId)) {
             throw new ResponseStatusException(NOT_FOUND, "Complaint not found.");
         }
         return complaint;
+    }
+
+    public List<AdminComplaintSummary> getAllComplaintsForAdmin(String requesterUserId) {
+        if (!isAdmin(requesterUserId)) {
+            throw new ResponseStatusException(NOT_FOUND, "Complaint not found.");
+        }
+
+        List<Complaint> complaints = complaintRepository.findAllByOrderByCreatedAtDesc();
+        Map<String, User> usersById = new HashMap<>();
+        userRepository.findAllById(complaints.stream().map(Complaint::getUserId).distinct().toList())
+                .forEach(user -> usersById.put(user.getId(), user));
+
+        return complaints.stream()
+                .map(complaint -> {
+                    User reporter = usersById.get(complaint.getUserId());
+                    return new AdminComplaintSummary(
+                            complaint.getId(),
+                            complaint.getUserId(),
+                            reporter != null ? reporter.getName() : "Unknown User",
+                            reporter != null ? defaultString(reporter.getMobile()) : "",
+                            reporter != null ? defaultString(reporter.getEmail()) : "",
+                            complaint.getCategory(),
+                            complaint.getCategoryIcon(),
+                            complaint.getTitle(),
+                            complaint.getDescription(),
+                            complaint.getLocation(),
+                            complaint.getLandmark(),
+                            complaint.getStatus(),
+                            complaint.getPriority(),
+                            complaint.getCreatedAt(),
+                            complaint.getUpdatedAt()
+                    );
+                })
+                .toList();
     }
 
     public Complaint createComplaint(String requesterUserId, CreateComplaintRequest request) {
@@ -69,5 +112,13 @@ public class ComplaintService {
         );
 
         return complaintRepository.save(complaint);
+    }
+
+    private boolean isAdmin(String requesterUserId) {
+        return adminAccessService.isAdmin(userRepository.findById(requesterUserId).orElse(null));
+    }
+
+    private String defaultString(String value) {
+        return value == null ? "" : value;
     }
 }

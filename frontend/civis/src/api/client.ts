@@ -4,6 +4,7 @@ export interface User {
   mobile: string
   email: string
   authType: 'mobile' | 'gmail'
+  admin: boolean
   createdAt: string
 }
 
@@ -26,6 +27,24 @@ export interface Complaint {
   createdAt: string
   updatedAt: string
   timeline: { status: string; note: string; date: string }[]
+}
+
+export interface AdminComplaintSummary {
+  id: string
+  userId: string
+  reporterName: string
+  reporterMobile: string
+  reporterEmail: string
+  category: string
+  categoryIcon: string
+  title: string
+  description: string
+  location: string
+  landmark: string
+  status: 'Submitted' | 'Acknowledged' | 'Under Review' | 'In Progress' | 'Resolved'
+  priority: 'Low' | 'Medium' | 'High'
+  createdAt: string
+  updatedAt: string
 }
 
 type RequestOptions = {
@@ -93,10 +112,10 @@ export async function verifyRegisterOtp(name: string, mobile: string, otp: strin
   })
 }
 
-export async function registerWithEmail(name: string, email: string, password: string) {
+export async function registerWithEmail(name: string, email: string, password: string, adminAccess = false) {
   return request<AuthResponse>('/auth/register/email', {
     method: 'POST',
-    body: { name, email, password },
+    body: { name, email, password, adminAccess },
   })
 }
 
@@ -135,6 +154,10 @@ export async function getComplaintsByUser() {
 
 export async function getComplaintById(id: string) {
   return request<Complaint>(`/complaints/${encodeURIComponent(id)}`)
+}
+
+export async function getAdminComplaints() {
+  return request<AdminComplaintSummary[]>('/complaints/admin/all')
 }
 
 export async function createComplaint(payload: {

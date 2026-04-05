@@ -9,6 +9,7 @@ import HowItWorks from './pages/HowItWorks'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
+import AdminDashboard from './pages/AdminDashboard'
 import ReportComplaint from './pages/ReportComplaint'
 import ComplaintDetail from './pages/ComplaintDetail'
 import './App.css'
@@ -42,6 +43,9 @@ function AppRoutes() {
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={
             <ProtectedRoute><Dashboard /></ProtectedRoute>
+          } />
+          <Route path="/admin/dashboard" element={
+            <ProtectedRoute requireAdmin redirectTo="/login"><AdminDashboard /></ProtectedRoute>
           } />
           <Route path="/report" element={
             <ProtectedRoute><ReportComplaint /></ProtectedRoute>

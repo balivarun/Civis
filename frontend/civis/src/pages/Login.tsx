@@ -11,12 +11,14 @@ import './Auth.css'
 
 type Tab = 'mobile' | 'gmail'
 type Stage = 'input' | 'otp'
+type Mode = 'user' | 'admin'
 
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const { t } = useTranslation()
 
+  const [mode, setMode] = useState<Mode>('user')
   const [tab, setTab] = useState<Tab>('gmail')
   const [stage, setStage] = useState<Stage>('input')
 
@@ -75,7 +77,7 @@ export default function Login() {
     try {
       const response = await verifyLoginOtp(mobile, code)
       login(response.user, response.token)
-      navigate('/dashboard')
+      navigate(response.user.admin ? '/admin/dashboard' : '/dashboard')
     } catch (err) {
       setLoading(false)
       setError(err instanceof Error ? err.message : 'Failed to verify OTP.')
@@ -97,8 +99,13 @@ export default function Login() {
     setLoading(true)
     try {
       const response = await loginWithEmail(email, password)
+      if (mode === 'admin' && !response.user.admin) {
+        setLoading(false)
+        setError('This account does not have admin access.')
+        return
+      }
       login(response.user, response.token)
-      navigate('/dashboard')
+      navigate(response.user.admin ? '/admin/dashboard' : '/dashboard')
     } catch (err) {
       setLoading(false)
       setError(err instanceof Error ? err.message : 'Failed to sign in.')
@@ -141,22 +148,35 @@ export default function Login() {
           {stage === 'input' ? (
             <>
               <div className="auth-card-header">
-                <h1>{t('auth.loginTitle')}</h1>
-                <p>{t('auth.loginSub')}</p>
+                <h1>{mode === 'admin' ? 'Admin Login' : t('auth.loginTitle')}</h1>
+                <p>{mode === 'admin' ? 'Use your approved admin email and password.' : t('auth.loginSub')}</p>
               </div>
 
-              <div className="tab-row">
-                <button className={`tab-btn ${tab === 'mobile' ? 'active' : ''}`}
-                  onClick={() => { setTab('mobile'); setError('') }}>
-                  📱 Mobile OTP
+              <div className="tab-row role-row">
+                <button className={`tab-btn ${mode === 'user' ? 'active' : ''}`}
+                  onClick={() => { setMode('user'); setError('') }}>
+                  Citizen
                 </button>
-                <button className={`tab-btn ${tab === 'gmail' ? 'active' : ''}`}
-                  onClick={() => { setTab('gmail'); setError('') }}>
-                  ✉ Email
+                <button className={`tab-btn ${mode === 'admin' ? 'active' : ''}`}
+                  onClick={() => { setMode('admin'); setTab('gmail'); setError('') }}>
+                  Admin
                 </button>
               </div>
 
-              {tab === 'mobile' && (
+              {mode === 'user' && (
+                <div className="tab-row">
+                  <button className={`tab-btn ${tab === 'mobile' ? 'active' : ''}`}
+                    onClick={() => { setTab('mobile'); setError('') }}>
+                    📱 Mobile OTP
+                  </button>
+                  <button className={`tab-btn ${tab === 'gmail' ? 'active' : ''}`}
+                    onClick={() => { setTab('gmail'); setError('') }}>
+                    ✉ Email
+                  </button>
+                </div>
+              )}
+
+              {mode === 'user' && tab === 'mobile' && (
                 <form className="auth-form" onSubmit={handleMobileSubmit} noValidate>
                   <div className="field-group">
                     <label htmlFor="mobile">{t('auth.mobileLabel')}</label>
@@ -175,11 +195,11 @@ export default function Login() {
                 </form>
               )}
 
-              {tab === 'gmail' && (
+              {(mode === 'admin' || tab === 'gmail') && (
                 <form className="auth-form" onSubmit={handleGmailSubmit} noValidate>
                   <div className="field-group">
-                    <label htmlFor="email">{t('auth.emailLabel')}</label>
-                    <input id="email" type="email" placeholder="you@gmail.com"
+                    <label htmlFor="email">{mode === 'admin' ? 'Admin Email' : t('auth.emailLabel')}</label>
+                    <input id="email" type="email" placeholder={mode === 'admin' ? 'admin@city.gov.in' : 'you@gmail.com'}
                       value={email} onChange={(e) => setEmail(e.target.value)}
                       autoFocus required />
                   </div>

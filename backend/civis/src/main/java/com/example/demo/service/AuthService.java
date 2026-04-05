@@ -34,6 +34,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final OtpTokenRepository otpRepository;
     private final SmsSender smsSender;
+    private final AdminAccessService adminAccessService;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final SecureRandom secureRandom = new SecureRandom();
     private final boolean exposeOtpInResponse;
@@ -42,11 +43,13 @@ public class AuthService {
             UserRepository userRepository,
             OtpTokenRepository otpRepository,
             SmsSender smsSender,
+            AdminAccessService adminAccessService,
             @Value("${app.auth.expose-otp:false}") boolean exposeOtpInResponse
     ) {
         this.userRepository = userRepository;
         this.otpRepository = otpRepository;
         this.smsSender = smsSender;
+        this.adminAccessService = adminAccessService;
         this.exposeOtpInResponse = exposeOtpInResponse;
     }
 
@@ -86,6 +89,10 @@ public class AuthService {
     public User registerWithEmail(EmailRegisterRequest request) {
         if (userRepository.findByEmail(request.email()).isPresent()) {
             throw new ResponseStatusException(BAD_REQUEST, "This email is already registered.");
+        }
+        if (Boolean.TRUE.equals(request.adminAccess())
+                && !adminAccessService.isAdminIdentifier(request.email(), null)) {
+            throw new ResponseStatusException(BAD_REQUEST, "This email is not approved for admin access.");
         }
 
         User user = new User(

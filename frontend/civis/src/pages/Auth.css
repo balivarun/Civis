@@ -42,6 +42,26 @@
   left: -60px;
 }
 
+.admin-auth-left {
+  background: linear-gradient(145deg, #1f2937 0%, #0f172a 45%, #1d4ed8 100%);
+}
+
+.admin-auth-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #bfdbfe;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .auth-left-content {
   max-width: 380px;
   color: #fff;
@@ -167,6 +187,11 @@
   width: 100%;
   max-width: 430px;
   border: 1px solid #e8edf5;
+}
+
+.admin-auth-card {
+  max-width: 460px;
+  border-top: 4px solid #1d4ed8;
 }
 
 .auth-card-header {

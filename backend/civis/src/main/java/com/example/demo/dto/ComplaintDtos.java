@@ -1,9 +1,12 @@
 package com.example.demo.dto;
 
 import com.example.demo.model.Priority;
+import com.example.demo.model.Status;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import java.time.Instant;
 
 public final class ComplaintDtos {
 
@@ -25,6 +28,25 @@ public final class ComplaintDtos {
             String landmark,
             @NotNull(message = "Please select a priority.")
             Priority priority
+    ) {
+    }
+
+    public record AdminComplaintSummary(
+            String id,
+            String userId,
+            String reporterName,
+            String reporterMobile,
+            String reporterEmail,
+            String category,
+            String categoryIcon,
+            String title,
+            String description,
+            String location,
+            String landmark,
+            Status status,
+            Priority priority,
+            Instant createdAt,
+            Instant updatedAt
     ) {
     }
 }

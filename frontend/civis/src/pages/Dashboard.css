@@ -223,6 +223,32 @@
   margin-bottom: 1.5rem;
 }
 
+.admin-toolbar {
+  display: flex;
+  gap: 0.9rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.admin-search,
+.admin-select {
+  border: 1.5px solid #dbe3ef;
+  background: #fff;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  font-size: 0.92rem;
+  color: #0f172a;
+}
+
+.admin-search {
+  flex: 1;
+  min-width: 260px;
+}
+
+.admin-select {
+  min-width: 220px;
+}
+
 .filter-chip {
   padding: 0.4rem 1rem;
   border-radius: 20px;
@@ -247,6 +273,85 @@
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
+}
+
+.admin-table-wrap {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 980px;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 1rem 1.15rem;
+  text-align: left;
+  border-bottom: 1px solid #eef2f7;
+  vertical-align: middle;
+}
+
+.admin-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.admin-table tbody tr:hover {
+  background: #f8fbff;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.admin-table-link strong {
+  color: #0f172a;
+  font-size: 0.92rem;
+}
+
+.admin-table-link span {
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.admin-table-citizen {
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+}
+
+.admin-table-citizen strong {
+  color: #0f172a;
+  font-size: 0.88rem;
+}
+
+.admin-table-citizen span {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.admin-table-category {
+  font-size: 0.88rem;
+  color: #334155;
+  font-weight: 600;
 }
 
 .db-card {
@@ -300,6 +405,28 @@
   color: #94a3b8;
   margin: 0;
   flex-wrap: wrap;
+}
+
+.admin-reporter-line {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.admin-reporter-pill {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 999px;
+  padding: 0.28rem 0.7rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.admin-reporter-contact {
+  font-size: 0.78rem;
+  color: #475569;
 }
 
 .db-card-right {
@@ -356,6 +483,9 @@
   .db-sidebar { display: none; }
   .db-main { padding: 1.2rem; }
   .db-stats { grid-template-columns: repeat(2, 1fr); }
+  .admin-toolbar { flex-direction: column; }
+  .admin-search,
+  .admin-select { width: 100%; min-width: 0; }
 }
 
 @media (max-width: 480px) {
