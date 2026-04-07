@@ -363,6 +363,46 @@
   transform: translateY(-1px);
 }
 
+/* ── FAQ ── */
+.faq-section {
+  padding: 5rem 2rem 5.5rem;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef6ff 100%);
+}
+
+.faq-section > * {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.2rem;
+}
+
+.faq-card {
+  background: #ffffff;
+  border: 1px solid #dbe7f5;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 26px rgba(15, 23, 42, 0.05);
+}
+
+.faq-card h3 {
+  margin: 0 0 0.7rem;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: #0f172a;
+}
+
+.faq-card p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: #475569;
+}
+
 /* ── Footer ── */
 .footer {
   background: #0f172a;
@@ -598,9 +638,27 @@ html[data-theme='dark'] .categories {
   background: #101a2a;
 }
 
+html[data-theme='dark'] .faq-section {
+  background: linear-gradient(180deg, #0c1523 0%, #101a2a 100%);
+}
+
 html[data-theme='dark'] .category-card:hover {
   border-color: var(--app-brand);
   box-shadow: 0 10px 28px rgba(104, 168, 255, 0.18);
+}
+
+html[data-theme='dark'] .faq-card {
+  background: var(--app-surface);
+  border-color: var(--app-border);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
+}
+
+html[data-theme='dark'] .faq-card h3 {
+  color: var(--app-text-strong);
+}
+
+html[data-theme='dark'] .faq-card p {
+  color: var(--app-text-soft);
 }
 
 html[data-theme='dark'] .cta-box {

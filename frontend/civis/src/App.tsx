@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Navbar from './components/Navbar'
 import LandingPage from './components/LandingPage'
 import HowItWorks from './pages/HowItWorks'
+import FaqPage from './pages/FaqPage'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
@@ -61,6 +62,7 @@ function AppRoutes() {
               <Routes>
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/faq" element={<FaqPage />} />
               </Routes>
             </>
           } />

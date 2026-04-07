@@ -53,6 +53,7 @@ export default function Navbar() {
           <li><NavLink to="/" end onClick={close}>{t('nav.home')}</NavLink></li>
           <li><NavLink to="/how-it-works" onClick={close}>{t('nav.howItWorks')}</NavLink></li>
           <li><a href="/#categories" onClick={close}>{t('nav.categories')}</a></li>
+          <li><NavLink to="/faq" onClick={close}>{t('nav.faq')}</NavLink></li>
 
           {isLoggedIn ? (
             <>

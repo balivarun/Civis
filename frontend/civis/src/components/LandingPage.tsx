@@ -41,6 +41,13 @@ export default function LandingPage() {
     { value: '70%', label: t('landing.stats.rate') },
   ]
 
+  const faqItems = [
+    { q: t('landing.faq1q'), a: t('landing.faq1a') },
+    { q: t('landing.faq2q'), a: t('landing.faq2a') },
+    { q: t('landing.faq3q'), a: t('landing.faq3a') },
+    { q: t('landing.faq4q'), a: t('landing.faq4a') },
+  ]
+
   return (
     <main className="landing">
 
@@ -126,6 +133,21 @@ export default function LandingPage() {
           <h2>{t('landing.ctaTitle')}</h2>
           <p>{t('landing.ctaSub')}</p>
           <Link to="/register" className="btn-primary btn-large">{t('landing.ctaBtn')}</Link>
+        </div>
+      </section>
+
+      <section className="faq-section" id="faq">
+        <div className="section-header">
+          <h2>{t('landing.faqTitle')}</h2>
+          <p>{t('landing.faqSub')}</p>
+        </div>
+        <div className="faq-grid">
+          {faqItems.map((item) => (
+            <article className="faq-card" key={item.q}>
+              <h3>{item.q}</h3>
+              <p>{item.a}</p>
+            </article>
+          ))}
         </div>
       </section>
 
