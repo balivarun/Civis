@@ -7,6 +7,7 @@ import { createComplaint } from '../api/client'
 import './ReportComplaint.css'
 
 const MIN_DESCRIPTION_LENGTH = 30
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
 const DEFAULT_MAP_CENTER = { lat: 20.5937, lng: 78.9629 }
 
 type MapPosition = {
@@ -57,6 +58,8 @@ export default function ReportComplaint() {
   const [location, setLocation] = useState('')
   const [landmark, setLandmark] = useState('')
   const [priority, setPriority] = useState<'Low' | 'Medium' | 'High'>('Medium')
+  const [imageDataUrl, setImageDataUrl] = useState('')
+  const [imageName, setImageName] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false)
@@ -64,6 +67,8 @@ export default function ReportComplaint() {
   const [isLocating, setIsLocating] = useState(false)
   const [mapMessage, setMapMessage] = useState('')
   const mapElementRef = useRef<HTMLDivElement | null>(null)
+  const uploadInputRef = useRef<HTMLInputElement | null>(null)
+  const cameraInputRef = useRef<HTMLInputElement | null>(null)
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.CircleMarker | null>(null)
 
@@ -152,6 +157,44 @@ export default function ReportComplaint() {
     }, 350)
   }
 
+  function handleImagePick(file: File | null) {
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      setError(t('report.imageInvalid'))
+      return
+    }
+
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      setError(t('report.imageTooLarge'))
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : ''
+      setImageDataUrl(result)
+      setImageName(file.name || t('report.imageCapturedName'))
+      setError('')
+    }
+    reader.onerror = () => {
+      setError(t('report.imageReadError'))
+    }
+    reader.readAsDataURL(file)
+  }
+
+  function handleImageInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null
+    handleImagePick(file)
+    event.target.value = ''
+  }
+
+  function handleRemoveImage() {
+    setImageDataUrl('')
+    setImageName('')
+    setError('')
+  }
+
   function handlePickPosition(position: MapPosition, source: 'map' | 'device') {
     setSelectedPosition(position)
     setLocation((currentLocation) => {
@@ -201,6 +244,7 @@ export default function ReportComplaint() {
       categoryIcon,
       title: title.trim(),
       description: description.trim(),
+      imageDataUrl,
       location: location.trim(),
       landmark: landmark.trim(),
       priority,
@@ -287,6 +331,21 @@ export default function ReportComplaint() {
           {/* Step 2: Details */}
           {step === 2 && (
             <div className="report-fields">
+              <input
+                ref={uploadInputRef}
+                type="file"
+                accept="image/*"
+                className="visually-hidden"
+                onChange={handleImageInputChange}
+              />
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="visually-hidden"
+                onChange={handleImageInputChange}
+              />
               <div className="field-group">
                 <label>{t('report.titleLabel')} <span className="req">*</span></label>
                 <input type="text" placeholder={t('report.titlePlaceholder')}
@@ -324,6 +383,37 @@ export default function ReportComplaint() {
                     </button>
                   ))}
                 </div>
+              </div>
+              <div className="field-group">
+                <label>{t('report.imageLabel')}</label>
+                <p className="field-helper">{t('report.imageHelp')}</p>
+                <div className="image-action-row">
+                  <button
+                    type="button"
+                    className="image-action-btn"
+                    onClick={() => uploadInputRef.current?.click()}
+                  >
+                    {t('report.uploadImage')}
+                  </button>
+                  <button
+                    type="button"
+                    className="image-action-btn image-action-btn-secondary"
+                    onClick={() => cameraInputRef.current?.click()}
+                  >
+                    {t('report.captureImage')}
+                  </button>
+                </div>
+                {imageDataUrl && (
+                  <div className="image-preview-card">
+                    <img src={imageDataUrl} alt={t('report.imagePreviewAlt')} className="image-preview" />
+                    <div className="image-preview-meta">
+                      <strong>{imageName || t('report.imageSelected')}</strong>
+                      <button type="button" className="image-remove-btn" onClick={handleRemoveImage}>
+                        {t('report.removeImage')}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -385,10 +475,19 @@ export default function ReportComplaint() {
                   <strong data-p={priority}>{priorities.find(p => p.value === priority)?.display || priority}</strong>
                 </div>
                 <div className="review-row">
+                  <span>{t('report.imageLabel')}</span>
+                  <strong>{imageDataUrl ? t('report.imageAttached') : t('report.imageNotAttached')}</strong>
+                </div>
+                <div className="review-row">
                   <span>{t('report.reviewFiledBy')}</span>
                   <strong>{user?.name}</strong>
                 </div>
               </div>
+              {imageDataUrl && (
+                <div className="review-image-block">
+                  <img src={imageDataUrl} alt={t('report.imagePreviewAlt')} className="review-image" />
+                </div>
+              )}
               {error && <div className="form-error">⚠ {error}</div>}
               <button type="submit" className="submit-btn" disabled={submitting}>
                 {submitting ? <span className="btn-spinner" /> : t('report.submitBtn')}

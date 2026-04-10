@@ -123,6 +123,7 @@ public class ComplaintService {
                 request.categoryIcon(),
                 request.title().trim(),
                 request.description().trim(),
+                request.imageDataUrl() == null ? "" : request.imageDataUrl().trim(),
                 request.location().trim(),
                 request.landmark() == null ? "" : request.landmark().trim(),
                 Status.Submitted,

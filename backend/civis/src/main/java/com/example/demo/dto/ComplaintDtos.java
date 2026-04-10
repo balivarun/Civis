@@ -23,6 +23,8 @@ public final class ComplaintDtos {
             @NotBlank(message = "Description must be at least 30 characters.")
             @Size(min = 30, message = "Description must be at least 30 characters.")
             String description,
+            @Size(max = 7000000, message = "Image is too large.")
+            String imageDataUrl,
             @NotBlank(message = "Please enter the location.")
             String location,
             String landmark,

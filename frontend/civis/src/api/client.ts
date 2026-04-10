@@ -20,6 +20,7 @@ export interface Complaint {
   categoryIcon: string
   title: string
   description: string
+  imageDataUrl: string
   location: string
   landmark: string
   status: 'Submitted' | 'Acknowledged' | 'Under Review' | 'In Progress' | 'Resolved'
@@ -172,6 +173,7 @@ export async function createComplaint(payload: {
   categoryIcon: string
   title: string
   description: string
+  imageDataUrl?: string
   location: string
   landmark: string
   priority: 'Low' | 'Medium' | 'High'

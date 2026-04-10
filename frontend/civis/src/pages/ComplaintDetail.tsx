@@ -135,6 +135,17 @@ export default function ComplaintDetail() {
           <p>{complaint.description}</p>
         </div>
 
+        {complaint.imageDataUrl && (
+          <div className="cd-section-card">
+            <h2>{t('detail.photoTitle')}</h2>
+            <img
+              src={complaint.imageDataUrl}
+              alt={t('detail.photoTitle')}
+              className="cd-complaint-image"
+            />
+          </div>
+        )}
+
         {/* Timeline */}
         <div className="cd-section-card">
           <h2>{t('detail.timelineTitle')}</h2>
