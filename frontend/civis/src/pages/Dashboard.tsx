@@ -50,6 +50,15 @@ export default function Dashboard() {
 
   const resolved = complaints.filter((c) => c.status === 'Resolved').length
   const pending = complaints.filter((c) => c.status !== 'Resolved').length
+  const latestComplaint = complaints[0] ?? null
+
+  function getStatusStep(status: Complaint['status']) {
+    if (status === 'Submitted') return 1
+    if (status === 'Acknowledged') return 2
+    if (status === 'Under Review') return 3
+    if (status === 'In Progress') return 4
+    return 5
+  }
 
   return (
     <div className="db-page">
@@ -94,8 +103,9 @@ export default function Dashboard() {
 
       {/* Main content */}
       <main className="db-main">
-        <header className="db-header">
-          <div>
+        <header className="db-header db-header-hero">
+          <div className="db-header-copy">
+            <p className="db-header-eyebrow">Citizen Workspace</p>
             <h1>{t('dashboard.title')}</h1>
             <p>{t('dashboard.subtitle')}</p>
           </div>
@@ -107,18 +117,22 @@ export default function Dashboard() {
         {/* Stats row */}
         <div className="db-stats">
           <div className="db-stat-card">
+            <span className="db-stat-icon">📋</span>
             <span className="db-stat-num">{complaints.length}</span>
             <span className="db-stat-label">{t('dashboard.totalFiled')}</span>
           </div>
           <div className="db-stat-card active">
+            <span className="db-stat-icon">⏳</span>
             <span className="db-stat-num">{pending}</span>
             <span className="db-stat-label">{t('dashboard.inProgress')}</span>
           </div>
           <div className="db-stat-card resolved">
+            <span className="db-stat-icon">✅</span>
             <span className="db-stat-num">{resolved}</span>
             <span className="db-stat-label">{t('dashboard.resolved')}</span>
           </div>
           <div className="db-stat-card rate">
+            <span className="db-stat-icon">📈</span>
             <span className="db-stat-num">
               {complaints.length ? Math.round((resolved / complaints.length) * 100) : 0}%
             </span>
@@ -146,33 +160,77 @@ export default function Dashboard() {
             <Link to="/report" className="btn-file">{t('dashboard.emptyBtn')}</Link>
           </div>
         ) : (
-          <div className="db-list">
+          <section className="db-complaints-shell">
+            <div className="db-complaints-head">
+              <div>
+                <p className="db-section-eyebrow">Complaint Overview</p>
+                <h2>All complaints</h2>
+              </div>
+              {latestComplaint && (
+                <div className="db-latest-pill">
+                  <span>Latest</span>
+                  <strong>{latestComplaint.id}</strong>
+                </div>
+              )}
+            </div>
+            <div className="db-list">
             {filtered.map((c) => (
               <Link to={`/complaint/${c.id}`} key={c.id} className="db-card">
-                <div className="db-card-left">
-                  <span className="db-cat-icon">{c.categoryIcon}</span>
-                  <div>
-                    <h3>{c.title}</h3>
-                    <p className="db-card-meta">
-                      <span>{c.id}</span>
-                      <span>·</span>
-                      <span>{c.location}</span>
-                      <span>·</span>
-                      <span>{new Date(c.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                    </p>
+                <div className="db-card-top">
+                  <div className="db-card-left">
+                    <div className="db-cat-badge">
+                      <span className="db-cat-icon">{c.categoryIcon}</span>
+                    </div>
+                    <div className="db-card-copy">
+                      <div className="db-card-title-row">
+                        <h3>{c.title}</h3>
+                        <span className="db-card-id">{c.id}</span>
+                      </div>
+                      <p className="db-card-meta">
+                        <span>{c.location}</span>
+                        <span>•</span>
+                        <span>{new Date(c.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        {c.landmark && (
+                          <>
+                            <span>•</span>
+                            <span>{c.landmark}</span>
+                          </>
+                        )}
+                      </p>
+                      <p className="db-card-desc">{c.description}</p>
+                    </div>
                   </div>
+                  {c.imageDataUrl && (
+                    <div className="db-card-thumb-wrap">
+                      <img src={c.imageDataUrl} alt={c.title} className="db-card-thumb" />
+                    </div>
+                  )}
                 </div>
-                <div className="db-card-right">
-                  <span className="db-priority" data-p={c.priority}>{c.priority}</span>
-                  <span className="db-status-badge"
-                    style={{ background: statusColor[c.status] + '22', color: statusColor[c.status] }}>
-                    {getStatusDisplay(c.status)}
-                  </span>
-                  <span className="db-arrow">→</span>
+                <div className="db-card-bottom">
+                  <div className="db-card-progress">
+                    <div className="db-card-progress-track">
+                      <div
+                        className="db-card-progress-fill"
+                        style={{ width: `${(getStatusStep(c.status) / 5) * 100}%`, background: statusColor[c.status] }}
+                      />
+                    </div>
+                    <span className="db-card-progress-label">
+                      Stage {getStatusStep(c.status)} of 5
+                    </span>
+                  </div>
+                  <div className="db-card-right">
+                    <span className="db-priority" data-p={c.priority}>{c.priority}</span>
+                    <span className="db-status-badge"
+                      style={{ background: statusColor[c.status] + '22', color: statusColor[c.status] }}>
+                      {getStatusDisplay(c.status)}
+                    </span>
+                    <span className="db-arrow">→</span>
+                  </div>
                 </div>
               </Link>
             ))}
-          </div>
+            </div>
+          </section>
         )}
       </main>
     </div>

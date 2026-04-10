@@ -66,6 +66,7 @@ export default function AdminDashboard() {
   })
   const resolved = complaints.filter((c) => c.status === 'Resolved').length
   const pending = complaints.filter((c) => c.status !== 'Resolved').length
+  const latestComplaint = complaints[0] ?? null
 
   async function handleStatusChange(complaintId: string, status: Complaint['status']) {
     setError('')
@@ -126,8 +127,9 @@ export default function AdminDashboard() {
       </aside>
 
       <main className="db-main">
-        <header className="db-header">
-          <div>
+        <header className="db-header db-header-hero">
+          <div className="db-header-copy">
+            <p className="db-header-eyebrow">Operations Center</p>
             <h1>{t('admin.title')}</h1>
             <p>{t('admin.subtitle')}</p>
           </div>
@@ -138,18 +140,22 @@ export default function AdminDashboard() {
 
         <div className="db-stats">
           <div className="db-stat-card">
+            <span className="db-stat-icon">🗂</span>
             <span className="db-stat-num">{complaints.length}</span>
             <span className="db-stat-label">{t('admin.totalComplaints')}</span>
           </div>
           <div className="db-stat-card active">
+            <span className="db-stat-icon">🛠</span>
             <span className="db-stat-num">{pending}</span>
             <span className="db-stat-label">{t('dashboard.inProgress')}</span>
           </div>
           <div className="db-stat-card resolved">
+            <span className="db-stat-icon">✅</span>
             <span className="db-stat-num">{resolved}</span>
             <span className="db-stat-label">{t('dashboard.resolved')}</span>
           </div>
           <div className="db-stat-card rate">
+            <span className="db-stat-icon">👥</span>
             <span className="db-stat-num">{new Set(complaints.map((c) => c.userId)).size}</span>
             <span className="db-stat-label">{t('admin.totalCitizens')}</span>
           </div>
@@ -165,7 +171,7 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        <div className="admin-toolbar">
+        <div className="admin-toolbar admin-toolbar-panel">
           <input
             className="admin-search"
             type="search"
@@ -193,7 +199,20 @@ export default function AdminDashboard() {
             <p>{error || t('admin.emptyDesc')}</p>
           </div>
         ) : (
-          <div className="admin-table-wrap">
+          <section className="db-complaints-shell admin-shell">
+            <div className="db-complaints-head">
+              <div>
+                <p className="db-section-eyebrow">Admin Queue</p>
+                <h2>Citizen complaints</h2>
+              </div>
+              {latestComplaint && (
+                <div className="db-latest-pill">
+                  <span>Latest</span>
+                  <strong>{latestComplaint.id}</strong>
+                </div>
+              )}
+            </div>
+            <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
                 <tr>
@@ -256,7 +275,8 @@ export default function AdminDashboard() {
                 ))}
               </tbody>
             </table>
-          </div>
+            </div>
+          </section>
         )}
       </main>
     </div>
