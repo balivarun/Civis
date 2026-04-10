@@ -29,8 +29,8 @@ public class Complaint {
     @Column(nullable = false, length = 2048)
     private String description;
 
-    @Lob
-    @Column(columnDefinition = "CLOB")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    @Column(length = 5000000)
     private String imageDataUrl;
 
     private String location;
