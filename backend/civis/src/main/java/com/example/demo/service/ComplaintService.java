@@ -68,7 +68,9 @@ public class ComplaintService {
                             complaint.getId(),
                             complaint.getUserId(),
                             reporter != null ? reporter.getName() : "Unknown User",
-                            reporter != null ? defaultString(reporter.getMobile()) : "",
+                            !defaultString(complaint.getReporterMobile()).isBlank()
+                                    ? complaint.getReporterMobile()
+                                    : reporter != null ? defaultString(reporter.getMobile()) : "",
                             reporter != null ? defaultString(reporter.getEmail()) : "",
                             complaint.getCategory(),
                             complaint.getCategoryIcon(),
@@ -124,6 +126,9 @@ public class ComplaintService {
                 request.title().trim(),
                 request.description().trim(),
                 request.imageDataUrl() == null ? "" : request.imageDataUrl().trim(),
+                request.mobileNumber() == null || request.mobileNumber().isBlank()
+                        ? defaultString(user.getMobile())
+                        : request.mobileNumber().trim(),
                 request.location().trim(),
                 request.landmark() == null ? "" : request.landmark().trim(),
                 Status.Submitted,

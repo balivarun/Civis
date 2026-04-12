@@ -9,6 +9,7 @@ import './ReportComplaint.css'
 const MIN_DESCRIPTION_LENGTH = 30
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
 const DEFAULT_MAP_CENTER = { lat: 20.5937, lng: 78.9629 }
+const MOBILE_NUMBER_REGEX = /^[6-9]\d{9}$/
 
 type MapPosition = {
   lat: number
@@ -55,6 +56,7 @@ export default function ReportComplaint() {
   const [categoryIcon, setCategoryIcon] = useState('')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [mobileNumber, setMobileNumber] = useState(user?.mobile ?? '')
   const [location, setLocation] = useState('')
   const [landmark, setLandmark] = useState('')
   const [priority, setPriority] = useState<'Low' | 'Medium' | 'High'>('Medium')
@@ -71,6 +73,10 @@ export default function ReportComplaint() {
   const cameraInputRef = useRef<HTMLInputElement | null>(null)
   const mapRef = useRef<L.Map | null>(null)
   const markerRef = useRef<L.CircleMarker | null>(null)
+
+  useEffect(() => {
+    setMobileNumber(user?.mobile ?? '')
+  }, [user?.mobile])
 
   useEffect(() => {
     if (step !== 3 || !mapElementRef.current || mapRef.current) return
@@ -138,6 +144,7 @@ export default function ReportComplaint() {
     if (step === 2) {
       if (!title.trim()) { setError(t('report.errTitle')); return }
       if (description.trim().length < MIN_DESCRIPTION_LENGTH) { setError(t('report.errDesc')); return }
+      if (mobileNumber.trim() && !MOBILE_NUMBER_REGEX.test(mobileNumber.trim())) { setError(t('report.errMobile')); return }
     }
     if (step === 3 && !location.trim()) { setError(t('report.errLoc')); return }
     setStep((s) => s + 1)
@@ -244,6 +251,7 @@ export default function ReportComplaint() {
       categoryIcon,
       title: title.trim(),
       description: description.trim(),
+      mobileNumber: mobileNumber.trim(),
       imageDataUrl,
       location: location.trim(),
       landmark: landmark.trim(),
@@ -371,6 +379,16 @@ export default function ReportComplaint() {
                 <span className="char-hint">{description.length}/500</span>
               </div>
               <div className="field-group">
+                <label>{t('report.mobileLabel')}</label>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder={t('report.mobilePlaceholder')}
+                  value={mobileNumber}
+                  onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                />
+              </div>
+              <div className="field-group">
                 <label>{t('report.priorityLabel')}</label>
                 <div className="priority-options">
                   {priorities.map((p) => (
@@ -465,6 +483,10 @@ export default function ReportComplaint() {
                 <div className="review-row">
                   <span>{t('report.descLabel')}</span>
                   <strong>{description}</strong>
+                </div>
+                <div className="review-row">
+                  <span>{t('report.mobileLabel')}</span>
+                  <strong>{mobileNumber || '-'}</strong>
                 </div>
                 <div className="review-row">
                   <span>{t('report.locLabel')}</span>

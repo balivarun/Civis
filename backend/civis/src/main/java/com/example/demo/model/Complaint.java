@@ -33,6 +33,8 @@ public class Complaint {
     @Column(length = 5000000)
     private String imageDataUrl;
 
+    private String reporterMobile;
+
     private String location;
     private String landmark;
 
@@ -59,7 +61,7 @@ public class Complaint {
     public Complaint() {
     }
 
-    public Complaint(String id, String userId, String category, String categoryIcon, String title, String description, String imageDataUrl, String location, String landmark, Status status, Priority priority, Instant createdAt, Instant updatedAt, List<TimelineEntry> timeline) {
+    public Complaint(String id, String userId, String category, String categoryIcon, String title, String description, String imageDataUrl, String reporterMobile, String location, String landmark, Status status, Priority priority, Instant createdAt, Instant updatedAt, List<TimelineEntry> timeline) {
         this.id = id;
         this.userId = userId;
         this.category = category;
@@ -67,6 +69,7 @@ public class Complaint {
         this.title = title;
         this.description = description;
         this.imageDataUrl = imageDataUrl;
+        this.reporterMobile = reporterMobile;
         this.location = location;
         this.landmark = landmark;
         this.status = status;
@@ -92,6 +95,8 @@ public class Complaint {
     public void setDescription(String description) { this.description = description; }
     public String getImageDataUrl() { return imageDataUrl; }
     public void setImageDataUrl(String imageDataUrl) { this.imageDataUrl = imageDataUrl; }
+    public String getReporterMobile() { return reporterMobile; }
+    public void setReporterMobile(String reporterMobile) { this.reporterMobile = reporterMobile; }
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
     public String getLandmark() { return landmark; }

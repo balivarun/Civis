@@ -173,6 +173,7 @@ export async function createComplaint(payload: {
   categoryIcon: string
   title: string
   description: string
+  mobileNumber?: string
   imageDataUrl?: string
   location: string
   landmark: string

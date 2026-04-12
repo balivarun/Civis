@@ -153,6 +153,8 @@ export const translations = {
       titlePlaceholder: 'e.g. Deep pothole on MG Road near bus stop',
       descLabel: 'Description',
       descPlaceholder: 'Describe the issue in detail in at least 30 characters — size, how long it has been there, how it affects you...',
+      mobileLabel: 'Mobile Number',
+      mobilePlaceholder: 'Enter a 10-digit mobile number',
       aiGenerate: 'Generate with AI',
       aiGenerating: 'Generating...',
       aiHelp: 'Use the title to generate a description draft, then edit it before submitting.',
@@ -192,6 +194,7 @@ export const translations = {
       errCategory: 'Please select a category.',
       errTitle: 'Please enter a complaint title.',
       errDesc: 'Description must be at least 30 characters.',
+      errMobile: 'Enter a valid 10-digit mobile number.',
       errLoc: 'Please enter the location.'
     },
     categories: {
@@ -440,6 +443,8 @@ export const translations = {
       titlePlaceholder: 'जैसे बस स्टॉप के पास एमजी रोड पर गहरा गड्ढा',
       descLabel: 'विवरण',
       descPlaceholder: 'समस्या का कम से कम 30 वर्णों में विस्तार से वर्णन करें — आकार, यह कब से है, यह आपको कैसे प्रभावित करता है...',
+      mobileLabel: 'मोबाइल नंबर',
+      mobilePlaceholder: '10 अंकों का मोबाइल नंबर दर्ज करें',
       aiGenerate: 'AI से जनरेट करें',
       aiGenerating: 'जनरेट हो रहा है...',
       aiHelp: 'शीर्षक से विवरण का ड्राफ्ट बनाएं, फिर सबमिट करने से पहले उसे संपादित करें।',
@@ -479,6 +484,7 @@ export const translations = {
       errCategory: 'कृपया एक श्रेणी चुनें।',
       errTitle: 'कृपया शिकायत का शीर्षक दर्ज करें।',
       errDesc: 'विवरण कम से कम 30 वर्णों का होना चाहिए।',
+      errMobile: 'कृपया सही 10 अंकों का मोबाइल नंबर दर्ज करें।',
       errLoc: 'कृपया स्थान दर्ज करें।'
     },
     categories: {

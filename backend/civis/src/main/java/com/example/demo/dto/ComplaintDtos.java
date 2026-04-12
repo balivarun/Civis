@@ -4,6 +4,7 @@ import com.example.demo.model.Priority;
 import com.example.demo.model.Status;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
@@ -28,6 +29,8 @@ public final class ComplaintDtos {
             @NotBlank(message = "Please enter the location.")
             String location,
             String landmark,
+            @Pattern(regexp = "^(|[6-9]\\d{9})$", message = "Enter a valid 10-digit mobile number.")
+            String mobileNumber,
             @NotNull(message = "Please select a priority.")
             Priority priority
     ) {
