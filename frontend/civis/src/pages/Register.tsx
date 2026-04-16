@@ -160,13 +160,13 @@ export default function Register() {
 
               {mode === 'user' && (
                 <div className="tab-row">
-                  <button className={`tab-btn ${tab === 'mobile' ? 'active' : ''}`}
-                    onClick={() => { setTab('mobile'); setError('') }}>
-                    📱 Mobile OTP
-                  </button>
                   <button className={`tab-btn ${tab === 'gmail' ? 'active' : ''}`}
                     onClick={() => { setTab('gmail'); setError('') }}>
                     ✉ Email
+                  </button>
+                  <button className={`tab-btn ${tab === 'mobile' ? 'active' : ''}`}
+                    onClick={() => { setTab('mobile'); setError('') }}>
+                    📱 Mobile OTP
                   </button>
                 </div>
               )}
