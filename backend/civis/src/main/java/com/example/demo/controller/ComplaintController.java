@@ -2,8 +2,11 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.ComplaintDtos.CreateComplaintRequest;
 import com.example.demo.dto.ComplaintDtos.AdminComplaintSummary;
+import com.example.demo.dto.ComplaintDtos.GenerateComplaintDescriptionRequest;
+import com.example.demo.dto.ComplaintDtos.GenerateComplaintDescriptionResponse;
 import com.example.demo.dto.ComplaintDtos.UpdateComplaintStatusRequest;
 import com.example.demo.model.Complaint;
+import com.example.demo.service.ComplaintAiService;
 import com.example.demo.service.ComplaintService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
@@ -22,9 +25,11 @@ import java.util.List;
 public class ComplaintController {
 
     private final ComplaintService complaintService;
+    private final ComplaintAiService complaintAiService;
 
-    public ComplaintController(ComplaintService complaintService) {
+    public ComplaintController(ComplaintService complaintService, ComplaintAiService complaintAiService) {
         this.complaintService = complaintService;
+        this.complaintAiService = complaintAiService;
     }
 
     @GetMapping
@@ -49,6 +54,13 @@ public class ComplaintController {
     @GetMapping("/{id}")
     public Complaint getComplaintById(@PathVariable String id, Authentication authentication) {
         return complaintService.getComplaintById(id, authentication.getName());
+    }
+
+    @PostMapping("/ai/generate-description")
+    public GenerateComplaintDescriptionResponse generateComplaintDescription(
+            @Valid @RequestBody GenerateComplaintDescriptionRequest request
+    ) {
+        return complaintAiService.generateDescription(request);
     }
 
     @PostMapping

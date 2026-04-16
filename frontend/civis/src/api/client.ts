@@ -48,6 +48,18 @@ export interface AdminComplaintSummary {
   updatedAt: string
 }
 
+export interface GenerateComplaintDescriptionPayload {
+  category?: string
+  title?: string
+  draftDescription?: string
+  location?: string
+  landmark?: string
+}
+
+export interface GenerateComplaintDescriptionResponse {
+  description: string
+}
+
 type RequestOptions = {
   method?: 'GET' | 'POST' | 'PATCH'
   body?: unknown
@@ -180,6 +192,13 @@ export async function createComplaint(payload: {
   priority: 'Low' | 'Medium' | 'High'
 }) {
   return request<Complaint>('/complaints', {
+    method: 'POST',
+    body: payload,
+  })
+}
+
+export async function generateComplaintDescription(payload: GenerateComplaintDescriptionPayload) {
+  return request<GenerateComplaintDescriptionResponse>('/complaints/ai/generate-description', {
     method: 'POST',
     body: payload,
   })

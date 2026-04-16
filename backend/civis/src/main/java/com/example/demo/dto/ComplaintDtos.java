@@ -36,6 +36,25 @@ public final class ComplaintDtos {
     ) {
     }
 
+    public record GenerateComplaintDescriptionRequest(
+            @Size(max = 120, message = "Category is too long.")
+            String category,
+            @Size(max = 160, message = "Title is too long.")
+            String title,
+            @Size(max = 2000, message = "Draft description is too long.")
+            String draftDescription,
+            @Size(max = 200, message = "Location is too long.")
+            String location,
+            @Size(max = 200, message = "Landmark is too long.")
+            String landmark
+    ) {
+    }
+
+    public record GenerateComplaintDescriptionResponse(
+            String description
+    ) {
+    }
+
     public record UpdateComplaintStatusRequest(
             @NotNull(message = "Please select a status.")
             Status status

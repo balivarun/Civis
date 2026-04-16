@@ -3,24 +3,18 @@ import { Link, useNavigate } from 'react-router-dom'
 import * as L from 'leaflet'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from '../context/TranslationContext'
-import { createComplaint } from '../api/client'
+import { createComplaint, generateComplaintDescription } from '../api/client'
 import './ReportComplaint.css'
 
 const MIN_DESCRIPTION_LENGTH = 30
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
+const AI_GENERATE_COOLDOWN_SECONDS = 10
 const DEFAULT_MAP_CENTER = { lat: 20.5937, lng: 78.9629 }
 const MOBILE_NUMBER_REGEX = /^[6-9]\d{9}$/
 
 type MapPosition = {
   lat: number
   lng: number
-}
-
-function generateDescriptionFromTitle(rawTitle: string) {
-  const title = rawTitle.trim().replace(/\.$/, '')
-  if (!title) return ''
-
-  return `Issue reported: ${title}. This problem is affecting nearby residents and needs attention from the concerned civic department.`
 }
 
 function formatPinnedLocation(position: MapPosition) {
@@ -65,6 +59,8 @@ export default function ReportComplaint() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false)
+  const [aiCooldownSeconds, setAiCooldownSeconds] = useState(0)
+  const [aiStatus, setAiStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [selectedPosition, setSelectedPosition] = useState<MapPosition | null>(null)
   const [isLocating, setIsLocating] = useState(false)
   const [mapMessage, setMapMessage] = useState('')
@@ -77,6 +73,20 @@ export default function ReportComplaint() {
   useEffect(() => {
     setMobileNumber(user?.mobile ?? '')
   }, [user?.mobile])
+
+  useEffect(() => {
+    if (aiCooldownSeconds <= 0) return
+    const timerId = window.setInterval(() => {
+      setAiCooldownSeconds((seconds) => {
+        if (seconds <= 1) {
+          window.clearInterval(timerId)
+          return 0
+        }
+        return seconds - 1
+      })
+    }, 1000)
+    return () => window.clearInterval(timerId)
+  }, [aiCooldownSeconds])
 
   useEffect(() => {
     if (step !== 3 || !mapElementRef.current || mapRef.current) return
@@ -150,18 +160,39 @@ export default function ReportComplaint() {
     setStep((s) => s + 1)
   }
 
-  function handleGenerateDescription() {
+  async function handleGenerateDescription() {
     if (!title.trim()) {
       setError(t('report.errTitle'))
       return
     }
+    if (aiCooldownSeconds > 0) {
+      const waitMessage = t('report.aiCooldown', { seconds: aiCooldownSeconds.toString() })
+      setError(waitMessage)
+      setAiStatus({ type: 'error', message: waitMessage })
+      return
+    }
 
     setError('')
+    setAiStatus(null)
     setIsGeneratingDescription(true)
-    window.setTimeout(() => {
-      setDescription(generateDescriptionFromTitle(title))
+    try {
+      const response = await generateComplaintDescription({
+        category: category.trim() || undefined,
+        title: title.trim(),
+        draftDescription: description.trim() || undefined,
+        location: location.trim() || undefined,
+        landmark: landmark.trim() || undefined,
+      })
+      setDescription(response.description)
+      setAiStatus({ type: 'success', message: t('report.aiGeneratedSuccess') })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : t('report.aiGenerateError')
+      setError(message)
+      setAiStatus({ type: 'error', message })
+    } finally {
       setIsGeneratingDescription(false)
-    }, 350)
+      setAiCooldownSeconds(AI_GENERATE_COOLDOWN_SECONDS)
+    }
   }
 
   function handleImagePick(file: File | null) {
@@ -367,12 +398,24 @@ export default function ReportComplaint() {
                     type="button"
                     className="ai-generate-btn"
                     onClick={handleGenerateDescription}
-                    disabled={isGeneratingDescription}
+                    disabled={isGeneratingDescription || aiCooldownSeconds > 0}
                   >
-                    {isGeneratingDescription ? t('report.aiGenerating') : t('report.aiGenerate')}
+                    {isGeneratingDescription
+                      ? t('report.aiGenerating')
+                      : aiCooldownSeconds > 0
+                        ? t('report.aiCooldown', { seconds: aiCooldownSeconds.toString() })
+                        : t('report.aiGenerate')}
                   </button>
                 </div>
                 <p className="field-helper">{t('report.aiHelp')}</p>
+                {isGeneratingDescription && (
+                  <p className="ai-status ai-status-loading">{t('report.aiGenerating')}</p>
+                )}
+                {!isGeneratingDescription && aiStatus && (
+                  <p className={`ai-status ${aiStatus.type === 'success' ? 'ai-status-success' : 'ai-status-error'}`}>
+                    {aiStatus.message}
+                  </p>
+                )}
                 <textarea placeholder={t('report.descPlaceholder')}
                   value={description} onChange={(e) => setDescription(e.target.value)}
                   rows={5} maxLength={500} />

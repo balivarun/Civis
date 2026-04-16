@@ -233,6 +233,24 @@
   color: #64748b;
 }
 
+.ai-status {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.ai-status-loading {
+  color: #1d4ed8;
+}
+
+.ai-status-success {
+  color: #15803d;
+}
+
+.ai-status-error {
+  color: #dc2626;
+}
+
 .ai-generate-btn {
   border: 1px solid #bfdbfe;
   background: linear-gradient(135deg, #eff6ff, #dbeafe);
