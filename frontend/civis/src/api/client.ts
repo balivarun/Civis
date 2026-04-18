@@ -70,9 +70,9 @@ export interface OtpResponse {
   otp: string | null
 }
 
-export const BACKEND_UNAVAILABLE_MESSAGE = 'Backend is offline. Start the API server on http://localhost:8080 and try again.'
-
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
+const API_TARGET = API_BASE_URL || window.location.origin
+export const BACKEND_UNAVAILABLE_MESSAGE = `Backend is unreachable. Check the API server and CORS settings for ${API_TARGET}/api.`
 let authToken: string | null = null
 
 export function setAuthToken(token: string | null) {
