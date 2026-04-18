@@ -6,6 +6,7 @@ import com.example.demo.repository.RefreshTokenRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
@@ -33,6 +34,7 @@ public class RefreshTokenService {
         this.refreshTokenTtl = Duration.ofDays(ttlDays);
     }
 
+    @Transactional
     public String issueToken(String userId) {
         refreshTokenRepository.deleteByUserId(userId);
         String token = generateTokenValue();
@@ -46,6 +48,7 @@ public class RefreshTokenService {
         return token;
     }
 
+    @Transactional
     public User consumeAndRotate(String token) {
         RefreshToken stored = refreshTokenRepository.findById(token)
                 .orElseThrow(() -> new ResponseStatusException(UNAUTHORIZED, "Invalid refresh token."));
@@ -58,10 +61,12 @@ public class RefreshTokenService {
         return user;
     }
 
+    @Transactional
     public void revoke(String token) {
         refreshTokenRepository.deleteById(token);
     }
 
+    @Transactional
     public void revokeAllForUser(String userId) {
         refreshTokenRepository.deleteByUserId(userId);
     }
