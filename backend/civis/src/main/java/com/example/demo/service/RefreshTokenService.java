@@ -62,6 +62,10 @@ public class RefreshTokenService {
         refreshTokenRepository.deleteById(token);
     }
 
+    public void revokeAllForUser(String userId) {
+        refreshTokenRepository.deleteByUserId(userId);
+    }
+
     private String generateTokenValue() {
         byte[] bytes = new byte[64];
         secureRandom.nextBytes(bytes);

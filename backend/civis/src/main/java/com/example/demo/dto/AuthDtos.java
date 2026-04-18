@@ -75,7 +75,24 @@ public final class AuthDtos {
             String email,
             @NotBlank(message = "Password must be at least 6 characters.")
             @Size(min = 6, message = "Password must be at least 6 characters.")
-            String password
+            String password,
+            Boolean adminAccess
+    ) {
+    }
+
+    public record ChangePasswordRequest(
+            @NotBlank(message = "Enter your current password.")
+            String oldPassword,
+
+            @NotBlank(message = "Password must not be empty.")
+            @Pattern(
+                    regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$",
+                    message = "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
+            )
+            String newPassword,
+
+            @NotBlank(message = "Confirm your new password.")
+            String confirmNewPassword
     ) {
     }
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from '../context/TranslationContext'
-import { getComplaintsByUser, type Complaint } from '../api/client'
+import { getComplaintsByUser, changePassword as changePasswordApi, type Complaint } from '../api/client'
 import './Dashboard.css'
 
 const statusColor: Record<string, string> = {
@@ -13,12 +13,23 @@ const statusColor: Record<string, string> = {
   Resolved: '#22c55e',
 }
 
+const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/
+const STRONG_PASSWORD_MESSAGE =
+  'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.'
+
 export default function Dashboard() {
   const { user, logout } = useAuth()
   const { t } = useTranslation()
   const [complaints, setComplaints] = useState<Complaint[]>([])
   const [filter, setFilter] = useState<string>('All')
   const [error, setError] = useState('')
+  const [showChangePassword, setShowChangePassword] = useState(false)
+  const [oldPassword, setOldPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmNewPassword, setConfirmNewPassword] = useState('')
+  const [pwError, setPwError] = useState('')
+  const [pwLoading, setPwLoading] = useState(false)
+  const [pwSuccess, setPwSuccess] = useState('')
 
   useEffect(() => {
     async function loadComplaints() {
@@ -60,6 +71,40 @@ export default function Dashboard() {
     return 5
   }
 
+  async function handleChangePasswordSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setPwError('')
+    setPwSuccess('')
+
+    if (!oldPassword.trim()) {
+      setPwError('Enter your current password.')
+      return
+    }
+    if (!STRONG_PASSWORD_REGEX.test(newPassword)) {
+      setPwError(STRONG_PASSWORD_MESSAGE)
+      return
+    }
+    if (newPassword !== confirmNewPassword) {
+      setPwError('New passwords do not match.')
+      return
+    }
+
+    setPwLoading(true)
+    try {
+      await changePasswordApi(oldPassword, newPassword, confirmNewPassword)
+      setShowChangePassword(false)
+      setOldPassword('')
+      setNewPassword('')
+      setConfirmNewPassword('')
+      setPwError('')
+      setPwSuccess('')
+    } catch (err) {
+      setPwError(err instanceof Error ? err.message : 'Failed to change password.')
+    } finally {
+      setPwLoading(false)
+    }
+  }
+
   return (
     <div className="db-page">
       {/* Sidebar */}
@@ -97,6 +142,20 @@ export default function Dashboard() {
             <p className="db-user-name">{user?.name}</p>
             <p className="db-user-contact">{user?.mobile || user?.email}</p>
           </div>
+          <button
+            type="button"
+            className="db-change-password-btn"
+            onClick={() => {
+              setShowChangePassword(true)
+              setPwError('')
+              setPwSuccess('')
+              setOldPassword('')
+              setNewPassword('')
+              setConfirmNewPassword('')
+            }}
+          >
+            Change Password
+          </button>
           <button className="db-logout-btn" onClick={logout} title="Sign out">⏻</button>
         </div>
       </aside>
@@ -233,6 +292,65 @@ export default function Dashboard() {
           </section>
         )}
       </main>
+      {showChangePassword && (
+        <div
+          className="db-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          onMouseDown={() => setShowChangePassword(false)}
+        >
+          <div className="db-modal" onMouseDown={(e) => e.stopPropagation()}>
+            <h3>Change Password</h3>
+            <form className="db-change-password-form" onSubmit={handleChangePasswordSubmit} noValidate>
+              <div className="db-field-group">
+                <label>Current Password</label>
+                <input
+                  type="password"
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  autoFocus
+                  required
+                />
+              </div>
+              <div className="db-field-group">
+                <label>New Password</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="db-field-group">
+                <label>Confirm New Password</label>
+                <input
+                  type="password"
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              {pwError && <div className="db-form-error">⚠ {pwError}</div>}
+              {pwSuccess && <div className="db-form-success">✅ {pwSuccess}</div>}
+
+              <div className="db-modal-actions">
+                <button
+                  type="button"
+                  className="db-btn-secondary"
+                  onClick={() => setShowChangePassword(false)}
+                  disabled={pwLoading}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="db-btn-primary" disabled={pwLoading}>
+                  {pwLoading ? 'Saving...' : 'Save Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

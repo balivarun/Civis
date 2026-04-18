@@ -10,12 +10,14 @@ import com.example.demo.dto.AuthDtos.OtpResponse;
 import com.example.demo.model.AuthType;
 import com.example.demo.model.OtpToken;
 import com.example.demo.model.User;
+import com.example.demo.repository.ComplaintRepository;
 import com.example.demo.repository.OtpTokenRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.security.SecureRandom;
@@ -33,8 +35,10 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final OtpTokenRepository otpRepository;
+    private final ComplaintRepository complaintRepository;
     private final SmsSender smsSender;
     private final AdminAccessService adminAccessService;
+    private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final SecureRandom secureRandom = new SecureRandom();
     private final boolean exposeOtpInResponse;
@@ -42,14 +46,18 @@ public class AuthService {
     public AuthService(
             UserRepository userRepository,
             OtpTokenRepository otpRepository,
+            ComplaintRepository complaintRepository,
             SmsSender smsSender,
             AdminAccessService adminAccessService,
+            RefreshTokenService refreshTokenService,
             @Value("${app.auth.expose-otp:false}") boolean exposeOtpInResponse
     ) {
         this.userRepository = userRepository;
         this.otpRepository = otpRepository;
+        this.complaintRepository = complaintRepository;
         this.smsSender = smsSender;
         this.adminAccessService = adminAccessService;
+        this.refreshTokenService = refreshTokenService;
         this.exposeOtpInResponse = exposeOtpInResponse;
     }
 
@@ -136,6 +144,9 @@ public class AuthService {
         if (user == null) {
             throw new ResponseStatusException(BAD_REQUEST, "No account found for this email. Please register first.");
         }
+        if (Boolean.TRUE.equals(request.adminAccess()) && !adminAccessService.isAdmin(user)) {
+            throw new ResponseStatusException(BAD_REQUEST, "This account is not approved for admin access.");
+        }
         String storedPassword = user.getPassword();
         if (storedPassword == null || storedPassword.isBlank()) {
             throw new ResponseStatusException(UNAUTHORIZED, "Incorrect password.");
@@ -150,6 +161,53 @@ public class AuthService {
             return user;
         }
         throw new ResponseStatusException(UNAUTHORIZED, "Incorrect password.");
+    }
+
+    public void changePassword(String userId, String oldPassword, String newPassword, String confirmNewPassword) {
+        if (userId == null || userId.isBlank()) {
+            throw new ResponseStatusException(UNAUTHORIZED, "Invalid token.");
+        }
+        if (newPassword == null || newPassword.isBlank() || confirmNewPassword == null || confirmNewPassword.isBlank()) {
+            throw new ResponseStatusException(BAD_REQUEST, "New password is required.");
+        }
+        if (!newPassword.equals(confirmNewPassword)) {
+            throw new ResponseStatusException(BAD_REQUEST, "New passwords do not match.");
+        }
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new ResponseStatusException(UNAUTHORIZED, "User not found.");
+        }
+
+        String storedPassword = user.getPassword();
+        if (storedPassword == null || storedPassword.isBlank()) {
+            throw new ResponseStatusException(UNAUTHORIZED, "Incorrect password.");
+        }
+
+        // Backward compatibility: plain-text passwords may exist in older deployments.
+        boolean oldPasswordMatches = passwordEncoder.matches(oldPassword, storedPassword) || oldPassword.equals(storedPassword);
+        if (!oldPasswordMatches) {
+            throw new ResponseStatusException(UNAUTHORIZED, "Incorrect password.");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteAccount(String userId) {
+        if (userId == null || userId.isBlank()) {
+            throw new ResponseStatusException(UNAUTHORIZED, "Invalid token.");
+        }
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new ResponseStatusException(UNAUTHORIZED, "User not found.");
+        }
+
+        complaintRepository.deleteByUserId(userId);
+        refreshTokenService.revokeAllForUser(userId);
+        userRepository.delete(user);
     }
 
     private String generateOtp() {

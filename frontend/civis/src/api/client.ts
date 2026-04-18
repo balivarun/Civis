@@ -161,6 +161,13 @@ export async function logoutSession() {
   return request<{ message: string }>('/auth/logout', { method: 'POST' })
 }
 
+export async function changePassword(oldPassword: string, newPassword: string, confirmNewPassword: string) {
+  return request<{ message: string }>('/auth/change-password', {
+    method: 'POST',
+    body: { oldPassword, newPassword, confirmNewPassword },
+  })
+}
+
 export async function getComplaintsByUser() {
   return request<Complaint[]>('/complaints')
 }

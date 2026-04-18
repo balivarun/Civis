@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.AuthDtos.EmailLoginRequest;
 import com.example.demo.dto.AuthDtos.EmailRegisterRequest;
 import com.example.demo.dto.AuthDtos.AuthResponse;
+import com.example.demo.dto.AuthDtos.ChangePasswordRequest;
 import com.example.demo.dto.AuthDtos.MobileLoginOtpRequest;
 import com.example.demo.dto.AuthDtos.MobileLoginOtpVerifyRequest;
 import com.example.demo.dto.AuthDtos.MobileOtpRequest;
@@ -14,10 +15,12 @@ import com.example.demo.service.AdminAccessService;
 import com.example.demo.service.AuthService;
 import com.example.demo.service.RefreshTokenService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -127,6 +130,55 @@ public class AuthController {
         }
         clearRefreshCookie(response);
         return Map.of("message", "Logged out.");
+    }
+
+    @PostMapping("/change-password")
+    public Map<String, String> changePassword(
+            @Valid @RequestBody ChangePasswordRequest request,
+            HttpServletRequest httpServletRequest
+    ) {
+        authService.changePassword(
+                extractUserId(httpServletRequest),
+                request.oldPassword(),
+                request.newPassword(),
+                request.confirmNewPassword()
+        );
+
+        return Map.of("message", "Password changed.");
+    }
+
+    @DeleteMapping("/account")
+    public Map<String, String> deleteAccount(
+            HttpServletRequest httpServletRequest,
+            @CookieValue(name = REFRESH_COOKIE_NAME, required = false) String refreshToken,
+            HttpServletResponse response
+    ) {
+        authService.deleteAccount(extractUserId(httpServletRequest));
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            refreshTokenService.revoke(refreshToken);
+        }
+        clearRefreshCookie(response);
+        return Map.of("message", "Account deleted.");
+    }
+
+    private String extractUserId(HttpServletRequest httpServletRequest) {
+        String authHeader = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.UNAUTHORIZED,
+                    "Missing or invalid token."
+            );
+        }
+
+        String token = authHeader.substring(7);
+        String userId = jwtService.extractUserId(token);
+        if (userId == null || userId.isBlank()) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.UNAUTHORIZED,
+                    "Invalid token."
+            );
+        }
+        return userId;
     }
 
     private void setRefreshCookie(HttpServletResponse response, String refreshToken) {
