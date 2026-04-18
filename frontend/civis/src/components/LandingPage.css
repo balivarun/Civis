@@ -8,7 +8,7 @@
 /* ── Language bar ── */
 .lang-bar {
   position: fixed;
-  top: 64px;
+  top: 90px;
   right: 1.5rem;
   z-index: 900;
   display: flex;
