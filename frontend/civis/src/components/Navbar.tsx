@@ -24,7 +24,7 @@ export default function Navbar() {
       <div className="navbar-inner">
         <Link to="/" className="navbar-brand" onClick={close}>
           <div className="brand-logo-icon">
-            <svg width="18" height="18" viewBox="0 0 40 40" fill="none">
+            <svg width="24" height="24" viewBox="0 0 40 40" fill="none">
               <circle cx="20" cy="20" r="20" fill="white" fillOpacity="0.2"/>
               <path d="M20 8C13.4 8 8 13.4 8 20s5.4 12 12 12 12-5.4 12-12S26.6 8 20 8zm0 4c1.7 0 3 1.3 3 3s-1.3 3-3 3-3-1.3-3-3 1.3-3 3-3zm0 17c-3 0-5.7-1.5-7.3-3.8.03-2.4 4.9-3.7 7.3-3.7 2.4 0 7.3 1.3 7.3 3.7C25.7 27.5 23 28 20 28z" fill="white"/>
             </svg>
@@ -40,7 +40,7 @@ export default function Navbar() {
         </button>
 
         <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
-          <li>
+          <li className="nav-utility-item">
             <button
               type="button"
               className="theme-trigger"
