@@ -98,6 +98,13 @@
   align-items: center;
   gap: 0.75rem;
   min-width: 0;
+  text-decoration: none;
+  border-radius: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.db-user-summary:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .db-user-meta {
@@ -118,6 +125,15 @@
   font-size: 1rem;
   flex-shrink: 0;
   box-shadow: 0 8px 20px rgba(14, 165, 233, 0.24);
+}
+
+.db-avatar-image {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
 }
 
 .db-user-name {
@@ -146,6 +162,29 @@
   gap: 0.65rem;
   padding-top: 0.15rem;
   border-top: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.db-theme-toggle {
+  margin-top: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 14px;
+  padding: 0.78rem 1rem;
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.18s ease;
+}
+
+.db-theme-toggle:hover {
+  background: rgba(96, 165, 250, 0.14);
+  border-color: rgba(96, 165, 250, 0.22);
+  transform: translateY(-1px);
 }
 
 .db-logout-btn {
@@ -829,6 +868,110 @@
 .db-change-password-btn:hover {
   color: #60a5fa;
   background: rgba(96, 165, 250, 0.1);
+}
+
+html[data-theme='dark'] .db-page {
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 26%),
+    linear-gradient(180deg, #07111d 0%, #0a1421 100%);
+}
+
+html[data-theme='dark'] .db-sidebar {
+  background:
+    radial-gradient(circle at top, rgba(59, 130, 246, 0.22), transparent 34%),
+    linear-gradient(180deg, #07111d 0%, #0f2238 52%, #0b1b2d 100%);
+  border-right-color: rgba(36, 50, 70, 0.9);
+  box-shadow: 12px 0 32px rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme='dark'] .db-nav-item {
+  color: #9bb0c8;
+}
+
+html[data-theme='dark'] .db-nav-item:hover,
+html[data-theme='dark'] .db-nav-item.active {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.16), rgba(15, 23, 42, 0.22));
+  color: #eff6ff;
+}
+
+html[data-theme='dark'] .db-user-block {
+  background: linear-gradient(135deg, rgba(17, 28, 45, 0.96), rgba(30, 41, 59, 0.8));
+  border-color: rgba(36, 50, 70, 0.92);
+}
+
+html[data-theme='dark'] .db-main {
+  color: var(--app-text);
+}
+
+html[data-theme='dark'] .db-header-hero,
+html[data-theme='dark'] .db-stat-card,
+html[data-theme='dark'] .admin-toolbar-panel,
+html[data-theme='dark'] .db-complaints-shell,
+html[data-theme='dark'] .db-card,
+html[data-theme='dark'] .db-empty,
+html[data-theme='dark'] .db-modal {
+  background:
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 28%),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border-color: var(--app-border);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.24);
+}
+
+html[data-theme='dark'] .db-header h1,
+html[data-theme='dark'] .db-stat-num,
+html[data-theme='dark'] .db-card-title,
+html[data-theme='dark'] .db-card-meta strong,
+html[data-theme='dark'] .db-empty h3,
+html[data-theme='dark'] .db-modal h3,
+html[data-theme='dark'] .db-complaints-head h2 {
+  color: var(--app-text-strong);
+}
+
+html[data-theme='dark'] .db-header p,
+html[data-theme='dark'] .db-stat-label,
+html[data-theme='dark'] .db-card-subtitle,
+html[data-theme='dark'] .db-card-meta,
+html[data-theme='dark'] .db-empty p,
+html[data-theme='dark'] .db-modal-subtext,
+html[data-theme='dark'] .db-section-eyebrow,
+html[data-theme='dark'] .db-user-contact,
+html[data-theme='dark'] .db-arrow {
+  color: var(--app-text-muted);
+}
+
+html[data-theme='dark'] .filter-chip,
+html[data-theme='dark'] .admin-search,
+html[data-theme='dark'] .admin-select,
+html[data-theme='dark'] .admin-status-select,
+html[data-theme='dark'] .db-input {
+  background: rgba(17, 28, 45, 0.92);
+  color: var(--app-text);
+  border-color: var(--app-border);
+}
+
+html[data-theme='dark'] .filter-chip {
+  box-shadow: none;
+}
+
+html[data-theme='dark'] .filter-chip.active {
+  background: rgba(59, 130, 246, 0.18);
+  color: #dbeafe;
+}
+
+html[data-theme='dark'] .db-empty {
+  border-color: rgba(36, 50, 70, 0.9);
+}
+
+html[data-theme='dark'] .db-change-password-btn {
+  color: #dbeafe;
+}
+
+html[data-theme='dark'] .db-logout-btn {
+  color: #a8b6c9;
+}
+
+html[data-theme='dark'] .db-user-summary:hover {
+  background: rgba(96, 165, 250, 0.08);
 }
 
 .db-modal-overlay {

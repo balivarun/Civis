@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import ReportComplaint from './pages/ReportComplaint'
 import ComplaintDetail from './pages/ComplaintDetail'
+import ProfilePage from './pages/ProfilePage'
 import './App.css'
 
 function BackendStatusBanner() {
@@ -53,6 +54,9 @@ function AppRoutes() {
           } />
           <Route path="/complaint/:id" element={
             <ProtectedRoute><ComplaintDetail /></ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute><><Navbar /><ProfilePage /></></ProtectedRoute>
           } />
 
           {/* Pages with shared Navbar */}

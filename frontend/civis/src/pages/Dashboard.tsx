@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { useTranslation } from '../context/TranslationContext'
 import { getComplaintsByUser, changePassword as changePasswordApi, type Complaint } from '../api/client'
 import './Dashboard.css'
@@ -18,7 +19,8 @@ const STRONG_PASSWORD_MESSAGE =
   'Password must be at least 8 characters and include uppercase, lowercase, number, and special character.'
 
 export default function Dashboard() {
-  const { user, logout } = useAuth()
+  const { user, logout, profileImage } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const { t } = useTranslation()
   const [complaints, setComplaints] = useState<Complaint[]>([])
   const [filter, setFilter] = useState<string>('All')
@@ -136,14 +138,23 @@ export default function Dashboard() {
           </Link>
         </nav>
 
+        <button type="button" className="db-theme-toggle" onClick={toggleTheme}>
+          <span>{theme === 'light' ? '🌙' : '☀️'}</span>
+          {theme === 'light' ? 'Dark mode' : 'Light mode'}
+        </button>
+
         <div className="db-user-block">
-          <div className="db-user-summary">
-            <div className="db-avatar">{user?.name.charAt(0).toUpperCase()}</div>
+          <Link to="/profile" className="db-user-summary">
+            {profileImage ? (
+              <img className="db-avatar-image" src={profileImage} alt={user?.name} />
+            ) : (
+              <div className="db-avatar">{user?.name.charAt(0).toUpperCase()}</div>
+            )}
             <div className="db-user-meta">
               <p className="db-user-name">{user?.name}</p>
               <p className="db-user-contact">{user?.mobile || user?.email}</p>
             </div>
-          </div>
+          </Link>
           <div className="db-user-actions">
             <button
               type="button"

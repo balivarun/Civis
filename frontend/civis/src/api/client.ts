@@ -61,7 +61,7 @@ export interface GenerateComplaintDescriptionResponse {
 }
 
 type RequestOptions = {
-  method?: 'GET' | 'POST' | 'PATCH'
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'
   body?: unknown
 }
 
@@ -159,6 +159,10 @@ export async function refreshSession() {
 
 export async function logoutSession() {
   return request<{ message: string }>('/auth/logout', { method: 'POST' })
+}
+
+export async function deleteAccountSession() {
+  return request<{ message: string }>('/auth/account', { method: 'DELETE' })
 }
 
 export async function changePassword(oldPassword: string, newPassword: string, confirmNewPassword: string) {

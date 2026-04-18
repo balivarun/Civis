@@ -4,8 +4,11 @@ import { BACKEND_UNAVAILABLE_MESSAGE, logoutSession, refreshSession, setAuthToke
 interface AuthContextValue {
   user: User | null
   token: string | null
+  profileImage: string
   login: (user: User, token: string) => void
   logout: () => Promise<void>
+  setProfileImage: (image: string) => void
+  clearProfileImage: () => void
   isLoggedIn: boolean
   isReady: boolean
   backendUnavailable: boolean
@@ -16,8 +19,11 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue>({
   user: null,
   token: null,
+  profileImage: '',
   login: () => {},
   logout: async () => {},
+  setProfileImage: () => {},
+  clearProfileImage: () => {},
   isLoggedIn: false,
   isReady: false,
   backendUnavailable: false,
@@ -28,6 +34,7 @@ const AuthContext = createContext<AuthContextValue>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [token, setToken] = useState<string | null>(null)
+  const [profileImage, setProfileImageState] = useState('')
   const [isReady, setIsReady] = useState(false)
   const [backendMessage, setBackendMessage] = useState('')
 
@@ -37,6 +44,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthToken(t)
     setBackendMessage('')
   }
+
+  useEffect(() => {
+    if (!user) {
+      setProfileImageState('')
+      return
+    }
+
+    const savedImage = window.localStorage.getItem(`civis-profile-image:${user.id}`) ?? ''
+    setProfileImageState(savedImage)
+  }, [user])
 
   useEffect(() => {
     let active = true
@@ -77,8 +94,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setUser(null)
       setToken(null)
+      setProfileImageState('')
       setAuthToken(null)
     }
+  }
+
+  function setProfileImage(image: string) {
+    if (!user) return
+    setProfileImageState(image)
+    window.localStorage.setItem(`civis-profile-image:${user.id}`, image)
+  }
+
+  function clearProfileImage() {
+    if (!user) return
+    setProfileImageState('')
+    window.localStorage.removeItem(`civis-profile-image:${user.id}`)
   }
 
   async function retrySession() {
@@ -109,8 +139,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         token,
+        profileImage,
         login,
         logout,
+        setProfileImage,
+        clearProfileImage,
         isLoggedIn: !!user && !!token,
         isReady,
         backendUnavailable: !!backendMessage,
