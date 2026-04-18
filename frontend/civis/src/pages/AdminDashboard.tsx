@@ -117,12 +117,16 @@ export default function AdminDashboard() {
         </nav>
 
         <div className="db-user-block">
-          <div className="db-avatar">{user?.name.charAt(0).toUpperCase()}</div>
-          <div>
-            <p className="db-user-name">{user?.name}</p>
-            <p className="db-user-contact">{user?.mobile || user?.email}</p>
+          <div className="db-user-summary">
+            <div className="db-avatar">{user?.name.charAt(0).toUpperCase()}</div>
+            <div className="db-user-meta">
+              <p className="db-user-name">{user?.name}</p>
+              <p className="db-user-contact">{user?.mobile || user?.email}</p>
+            </div>
           </div>
-          <button className="db-logout-btn" onClick={logout} title="Sign out">⏻</button>
+          <div className="db-user-actions">
+            <button className="db-logout-btn" onClick={logout} title="Sign out">⏻</button>
+          </div>
         </div>
       </aside>
 

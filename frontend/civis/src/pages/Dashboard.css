@@ -82,14 +82,27 @@
 /* User block */
 .db-user-block {
   display: flex;
-  align-items: center;
-  gap: 0.7rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.9rem;
   padding: 0.9rem;
   background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(148, 163, 184, 0.06));
   border-radius: 18px;
   margin-top: auto;
   border: 1px solid rgba(148, 163, 184, 0.14);
   box-shadow: 0 10px 24px rgba(2, 6, 23, 0.16);
+}
+
+.db-user-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.db-user-meta {
+  flex: 1;
+  min-width: 0;
 }
 
 .db-avatar {
@@ -115,7 +128,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100px;
 }
 
 .db-user-contact {
@@ -125,21 +137,37 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100px;
+}
+
+.db-user-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding-top: 0.15rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
 }
 
 .db-logout-btn {
-  margin-left: auto;
   background: none;
   border: none;
   color: #94a3b8;
   font-size: 1.1rem;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.2s, background-color 0.2s ease;
   flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.db-logout-btn:hover { color: #ef4444; }
+.db-logout-btn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
 
 /* ── Main ── */
 .db-main {
@@ -785,18 +813,22 @@
 
 /* ── Change password (dashboard profile) ── */
 .db-change-password-btn {
-  margin-left: 0;
   background: none;
   border: none;
-  color: #94a3b8;
-  font-size: 0.9rem;
+  color: #cbd5e1;
+  font-size: 0.84rem;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.2s, background-color 0.2s ease;
   font-weight: 800;
+  min-width: 0;
+  white-space: nowrap;
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
 }
 
 .db-change-password-btn:hover {
   color: #60a5fa;
+  background: rgba(96, 165, 250, 0.1);
 }
 
 .db-modal-overlay {
