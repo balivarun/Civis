@@ -656,6 +656,23 @@
 .field-group textarea:focus { border-color: var(--app-brand); background: var(--app-surface); box-shadow: 0 0 0 3px rgba(26,111,191,0.06); }
 .char-hint { color: var(--app-text-muted); }
 
+/* Ensure placeholders and input text remain visible on light backgrounds */
+.field-group input::placeholder,
+.field-group textarea::placeholder {
+  color: var(--app-text-muted);
+  opacity: 1;
+}
+
+/* Explicitly ensure text color for inputs in report fields */
+.report-fields .field-group input,
+.report-fields .field-group textarea {
+  color: var(--app-text);
+}
+
+/* Make map footer text more visible */
+.map-panel-footer { color: var(--app-text-muted); }
+.map-panel-footer strong { color: var(--app-brand); }
+
 .priority-opt { background: var(--app-surface); border: 1.5px solid var(--app-border); color: var(--app-text); }
 .priority-opt span { color: var(--app-text-muted); }
 .priority-opt.selected[data-p="High"] { background: rgba(220,38,38,0.05); border-color: rgba(220,38,38,0.25); }
