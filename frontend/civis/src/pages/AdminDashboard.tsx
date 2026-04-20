@@ -5,6 +5,10 @@ import { useTheme } from '../context/ThemeContext'
 import { useTranslation } from '../context/TranslationContext'
 import { getAdminComplaints, updateAdminComplaintStatus, type AdminComplaintSummary, type Complaint } from '../api/client'
 import './Dashboard.css'
+import './AdminPanels.css'
+import AnalyticsPanel from '../components/AnalyticsPanel'
+import TimelinePanel from '../components/TimelinePanel'
+import MapPanel from '../components/MapPanel'
 
 const statusColor: Record<string, string> = {
   Submitted: '#6366f1',
@@ -24,6 +28,7 @@ export default function AdminDashboard() {
   const [query, setQuery] = useState('')
   const [error, setError] = useState('')
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [activePanel, setActivePanel] = useState<'analytics' | 'timeline' | 'map' | null>(null)
 
   useEffect(() => {
     async function loadComplaints() {
@@ -110,12 +115,6 @@ export default function AdminDashboard() {
           <Link to="/admin/dashboard" className="db-nav-item active">
             <span>🛡</span> {t('nav.adminDashboard')}
           </Link>
-          <Link to="/dashboard" className="db-nav-item">
-            <span>🏠</span> {t('nav.dashboard')}
-          </Link>
-          <Link to="/report" className="db-nav-item">
-            <span>📝</span> {t('nav.reportIssue')}
-          </Link>
         </nav>
 
         <button type="button" className="db-theme-toggle" onClick={toggleTheme}>
@@ -148,9 +147,6 @@ export default function AdminDashboard() {
             <h1>{t('admin.title')}</h1>
             <p>{t('admin.subtitle')}</p>
           </div>
-          <Link to="/dashboard" className="btn-file">
-            {t('admin.openUserDashboard')}
-          </Link>
         </header>
 
         <div className="db-stats">
@@ -175,6 +171,17 @@ export default function AdminDashboard() {
             <span className="db-stat-label">{t('admin.totalCitizens')}</span>
           </div>
         </div>
+
+        <div className="admin-panels-toggle">
+          <button className={`panel-btn ${activePanel === 'analytics' ? 'active' : ''}`} onClick={() => setActivePanel(activePanel === 'analytics' ? null : 'analytics')}>Analytics</button>
+          <button className={`panel-btn ${activePanel === 'timeline' ? 'active' : ''}`} onClick={() => setActivePanel(activePanel === 'timeline' ? null : 'timeline')}>Timeline</button>
+          <button className={`panel-btn ${activePanel === 'map' ? 'active' : ''}`} onClick={() => setActivePanel(activePanel === 'map' ? null : 'map')}>Map</button>
+        </div>
+
+        {activePanel === 'analytics' && <AnalyticsPanel complaints={complaints} />}
+        {activePanel === 'timeline' && <TimelinePanel complaints={complaints} />}
+        {activePanel === 'map' && <MapPanel complaints={complaints} />}
+
 
         <div className="db-filters">
           {statuses.map((s) => (
