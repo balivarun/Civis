@@ -109,20 +109,21 @@ body {
   }
 }
 
-/* Language popup banner (bottom) */
-.lang-banner-modal{position:fixed;left:50%;transform:translateX(-50%);bottom:28px;z-index:2200;box-shadow:0 24px 60px rgba(2,6,23,0.35);border-radius:14px;padding:18px 20px;background:var(--app-surface);color:var(--app-text);border:1px solid var(--app-border);width:min(1100px,calc(100% - 40px));}
-.lang-banner-inner{display:flex;align-items:center;gap:20px;justify-content:space-between}
-.lang-banner-text{display:flex;flex-direction:column}
-.lang-banner-text strong{font-size:1.15rem}
-.lang-banner-text .lang-banner-sub{font-size:0.95rem;color:var(--app-text-muted)}
-.lang-banner-actions{display:flex;gap:12px}
-.lang-btn{border:1px solid var(--app-border);background:transparent;padding:12px 18px;border-radius:10px;cursor:pointer;font-weight:800;font-size:1rem}
+/* Language modal overlay center */
+.lang-modal-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.46);z-index:2500}
+.lang-modal-card{background:var(--app-surface);color:var(--app-text);border-radius:12px;padding:28px;display:flex;gap:24px;align-items:center;max-width:880px;width:min(92%,880px);box-shadow:0 30px 80px rgba(2,6,23,0.45);border:1px solid var(--app-border)}
+.lang-modal-left{flex:1}
+.lang-modal-left h2{margin:0 0 6px;font-size:1.25rem}
+.lang-modal-sub{color:var(--app-text-muted);font-size:0.95rem}
+.lang-modal-actions{display:flex;flex-direction:column;gap:12px}
+.lang-btn{border:1px solid var(--app-border);background:transparent;padding:14px 20px;border-radius:10px;cursor:pointer;font-weight:800;font-size:1rem;min-width:200px}
 .lang-btn.lang-en{background:linear-gradient(90deg,var(--app-brand),var(--app-brand-strong));color:var(--app-surface);border:none}
 .lang-btn.lang-hi{background:transparent;color:var(--app-text);}
-.lang-dismiss{background:transparent;border:none;color:var(--app-text-muted);cursor:pointer;padding:8px 10px;border-radius:8px}
+.lang-modal-close{background:transparent;border:none;color:var(--app-text-muted);cursor:pointer;padding:8px 10px;border-radius:8px;margin-left:12px}
 
-@media (max-width:920px){
-  .lang-banner-inner{flex-direction:column;align-items:flex-start}
-  .lang-banner-actions{width:100%;display:flex;gap:8px}
-  .lang-btn{flex:1}
+@media (max-width:720px){
+  .lang-modal-card{flex-direction:column;align-items:stretch;padding:18px}
+  .lang-modal-actions{flex-direction:row}
+  .lang-btn{flex:1;min-width:0}
+  .lang-modal-close{align-self:center;margin-top:8px}
 }
