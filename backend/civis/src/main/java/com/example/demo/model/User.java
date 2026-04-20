@@ -8,7 +8,10 @@ import org.hibernate.type.SqlTypes;
 import java.time.Instant;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+    @Index(name = "idx_user_email", columnList = "email"),
+    @Index(name = "idx_user_mobile", columnList = "mobile")
+})
 public class User {
 
     @Id

@@ -154,7 +154,6 @@ public class AuthService {
         if (passwordEncoder.matches(request.password(), storedPassword)) {
             return user;
         }
-        // Backward compatibility: migrate old plain-text passwords on successful login.
         if (request.password().equals(storedPassword)) {
             user.setPassword(passwordEncoder.encode(request.password()));
             userRepository.save(user);

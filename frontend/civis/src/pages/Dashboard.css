@@ -526,6 +526,11 @@
   vertical-align: middle;
 }
 
+.admin-table td {
+  color: #0f172a;
+  font-size: 0.88rem;
+}
+
 .admin-table th {
   background: linear-gradient(180deg, #f8fbff 0%, #f1f6fb 100%);
   color: #475569;
