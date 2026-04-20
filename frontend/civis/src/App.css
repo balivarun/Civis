@@ -109,21 +109,20 @@ body {
   }
 }
 
-/* Language center modal */
-.lang-banner-modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:2200;background:rgba(2,6,23,0.45)}
-.lang-banner-inner{background:var(--app-surface);color:var(--app-text);border-radius:12px;padding:28px;width:min(900px,90vw);max-height:80vh;overflow:auto;display:flex;gap:24px;align-items:center;justify-content:space-between;border:1px solid var(--app-border);box-shadow:0 30px 60px rgba(2,6,23,0.36)}
-.lang-banner-text{flex:1}
-.lang-banner-text strong{font-size:1.25rem}
-.lang-banner-text .lang-banner-sub{font-size:1rem;color:var(--app-text-muted);margin-top:6px}
+/* Language popup banner (bottom) */
+.lang-banner-modal{position:fixed;left:50%;transform:translateX(-50%);bottom:28px;z-index:2200;box-shadow:0 24px 60px rgba(2,6,23,0.35);border-radius:14px;padding:18px 20px;background:var(--app-surface);color:var(--app-text);border:1px solid var(--app-border);width:min(1100px,calc(100% - 40px));}
+.lang-banner-inner{display:flex;align-items:center;gap:20px;justify-content:space-between}
+.lang-banner-text{display:flex;flex-direction:column}
+.lang-banner-text strong{font-size:1.15rem}
+.lang-banner-text .lang-banner-sub{font-size:0.95rem;color:var(--app-text-muted)}
 .lang-banner-actions{display:flex;gap:12px}
-.lang-btn{border:1px solid var(--app-border);background:transparent;padding:12px 16px;border-radius:10px;cursor:pointer;font-weight:800;font-size:1rem}
+.lang-btn{border:1px solid var(--app-border);background:transparent;padding:12px 18px;border-radius:10px;cursor:pointer;font-weight:800;font-size:1rem}
 .lang-btn.lang-en{background:linear-gradient(90deg,var(--app-brand),var(--app-brand-strong));color:var(--app-surface);border:none}
-.lang-btn.lang-hi{background:transparent;color:var(--app-text);border:1px solid var(--app-border)}
-.lang-dismiss{background:transparent;border:none;color:var(--app-text-muted);cursor:pointer;padding:6px 8px;border-radius:6px;margin-left:12px}
+.lang-btn.lang-hi{background:transparent;color:var(--app-text);}
+.lang-dismiss{background:transparent;border:none;color:var(--app-text-muted);cursor:pointer;padding:8px 10px;border-radius:8px}
 
-@media (max-width:720px){
-  .lang-banner-inner{flex-direction:column;align-items:stretch;text-align:center}
-  .lang-banner-actions{width:100%;display:flex;gap:8px;justify-content:center}
+@media (max-width:920px){
+  .lang-banner-inner{flex-direction:column;align-items:flex-start}
+  .lang-banner-actions{width:100%;display:flex;gap:8px}
   .lang-btn{flex:1}
-  .lang-banner-text{margin-bottom:8px}
 }
