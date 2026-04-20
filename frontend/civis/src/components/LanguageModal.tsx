@@ -7,31 +7,45 @@ export default function LanguageModal() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    const selected = localStorage.getItem('appLangSelected')
-    // show modal for first-time visitors only
-    if (!selected) {
-      const t = setTimeout(() => setVisible(true), 450)
-      return () => clearTimeout(t)
+    // Only show modal if user has NOT explicitly chosen language
+    const isChosen = localStorage.getItem('appLangSelected') === 'true'
+    console.log('[LanguageModal] Mount - isChosen:', isChosen, '- showing:', !isChosen)
+    
+    if (!isChosen) {
+      // Small delay for better UX
+      const timer = setTimeout(() => {
+        console.log('[LanguageModal] Showing modal')
+        setVisible(true)
+      }, 300)
+      return () => clearTimeout(timer)
     }
   }, [])
 
   function choose(lang: 'en' | 'hi') {
+    console.log('[LanguageModal] User chose:', lang)
     try {
       localStorage.setItem('appLang', lang)
-      localStorage.setItem('appLangSelected', '1')
+      localStorage.setItem('appLangSelected', 'true')
     } catch (e) {
-      // ignore
+      console.error('[LanguageModal] localStorage error:', e)
     }
     setLanguage(lang)
     setVisible(false)
   }
 
   function dismiss() {
-    try { localStorage.setItem('appLangSelected', '1') } catch (e) {}
+    console.log('[LanguageModal] User dismissed')
+    try { 
+      localStorage.setItem('appLangSelected', 'true')
+    } catch (e) {
+      console.error('[LanguageModal] localStorage error:', e)
+    }
     setVisible(false)
   }
 
-  if (!visible) return null
+  if (!visible) {
+    return null
+  }
 
   return (
     <div className="lang-modal-overlay" role="dialog" aria-modal="true" aria-label="Choose language">
