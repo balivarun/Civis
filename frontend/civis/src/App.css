@@ -108,3 +108,9 @@ body {
     width: 100%;
   }
 }
+
+/* Language modal */
+.lang-modal-overlay{position:fixed;inset:0;background:rgba(2,6,23,0.5);display:flex;align-items:center;justify-content:center;z-index:2000}
+.lang-modal{background:var(--app-surface);color:var(--app-text);padding:20px;border-radius:10px;max-width:420px;width:90%;box-shadow:0 12px 40px rgba(2,6,23,0.4);text-align:center}
+.lang-choices{display:flex;gap:12px;justify-content:center;margin-top:12px}
+.lang-choices .panel-btn{padding:10px 16px}

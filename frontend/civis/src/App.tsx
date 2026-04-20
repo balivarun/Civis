@@ -15,6 +15,7 @@ import ReportComplaint from './pages/ReportComplaint'
 import ComplaintDetail from './pages/ComplaintDetail'
 import ProfilePage from './pages/ProfilePage'
 import './App.css'
+import LanguageModal from './components/LanguageModal'
 
 function BackendStatusBanner() {
   const { backendUnavailable, backendMessage, retrySession, isReady } = useAuth()
@@ -82,6 +83,7 @@ function App() {
       <TranslationProvider>
         <AuthProvider>
           <AppRoutes />
+          <LanguageModal />
         </AuthProvider>
       </TranslationProvider>
     </ThemeProvider>
