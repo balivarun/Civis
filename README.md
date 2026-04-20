@@ -102,7 +102,10 @@ Civis/
         │   │   ├── LanguageToggle.tsx
         │   │   ├── Navbar.css
         │   │   ├── Navbar.tsx
-        │   │   └── ProtectedRoute.tsx
+        │   │   ├── ProtectedRoute.tsx
+        │   │   ├── AnalyticsPanel.tsx          # new: admin UI
+        │   │   ├── TimelinePanel.tsx           # new: admin UI
+        │   │   └── MapPanel.tsx                # new: admin UI
         │   ├── context/
         │   │   ├── AuthContext.tsx
         │   │   ├── LanguageContext.tsx
@@ -121,7 +124,9 @@ Civis/
         │   │   ├── Login.tsx
         │   │   ├── Register.tsx
         │   │   ├── ReportComplaint.css
-        │   │   └── ReportComplaint.tsx
+        │   │   ├── ReportComplaint.tsx
+        │   │   ├── AdminDashboard.tsx          # admin dashboard with panels
+        │   │   └── AdminPanels.css             # styles for admin panels
         │   └── utils/
         │       └── translations.ts
         ├── tsconfig.app.json
