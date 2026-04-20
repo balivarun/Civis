@@ -153,6 +153,19 @@ public class ComplaintService {
         return value == null ? "" : value;
     }
 
+    public java.util.Map<String, Object> getPublicStats() {
+        long total = complaintRepository.count();
+        long resolved = complaintRepository.countByStatus(Status.Resolved);
+        long locations = complaintRepository.countDistinctLocations();
+        double rate = total == 0 ? 0.0 : ((double) resolved / (double) total) * 100.0;
+        java.util.Map<String, Object> m = new java.util.HashMap<>();
+        m.put("total", total);
+        m.put("resolved", resolved);
+        m.put("locations", locations);
+        m.put("resolutionRate", Math.round(rate));
+        return m;
+    }
+
     private String statusNote(Status status) {
         return switch (status) {
             case Submitted -> "Complaint status was set to submitted by the admin team.";

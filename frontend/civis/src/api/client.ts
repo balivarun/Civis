@@ -176,6 +176,10 @@ export async function getComplaintsByUser() {
   return request<Complaint[]>('/complaints')
 }
 
+export async function getPublicStats() {
+  return request<{ total: number; resolved: number; locations: number; resolutionRate: number }>("/complaints/stats")
+}
+
 export async function getComplaintById(id: string) {
   return request<Complaint>(`/complaints/${encodeURIComponent(id)}`)
 }

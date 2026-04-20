@@ -8,11 +8,15 @@ export default function LanguageModal() {
 
   useEffect(() => {
     const existing = localStorage.getItem('appLang')
-    if (!existing) setShow(true)
+    const selectedFlag = localStorage.getItem('appLangSelected')
+    // Show modal if the user has not explicitly selected a language before
+    if (!existing && !selectedFlag) setShow(true)
   }, [])
 
   function choose(lang: 'en' | 'hi') {
     setLanguage(lang)
+    // mark that user explicitly chose so modal won't reappear
+    try { localStorage.setItem('appLang', lang); localStorage.setItem('appLangSelected', '1') } catch (e) { /* ignore */ }
     setShow(false)
   }
 

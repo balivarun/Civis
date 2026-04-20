@@ -1,6 +1,8 @@
 import './LandingPage.css'
 import { Link } from 'react-router-dom'
 import { useTranslation } from '../context/TranslationContext'
+import { useEffect, useState } from 'react'
+import { getPublicStats } from '../api/client'
 
 export default function LandingPage() {
   const { t, language, setLanguage } = useTranslation()
@@ -34,7 +36,28 @@ export default function LandingPage() {
     },
   ]
 
-  const stats = [
+  const [statsData, setStatsData] = useState<{ total: number; resolved: number; locations: number; resolutionRate: number } | null>(null)
+
+  useEffect(() => {
+    let mounted = true
+    void (async () => {
+      try {
+        const data = await getPublicStats()
+        if (!mounted) return
+        setStatsData(data)
+      } catch (e) {
+        // ignore and keep dummy fallback
+      }
+    })()
+    return () => { mounted = false }
+  }, [])
+
+  const stats = statsData ? [
+    { value: statsData.total.toLocaleString() + '', label: t('landing.stats.filed') },
+    { value: statsData.resolved.toLocaleString() + '', label: t('landing.stats.resolved') },
+    { value: statsData.locations.toLocaleString() + '', label: t('landing.stats.municipalities') },
+    { value: statsData.resolutionRate + '%', label: t('landing.stats.rate') },
+  ] : [
     { value: '18,400+', label: t('landing.stats.filed') },
     { value: '12,900+', label: t('landing.stats.resolved') },
     { value: '340+', label: t('landing.stats.municipalities') },

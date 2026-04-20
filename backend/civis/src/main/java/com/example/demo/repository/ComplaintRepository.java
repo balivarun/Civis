@@ -11,4 +11,9 @@ public interface ComplaintRepository extends JpaRepository<Complaint, String> {
     List<Complaint> findByUserIdOrderByCreatedAtDesc(String userId);
     List<Complaint> findAllByOrderByCreatedAtDesc();
     void deleteByUserId(String userId);
+
+    long countByStatus(com.example.demo.model.Status status);
+
+    @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT c.location) FROM Complaint c WHERE c.location IS NOT NULL AND c.location <> ''")
+    long countDistinctLocations();
 }

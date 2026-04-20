@@ -82,8 +82,8 @@ function App() {
     <ThemeProvider>
       <TranslationProvider>
         <AuthProvider>
-          <AppRoutes />
           <LanguageModal />
+          <AppRoutes />
         </AuthProvider>
       </TranslationProvider>
     </ThemeProvider>

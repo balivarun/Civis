@@ -42,6 +42,11 @@ public class ComplaintController {
         return complaintService.getAllComplaintsForAdmin(authentication.getName());
     }
 
+    @GetMapping("/stats")
+    public java.util.Map<String, Object> getPublicStats() {
+        return complaintService.getPublicStats();
+    }
+
     @PatchMapping("/admin/{id}/status")
     public Complaint updateComplaintStatus(
             @PathVariable String id,
