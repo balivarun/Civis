@@ -32,3 +32,14 @@
 .map-list{width:260px;overflow:auto}
 .map-location{display:block;padding:8px;border-bottom:1px solid var(--app-border);text-decoration:none;color:var(--app-text)}
 .muted{color:var(--app-text-muted)}
+
+/* Internal notes */
+.internal-notes .note-form textarea{width:100%;border:1px solid var(--app-border);background:var(--app-surface-soft);color:var(--app-text);padding:8px;border-radius:8px}
+.internal-notes .note-actions{margin-top:8px;text-align:right}
+.internal-notes .notes-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.note-item{position:relative;padding:10px;border-radius:10px;background:var(--app-surface-soft);border:1px solid var(--app-border)}
+.note-meta{display:flex;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:0.85rem;color:var(--app-text-soft)}
+.note-text{color:var(--app-text);white-space:pre-wrap}
+.note-delete{position:absolute;right:8px;top:8px;border:none;background:transparent;color:var(--app-text);cursor:pointer}
+.btn.btn-primary{background:var(--app-brand);border:none;color:var(--app-surface);padding:8px 12px;border-radius:8px}
+

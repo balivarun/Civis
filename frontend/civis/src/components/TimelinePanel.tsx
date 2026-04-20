@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import InternalNotes from './InternalNotes'
 
 type Props = { complaints: any[] }
 
@@ -38,7 +39,7 @@ export default function TimelinePanel({ complaints }: Props) {
               </ol>
               <div className="timeline-notes">
                 <h5>Internal notes</h5>
-                <div className="muted">No internal notes yet. Use the internal notes feature to add conversation.</div>
+                <InternalNotes complaintId={item.id} />
               </div>
             </div>
           )}
