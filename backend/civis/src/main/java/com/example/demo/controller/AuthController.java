@@ -78,14 +78,8 @@ public class AuthController {
     }
 
     @PostMapping("/register/email")
-    public Map<String, String> registerWithEmail(@Valid @RequestBody EmailRegisterRequest request) {
-        authService.registerWithEmail(request);
-        return Map.of("message", "Verification email sent. Please check your inbox to verify your email.");
-    }
-
-    @PostMapping("/verify-email")
-    public AuthResponse verifyEmail(@Valid @RequestBody com.example.demo.dto.AuthDtos.EmailVerifyRequest request, HttpServletResponse response) {
-        User user = authService.verifyEmail(request.email(), request.token());
+    public AuthResponse registerWithEmail(@Valid @RequestBody EmailRegisterRequest request, HttpServletResponse response) {
+        User user = authService.registerWithEmail(request);
         setRefreshCookie(response, refreshTokenService.issueToken(user.getId()));
         return new AuthResponse(adminAccessService.decorate(user), jwtService.generateToken(user.getId()));
     }

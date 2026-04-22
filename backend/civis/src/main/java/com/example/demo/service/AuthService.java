@@ -37,7 +37,6 @@ public class AuthService {
     private final OtpTokenRepository otpRepository;
     private final ComplaintRepository complaintRepository;
     private final SmsSender smsSender;
-    private final EmailSender emailSender;
     private final AdminAccessService adminAccessService;
     private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -49,7 +48,6 @@ public class AuthService {
             OtpTokenRepository otpRepository,
             ComplaintRepository complaintRepository,
             SmsSender smsSender,
-            EmailSender emailSender,
             AdminAccessService adminAccessService,
             RefreshTokenService refreshTokenService,
             @Value("${app.auth.expose-otp:false}") boolean exposeOtpInResponse
@@ -58,7 +56,6 @@ public class AuthService {
         this.otpRepository = otpRepository;
         this.complaintRepository = complaintRepository;
         this.smsSender = smsSender;
-        this.emailSender = emailSender;
         this.adminAccessService = adminAccessService;
         this.refreshTokenService = refreshTokenService;
         this.exposeOtpInResponse = exposeOtpInResponse;
@@ -98,15 +95,11 @@ public class AuthService {
     }
 
     public User registerWithEmail(EmailRegisterRequest request) {
-        String email = request.email() == null ? null : request.email().trim();
-        if (email == null || email.isBlank()) {
-            throw new ResponseStatusException(BAD_REQUEST, "Enter a valid email address.");
-        }
-        if (userRepository.findByEmail(email).isPresent()) {
+        if (userRepository.findByEmail(request.email()).isPresent()) {
             throw new ResponseStatusException(BAD_REQUEST, "This email is already registered.");
         }
         if (Boolean.TRUE.equals(request.adminAccess())
-                && !adminAccessService.isAdminIdentifier(email, null)) {
+                && !adminAccessService.isAdminIdentifier(request.email(), null)) {
             throw new ResponseStatusException(BAD_REQUEST, "This email is not approved for admin access.");
         }
 
@@ -114,21 +107,12 @@ public class AuthService {
                 "u_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16),
                 request.name().trim(),
                 null,
-                email,
+                request.email().trim(),
                 AuthType.gmail,
                 passwordEncoder.encode(request.password()),
                 Instant.now()
         );
-        user.setEmailVerified(false);
-        userRepository.save(user);
-
-        // create verification token (valid 24h)
-        String token = UUID.randomUUID().toString().replace("-", "");
-        String key = "email_verif:" + email;
-        otpRepository.save(new OtpToken(key, token, Instant.now().plus(Duration.ofHours(24))));
-        emailSender.sendVerification(email, token);
-
-        return user;
+        return userRepository.save(user);
     }
 
     public OtpResponse requestLoginOtp(MobileLoginOtpRequest request) {
@@ -156,17 +140,9 @@ public class AuthService {
     }
 
     public User loginWithEmail(EmailLoginRequest request) {
-        String email = request.email() == null ? null : request.email().trim();
-        if (email == null || email.isBlank()) {
-            throw new ResponseStatusException(BAD_REQUEST, "Enter a valid email address.");
-        }
-
-        User user = userRepository.findByEmail(email).orElse(null);
+        User user = userRepository.findByEmail(request.email()).orElse(null);
         if (user == null) {
             throw new ResponseStatusException(BAD_REQUEST, "No account found for this email. Please register first.");
-        }
-        if (!user.isEmailVerified()) {
-            throw new ResponseStatusException(BAD_REQUEST, "Email not verified. Please check your inbox for the verification link.");
         }
         if (Boolean.TRUE.equals(request.adminAccess()) && !adminAccessService.isAdmin(user)) {
             throw new ResponseStatusException(BAD_REQUEST, "This account is not approved for admin access.");
@@ -246,24 +222,6 @@ public class AuthService {
 
     private String otpKey(String flow, String mobile) {
         return flow + ":" + mobile;
-    }
-
-    public User verifyEmail(String email, String token) {
-        String key = "email_verif:" + (email == null ? "" : email.trim());
-        if (!otpRepository.findById(key)
-                .filter(stored -> stored.getExpiresAt().isAfter(Instant.now()))
-                .map(stored -> stored.getOtp().equals(token))
-                .orElse(false)) {
-            throw new ResponseStatusException(BAD_REQUEST, "Invalid or expired verification token.");
-        }
-        User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            throw new ResponseStatusException(BAD_REQUEST, "No account found for this email.");
-        }
-        user.setEmailVerified(true);
-        userRepository.save(user);
-        otpRepository.deleteById(key);
-        return user;
     }
 
     private OtpResponse otpResponse(String otp) {

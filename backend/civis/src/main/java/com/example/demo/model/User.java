@@ -26,9 +26,6 @@ public class User {
     @Column(unique = true)
     private String email;
 
-    @Column(name = "email_verified", nullable = false)
-    private boolean emailVerified = false;
-
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(nullable = false)
@@ -86,14 +83,6 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public boolean isEmailVerified() {
-        return emailVerified;
-    }
-
-    public void setEmailVerified(boolean emailVerified) {
-        this.emailVerified = emailVerified;
     }
 
     public AuthType getAuthType() {

@@ -69,15 +69,6 @@ public final class AuthDtos {
     ) {
     }
 
-    public record EmailVerifyRequest(
-            @NotBlank(message = "Enter a valid email address.")
-            @Email(message = "Enter a valid email address.")
-            String email,
-            @NotBlank(message = "Enter verification token.")
-            String token
-    ) {
-    }
-
     public record EmailLoginRequest(
             @NotBlank(message = "Enter a valid email address.")
             @Email(message = "Enter a valid email address.")
