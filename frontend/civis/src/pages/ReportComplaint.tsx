@@ -4,6 +4,7 @@ import * as L from 'leaflet'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from '../context/TranslationContext'
 import { createComplaint, generateComplaintDescription } from '../api/client'
+import { complaintCategories } from '../content/categories'
 import './ReportComplaint.css'
 
 const MIN_DESCRIPTION_LENGTH = 30
@@ -26,18 +27,11 @@ export default function ReportComplaint() {
   const navigate = useNavigate()
   const { t } = useTranslation()
 
-  const categories = [
-    { icon: '🛣', label: t('categories.roads'), val: 'Roads & Potholes' },
-    { icon: '💡', label: t('categories.lights'), val: 'Street Lights' },
-    { icon: '🚰', label: t('categories.water'), val: 'Water Supply' },
-    { icon: '🗑', label: t('categories.garbage'), val: 'Garbage & Sanitation' },
-    { icon: '🌳', label: t('categories.parks'), val: 'Parks & Trees' },
-    { icon: '🚧', label: t('categories.drainage'), val: 'Drainage & Flooding' },
-    { icon: '🏗', label: t('categories.bridges'), val: 'Footpaths & Bridges' },
-    { icon: '📶', label: t('categories.wifi'), val: 'Public WiFi & Signals' },
-    { icon: '🚌', label: t('categories.transport'), val: 'Public Transport' },
-    { icon: '🐕', label: t('categories.animals'), val: 'Stray Animals' },
-  ]
+  const categories = complaintCategories.map((category) => ({
+    icon: category.icon,
+    label: t(`categories.${category.key}`),
+    val: category.value,
+  }))
 
   const priorities = [
     { value: 'Low', display: t('priorities.low'), desc: t('priorities.lowDesc') },

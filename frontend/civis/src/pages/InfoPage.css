@@ -1,0 +1,148 @@
+.info-page {
+  padding-top: 64px;
+  background:
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.1), transparent 24%),
+    linear-gradient(180deg, var(--app-bg) 0%, color-mix(in srgb, var(--app-bg) 84%, white 16%) 100%);
+  color: var(--app-text);
+}
+
+.info-hero {
+  text-align: center;
+  padding: 4.75rem 2rem 3.4rem;
+  background: linear-gradient(135deg, #14304f 0%, #1a6fbf 100%);
+  color: #fff;
+}
+
+.info-eyebrow {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 0.42rem 0.95rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #dbeafe;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.info-hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.info-hero p {
+  margin: 1rem auto 0;
+  max-width: 720px;
+  color: #dbeafe;
+  line-height: 1.7;
+}
+
+.info-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem 4.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.75fr);
+  gap: 1.5rem;
+}
+
+.info-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.info-card,
+.info-side-card {
+  background: color-mix(in srgb, var(--app-surface) 94%, transparent);
+  border: 1px solid var(--app-border);
+  border-radius: 22px;
+  padding: 1.45rem;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
+}
+
+.info-card h2,
+.info-side-card h2 {
+  margin: 0 0 0.8rem;
+  color: var(--app-text-strong);
+  font-size: 1.2rem;
+}
+
+.info-card p,
+.info-side-card p {
+  margin: 0.7rem 0 0;
+  color: var(--app-text-soft);
+  line-height: 1.75;
+}
+
+.info-side-card {
+  position: sticky;
+  top: 88px;
+  height: fit-content;
+}
+
+.info-contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.info-contact-list a {
+  color: var(--app-brand);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.info-side-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.3rem;
+}
+
+.info-btn {
+  border-radius: 12px;
+  padding: 0.85rem 1.05rem;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.info-btn.primary {
+  background: linear-gradient(135deg, var(--app-brand), var(--app-brand-strong));
+  color: #fff;
+}
+
+.info-btn.ghost {
+  background: var(--app-surface);
+  color: var(--app-text);
+  border: 1px solid var(--app-border);
+}
+
+@media (max-width: 900px) {
+  .info-content {
+    grid-template-columns: 1fr;
+  }
+
+  .info-side-card {
+    position: static;
+  }
+}
+
+@media (max-width: 560px) {
+  .info-hero {
+    padding: 4rem 1rem 2.6rem;
+  }
+
+  .info-content {
+    padding: 2rem 1rem 3rem;
+  }
+
+  .info-card,
+  .info-side-card {
+    padding: 1.15rem;
+    border-radius: 18px;
+  }
+}

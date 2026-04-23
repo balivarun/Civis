@@ -3,20 +3,16 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from '../context/TranslationContext'
 import { useEffect, useState } from 'react'
 import { getPublicStats, type PublicStats } from '../api/client'
+import { complaintCategories } from '../content/categories'
+import { siteSupport } from '../content/siteContent'
 
 export default function LandingPage() {
   const { t, language, setLanguage } = useTranslation()
 
-  const categories = [
-    { icon: '🛣', label: t('categories.roads'), value: 'Roads & Potholes' },
-    { icon: '💡', label: t('categories.lights'), value: 'Street Lights' },
-    { icon: '🚰', label: t('categories.water'), value: 'Water Supply' },
-    { icon: '🗑', label: t('categories.garbage'), value: 'Garbage & Sanitation' },
-    { icon: '🌳', label: t('categories.parks'), value: 'Parks & Trees' },
-    { icon: '🚧', label: t('categories.drainage'), value: 'Drainage & Flooding' },
-    { icon: '🏗', label: t('categories.bridges'), value: 'Footpaths & Bridges' },
-    { icon: '📶', label: t('categories.wifi'), value: 'Public WiFi & Signals' },
-  ]
+  const categories = complaintCategories.slice(0, 8).map((category) => ({
+    ...category,
+    label: t(`categories.${category.key}`),
+  }))
 
   const steps = [
     {
@@ -212,23 +208,25 @@ export default function LandingPage() {
             <p className="footer-tagline">{t('landing.footerTagline')}</p>
 
             <div className="footer-contact">
-              <div className="footer-contact-item">
-                <span className="fc-label">{t('landing.tollfree')}</span>
-                <a href="tel:1800-123-4567" className="fc-value">📞 1800-123-4567</a>
-              </div>
+              {siteSupport.phone && (
+                <div className="footer-contact-item">
+                  <span className="fc-label">{t('landing.tollfree')}</span>
+                  <a href={`tel:${siteSupport.phone}`} className="fc-value">📞 {siteSupport.phone}</a>
+                </div>
+              )}
               <div className="footer-contact-item">
                 <span className="fc-label">{t('landing.helpline')}</span>
-                <a href="mailto:varunbali47@gmail.com" className="fc-value">✉ varunbali47@gmail.com</a>
+                <a href={`mailto:${siteSupport.email}`} className="fc-value">✉ {siteSupport.email}</a>
               </div>
             </div>
           </div>
 
           <div className="footer-bottom">
             <div className="footer-links">
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms of Use</a>
-              <a href="#">Contact Us</a>
-              <a href="#">Accessibility</a>
+              <Link to="/privacy-policy">Privacy Policy</Link>
+              <Link to="/terms-of-use">Terms of Use</Link>
+              <Link to="/contact-us">Contact Us</Link>
+              <Link to="/accessibility">Accessibility</Link>
             </div>
             <p className="footer-copy">© {new Date().getFullYear()} Civis. All rights reserved.</p>
           </div>

@@ -15,6 +15,8 @@ import ReportComplaint from './pages/ReportComplaint'
 import ComplaintDetail from './pages/ComplaintDetail'
 import ProfilePage from './pages/ProfilePage'
 import NotFoundPage from './pages/NotFoundPage'
+import InfoPage from './pages/InfoPage'
+import { infoPages } from './content/siteContent'
 import './App.css'
 import LanguageModal from './components/LanguageModal'
 
@@ -70,6 +72,22 @@ function AppRoutes() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/faq" element={<FaqPage />} />
+                <Route
+                  path="/privacy-policy"
+                  element={<InfoPage {...infoPages.privacy} />}
+                />
+                <Route
+                  path="/terms-of-use"
+                  element={<InfoPage {...infoPages.terms} />}
+                />
+                <Route
+                  path="/contact-us"
+                  element={<InfoPage {...infoPages.contact} />}
+                />
+                <Route
+                  path="/accessibility"
+                  element={<InfoPage {...infoPages.accessibility} />}
+                />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </>
