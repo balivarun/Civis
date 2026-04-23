@@ -4,25 +4,15 @@ import '../App.css'
 
 export default function LanguageModal() {
   const { setLanguage } = useTranslation()
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(() => {
+    return localStorage.getItem('appLangSelected') !== 'true'
+  })
 
   useEffect(() => {
-    // Only show modal if user has NOT explicitly chosen language
-    const isChosen = localStorage.getItem('appLangSelected') === 'true'
-    console.log('[LanguageModal] Mount - isChosen:', isChosen, '- showing:', !isChosen)
-    
-    if (!isChosen) {
-      // Small delay for better UX
-      const timer = setTimeout(() => {
-        console.log('[LanguageModal] Showing modal')
-        setVisible(true)
-      }, 300)
-      return () => clearTimeout(timer)
-    }
+    setVisible(localStorage.getItem('appLangSelected') !== 'true')
   }, [])
 
   function choose(lang: 'en' | 'hi') {
-    console.log('[LanguageModal] User chose:', lang)
     try {
       localStorage.setItem('appLang', lang)
       localStorage.setItem('appLangSelected', 'true')
@@ -34,7 +24,6 @@ export default function LanguageModal() {
   }
 
   function dismiss() {
-    console.log('[LanguageModal] User dismissed')
     try { 
       localStorage.setItem('appLangSelected', 'true')
     } catch (e) {
