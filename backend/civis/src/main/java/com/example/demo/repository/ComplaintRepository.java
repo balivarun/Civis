@@ -16,4 +16,7 @@ public interface ComplaintRepository extends JpaRepository<Complaint, String> {
 
     @org.springframework.data.jpa.repository.Query("SELECT COUNT(DISTINCT c.location) FROM Complaint c WHERE c.location IS NOT NULL AND c.location <> ''")
     long countDistinctLocations();
+
+    @org.springframework.data.jpa.repository.Query("SELECT c.category, COUNT(c) FROM Complaint c WHERE c.category IS NOT NULL AND c.category <> '' GROUP BY c.category")
+    List<Object[]> countByCategory();
 }

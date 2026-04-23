@@ -60,6 +60,14 @@ export interface GenerateComplaintDescriptionResponse {
   description: string
 }
 
+export interface PublicStats {
+  total: number
+  resolved: number
+  locations: number
+  resolutionRate: number
+  categoryCounts: Record<string, number>
+}
+
 type RequestOptions = {
   method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'
   body?: unknown
@@ -177,7 +185,7 @@ export async function getComplaintsByUser() {
 }
 
 export async function getPublicStats() {
-  return request<{ total: number; resolved: number; locations: number; resolutionRate: number }>("/complaints/stats")
+  return request<PublicStats>('/complaints/stats')
 }
 
 export async function getComplaintById(id: string) {

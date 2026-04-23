@@ -2,20 +2,20 @@ import './LandingPage.css'
 import { Link } from 'react-router-dom'
 import { useTranslation } from '../context/TranslationContext'
 import { useEffect, useState } from 'react'
-import { getPublicStats } from '../api/client'
+import { getPublicStats, type PublicStats } from '../api/client'
 
 export default function LandingPage() {
   const { t, language, setLanguage } = useTranslation()
 
   const categories = [
-    { icon: '🛣', label: t('categories.roads'), count: '1.2k' },
-    { icon: '💡', label: t('categories.lights'), count: '843' },
-    { icon: '🚰', label: t('categories.water'), count: '675' },
-    { icon: '🗑', label: t('categories.garbage'), count: '920' },
-    { icon: '🌳', label: t('categories.parks'), count: '412' },
-    { icon: '🚧', label: t('categories.drainage'), count: '560' },
-    { icon: '🏗', label: t('categories.bridges'), count: '318' },
-    { icon: '📶', label: t('categories.wifi'), count: '240' },
+    { icon: '🛣', label: t('categories.roads'), value: 'Roads & Potholes' },
+    { icon: '💡', label: t('categories.lights'), value: 'Street Lights' },
+    { icon: '🚰', label: t('categories.water'), value: 'Water Supply' },
+    { icon: '🗑', label: t('categories.garbage'), value: 'Garbage & Sanitation' },
+    { icon: '🌳', label: t('categories.parks'), value: 'Parks & Trees' },
+    { icon: '🚧', label: t('categories.drainage'), value: 'Drainage & Flooding' },
+    { icon: '🏗', label: t('categories.bridges'), value: 'Footpaths & Bridges' },
+    { icon: '📶', label: t('categories.wifi'), value: 'Public WiFi & Signals' },
   ]
 
   const steps = [
@@ -36,7 +36,7 @@ export default function LandingPage() {
     },
   ]
 
-  const [statsData, setStatsData] = useState<{ total: number; resolved: number; locations: number; resolutionRate: number } | null>(null)
+  const [statsData, setStatsData] = useState<PublicStats | null>(null)
 
   useEffect(() => {
     let mounted = true
@@ -45,23 +45,19 @@ export default function LandingPage() {
         const data = await getPublicStats()
         if (!mounted) return
         setStatsData(data)
-      } catch (e) {
-        // ignore and keep dummy fallback
+      } catch {
+        if (!mounted) return
+        setStatsData(null)
       }
     })()
     return () => { mounted = false }
   }, [])
 
-  const stats = statsData ? [
-    { value: statsData.total.toLocaleString() + '', label: t('landing.stats.filed') },
-    { value: statsData.resolved.toLocaleString() + '', label: t('landing.stats.resolved') },
-    { value: statsData.locations.toLocaleString() + '', label: t('landing.stats.municipalities') },
-    { value: statsData.resolutionRate + '%', label: t('landing.stats.rate') },
-  ] : [
-    { value: '18,400+', label: t('landing.stats.filed') },
-    { value: '12,900+', label: t('landing.stats.resolved') },
-    { value: '340+', label: t('landing.stats.municipalities') },
-    { value: '70%', label: t('landing.stats.rate') },
+  const stats = [
+    { value: statsData ? statsData.total.toLocaleString() : '...', label: t('landing.stats.filed') },
+    { value: statsData ? statsData.resolved.toLocaleString() : '...', label: t('landing.stats.resolved') },
+    { value: statsData ? statsData.locations.toLocaleString() : '...', label: t('landing.stats.municipalities') },
+    { value: statsData ? `${statsData.resolutionRate}%` : '...', label: t('landing.stats.rate') },
   ]
 
   const faqItems = [
@@ -144,7 +140,9 @@ export default function LandingPage() {
             <button className="category-card" key={c.label}>
               <span className="cat-icon">{c.icon}</span>
               <span className="cat-label">{c.label}</span>
-              <span className="cat-count">{c.count} {language === 'hi' ? 'रिपोर्ट्स' : 'reports'}</span>
+              <span className="cat-count">
+                {statsData ? (statsData.categoryCounts[c.value] ?? 0).toLocaleString() : '...'} {language === 'hi' ? 'रिपोर्ट्स' : 'reports'}
+              </span>
             </button>
           ))}
         </div>

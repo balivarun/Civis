@@ -158,11 +158,18 @@ public class ComplaintService {
         long resolved = complaintRepository.countByStatus(Status.Resolved);
         long locations = complaintRepository.countDistinctLocations();
         double rate = total == 0 ? 0.0 : ((double) resolved / (double) total) * 100.0;
+        java.util.Map<String, Long> categoryCounts = complaintRepository.countByCategory().stream()
+                .filter(row -> row.length >= 2 && row[0] instanceof String && row[1] instanceof Number)
+                .collect(java.util.stream.Collectors.toMap(
+                        row -> (String) row[0],
+                        row -> ((Number) row[1]).longValue()
+                ));
         java.util.Map<String, Object> m = new java.util.HashMap<>();
         m.put("total", total);
         m.put("resolved", resolved);
         m.put("locations", locations);
         m.put("resolutionRate", Math.round(rate));
+        m.put("categoryCounts", categoryCounts);
         return m;
     }
 
