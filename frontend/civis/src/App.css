@@ -8,6 +8,7 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 html[data-theme='light'] {
@@ -41,11 +42,19 @@ body {
   background: var(--app-bg);
   color: var(--app-text);
   min-width: 320px;
+  overflow-x: hidden;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 #root {
   width: 100%;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
 }
 
 .backend-banner {
