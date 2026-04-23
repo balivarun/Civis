@@ -1,10 +1,11 @@
 .db-page {
   display: flex;
-  min-height: 100vh;
+  min-height: 100svh;
   background:
     radial-gradient(circle at top left, rgba(14, 165, 233, 0.09), transparent 26%),
     linear-gradient(180deg, #eef5fb 0%, #f7fafc 100%);
   font-family: system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
 }
 
 /* ── Sidebar ── */
@@ -213,6 +214,7 @@
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
+  min-width: 0;
 }
 
 .db-header {
@@ -825,6 +827,13 @@
 .db-empty h3 { font-size: 1.2rem; font-weight: 700; color: #0f172a; margin: 0 0 0.5rem; }
 .db-empty p { font-size: 0.9rem; color: #64748b; margin: 0 0 1.5rem; }
 
+.db-empty-loading {
+  border-style: solid;
+  background:
+    radial-gradient(circle at top, rgba(14, 165, 233, 0.08), transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .db-stats { grid-template-columns: repeat(2, 1fr); }
@@ -834,12 +843,17 @@
   .db-sidebar { display: none; }
   .db-main { padding: 1.2rem; }
   .db-stats { grid-template-columns: repeat(2, 1fr); }
+  .db-header { margin-bottom: 1.35rem; }
+  .db-header-copy,
+  .db-header-hero { width: 100%; }
   .admin-toolbar { flex-direction: column; }
   .admin-search,
   .admin-select { width: 100%; min-width: 0; }
   .db-complaints-head,
   .db-card-top,
   .db-card-bottom { flex-direction: column; align-items: stretch; }
+  .db-card-left,
+  .db-card-title-row { min-width: 0; }
   .db-latest-pill { align-self: flex-start; }
   .db-card-thumb-wrap { width: 100%; height: 180px; }
   .db-card-right { justify-content: flex-start; }
@@ -848,11 +862,28 @@
 }
 
 @media (max-width: 480px) {
-  .db-stats { grid-template-columns: 1fr 1fr; }
+  .db-main { padding: 1rem; }
+  .db-header h1 { font-size: 1.45rem; }
+  .db-stats { grid-template-columns: 1fr; }
+  .db-stat-card { padding: 1.1rem; }
+  .db-stat-num { font-size: 1.7rem; }
   .db-complaints-shell { padding: 1rem; }
+  .db-complaints-head h2 { font-size: 1.05rem; }
   .db-card { padding: 1rem; }
-  .db-card-title-row { flex-direction: column; }
+  .db-card-title-row { flex-direction: column; gap: 0.45rem; }
   .db-card-id { align-self: flex-start; }
+  .db-card-meta { gap: 0.32rem; }
+  .db-card-bottom { gap: 0.8rem; }
+  .db-card-right { gap: 0.45rem; }
+  .filter-chip { width: 100%; text-align: center; }
+  .db-modal { width: calc(100vw - 1.5rem); }
+  .db-modal-actions {
+    flex-direction: column-reverse;
+  }
+  .db-btn-primary,
+  .db-btn-secondary {
+    width: 100%;
+  }
 }
 
 /* ── Change password (dashboard profile) ── */

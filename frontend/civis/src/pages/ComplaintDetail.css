@@ -1,8 +1,9 @@
 .cd-page {
-  min-height: 100vh;
+  min-height: 100svh;
   background: #f1f5f9;
   font-family: system-ui, -apple-system, sans-serif;
   padding-bottom: 4rem;
+  overflow-x: hidden;
 }
 
 .cd-topbar {
@@ -40,6 +41,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  min-width: 0;
 }
 
 /* Header card */
@@ -332,7 +334,37 @@
 }
 
 @media (max-width: 600px) {
+  .cd-topbar {
+    padding: 0.9rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
   .cd-header-card { flex-direction: column; }
-  .cd-header-right { flex-direction: row; align-items: flex-start; }
+  .cd-header-left {
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+  .cd-header-right {
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
   .cd-container { padding: 1rem; }
+  .cd-header-card,
+  .cd-tracker-card,
+  .cd-section-card {
+    padding: 1.2rem;
+  }
+  .cd-step-info {
+    padding-bottom: 1.5rem;
+  }
+  .cd-actions {
+    flex-direction: column;
+  }
+  .cd-action-btn {
+    width: 100%;
+    text-align: center;
+  }
 }

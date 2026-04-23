@@ -18,6 +18,7 @@ export default function ComplaintDetail() {
   const { id } = useParams<{ id: string }>()
   const [complaint, setComplaint] = useState<Complaint | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -27,9 +28,11 @@ export default function ComplaintDetail() {
         return
       }
       try {
+        setError('')
         setComplaint(await getComplaintById(id))
-      } catch {
+      } catch (err) {
         setComplaint(null)
+        setError(err instanceof Error ? err.message : 'Failed to load complaint.')
       } finally {
         setLoading(false)
       }
@@ -52,8 +55,8 @@ export default function ComplaintDetail() {
     return (
       <div className="cd-not-found">
         <div className="cd-nf-icon">🔍</div>
-        <h2>{t('detail.notFoundBtn')}</h2>
-        <p>{t('detail.notFoundDesc').replace('{id}', id || '')}</p>
+        <h2>{error ? 'Unable to load complaint' : t('detail.notFoundBtn')}</h2>
+        <p>{error || t('detail.notFoundDesc').replace('{id}', id || '')}</p>
         <Link to="/dashboard" className="cd-back-btn">{t('detail.backDashboard')}</Link>
       </div>
     )

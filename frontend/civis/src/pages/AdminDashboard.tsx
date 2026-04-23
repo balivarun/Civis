@@ -27,15 +27,20 @@ export default function AdminDashboard() {
   const [categoryFilter, setCategoryFilter] = useState<string>('All')
   const [query, setQuery] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [activePanel, setActivePanel] = useState<'analytics' | 'timeline' | 'map' | null>(null)
 
   useEffect(() => {
     async function loadComplaints() {
       try {
+        setLoading(true)
+        setError('')
         setComplaints(await getAdminComplaints())
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load complaints.')
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -214,7 +219,13 @@ export default function AdminDashboard() {
           </select>
         </div>
 
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="db-empty db-empty-loading">
+            <div className="empty-icon">⏳</div>
+            <h3>Loading admin queue</h3>
+            <p>Complaint records are being fetched for review.</p>
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="db-empty">
             <div className="empty-icon">🗂</div>
             <h3>{error ? t('dashboard.emptyTitleError') : t('admin.emptyTitle')}</h3>

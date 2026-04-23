@@ -1,7 +1,8 @@
 .report-page {
   display: flex;
-  min-height: 100vh;
+  min-height: 100svh;
   font-family: system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
 }
 
 .visually-hidden {
@@ -113,6 +114,7 @@
   align-items: flex-start;
   justify-content: center;
   padding: 2.5rem 2rem;
+  min-width: 0;
 }
 
 .report-card {
@@ -631,6 +633,50 @@
   .report-map { height: 240px; }
   .report-card-map { max-width: 100%; }
   .review-image-block { margin-left: 1.5rem; margin-right: 1.5rem; }
+  .review-row { flex-direction: column; align-items: flex-start; }
+  .review-row strong { text-align: left; }
+  .report-nav-btns { flex-direction: column-reverse; }
+  .back-btn,
+  .next-btn { width: 100%; }
+}
+
+@media (max-width: 560px) {
+  .report-right { padding: 0.75rem; }
+
+  .report-card {
+    border-radius: 18px;
+    padding-bottom: 1.5rem;
+  }
+
+  .report-card-header,
+  .report-fields,
+  .cat-grid,
+  .report-nav-btns {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .report-card-header {
+    padding-top: 1.35rem;
+    padding-bottom: 1rem;
+  }
+
+  .cat-grid {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+  }
+
+  .review-card,
+  .review-image-block,
+  .form-error,
+  .submit-btn {
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
+
+  .report-map {
+    height: 220px;
+  }
 }
 
 /* Theme-aware overrides using app CSS variables from App.css. These ensure the complaint form follows light/dark themes. */

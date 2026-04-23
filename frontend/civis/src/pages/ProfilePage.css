@@ -1,9 +1,10 @@
 .profile-page {
-  min-height: 100vh;
+  min-height: 100svh;
   padding: 96px 24px 40px;
   background:
     radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 24%),
     linear-gradient(180deg, #eff5fb 0%, #f8fbff 100%);
+  overflow-x: hidden;
 }
 
 .profile-shell {
@@ -293,9 +294,26 @@ html[data-theme='dark'] .profile-error {
     padding: 84px 16px 24px;
   }
 
+  .profile-hero,
+  .profile-card {
+    border-radius: 20px;
+    padding: 1.1rem;
+  }
+
+  .profile-hero h1 {
+    font-size: 1.55rem;
+  }
+
   .profile-identity {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .profile-avatar,
+  .profile-image {
+    width: 78px;
+    height: 78px;
+    border-radius: 22px;
   }
 
   .profile-actions,

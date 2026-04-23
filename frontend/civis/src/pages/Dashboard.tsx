@@ -25,6 +25,7 @@ export default function Dashboard() {
   const [complaints, setComplaints] = useState<Complaint[]>([])
   const [filter, setFilter] = useState<string>('All')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
   const [showChangePassword, setShowChangePassword] = useState(false)
   const [oldPassword, setOldPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -37,9 +38,13 @@ export default function Dashboard() {
     async function loadComplaints() {
       if (!user) return
       try {
+        setLoading(true)
+        setError('')
         setComplaints(await getComplaintsByUser())
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load complaints.')
+      } finally {
+        setLoading(false)
       }
     }
 
@@ -226,7 +231,13 @@ export default function Dashboard() {
         </div>
 
         {/* Complaint list */}
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="db-empty db-empty-loading">
+            <div className="empty-icon">⏳</div>
+            <h3>Loading complaints</h3>
+            <p>Your latest complaint data is being fetched.</p>
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="db-empty">
             <div className="empty-icon">📋</div>
             <h3>{error ? t('dashboard.emptyTitleError') : t('dashboard.emptyTitle')}</h3>

@@ -17,6 +17,18 @@ import ProfilePage from './pages/ProfilePage'
 import './App.css'
 import LanguageModal from './components/LanguageModal'
 
+function AppBootScreen() {
+  return (
+    <div className="app-boot-screen" role="status" aria-live="polite">
+      <div className="app-boot-card">
+        <div className="app-boot-mark">C</div>
+        <strong>Loading Civis</strong>
+        <span>Restoring your session and preparing the workspace.</span>
+      </div>
+    </div>
+  )
+}
+
 function BackendStatusBanner() {
   const { backendUnavailable, backendMessage, retrySession, isReady } = useAuth()
 
@@ -36,6 +48,12 @@ function BackendStatusBanner() {
 }
 
 function AppRoutes() {
+  const { isReady } = useAuth()
+
+  if (!isReady) {
+    return <AppBootScreen />
+  }
+
   return (
     <>
       <BackendStatusBanner />
