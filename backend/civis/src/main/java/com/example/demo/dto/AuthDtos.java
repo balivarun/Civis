@@ -80,6 +80,13 @@ public final class AuthDtos {
     ) {
     }
 
+    public record GoogleAuthRequest(
+            @NotBlank(message = "Missing Google credential.")
+            String idToken,
+            Boolean adminAccess
+    ) {
+    }
+
     public record ChangePasswordRequest(
             @NotBlank(message = "Enter your current password.")
             String oldPassword,

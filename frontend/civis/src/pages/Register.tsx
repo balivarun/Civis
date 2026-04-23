@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import GoogleAuthButton from '../components/GoogleAuthButton'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from '../context/TranslationContext'
 import {
   registerWithEmail,
   requestRegisterOtp,
+  signInWithGoogle,
   verifyRegisterOtp,
 } from '../api/client'
 import './Auth.css'
@@ -114,6 +116,19 @@ export default function Register() {
     }
   }
 
+  async function handleGoogleSignIn(credential: string) {
+    setError('')
+    setLoading(true)
+    try {
+      const response = await signInWithGoogle(credential, mode === 'admin')
+      login(response.user, response.token)
+      navigate(response.user.admin ? '/admin/dashboard' : '/dashboard')
+    } catch (err) {
+      setLoading(false)
+      setError(err instanceof Error ? err.message : 'Failed to continue with Google.')
+    }
+  }
+
   return (
     <div className="auth-page">
       <div className="auth-left">
@@ -197,6 +212,24 @@ export default function Register() {
 
               {(mode === 'admin' || tab === 'gmail') && (
                 <form className="auth-form" onSubmit={handleGmailSubmit} noValidate>
+                  <div className="auth-social-block">
+                    <GoogleAuthButton
+                      buttonText="signup_with"
+                      disabled={loading}
+                      onCredential={handleGoogleSignIn}
+                      onError={(message) => setError(message)}
+                    />
+                    <p className="auth-field-note">
+                      {mode === 'admin'
+                        ? 'Only approved admin Google accounts can continue.'
+                        : 'Create your account using Google in one step.'}
+                    </p>
+                  </div>
+
+                  <div className="auth-divider" aria-hidden="true">
+                    <span>or continue with email</span>
+                  </div>
+
                   <div className="field-group">
                     <label>{t('auth.nameLabel')}</label>
                     <input type="text" placeholder="Rahul Sharma" value={name}

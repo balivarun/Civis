@@ -154,10 +154,17 @@ export async function verifyLoginOtp(mobile: string, otp: string) {
   })
 }
 
-export async function loginWithEmail(email: string, password: string) {
+export async function loginWithEmail(email: string, password: string, adminAccess = false) {
   return request<AuthResponse>('/auth/login/email', {
     method: 'POST',
-    body: { email, password },
+    body: { email, password, adminAccess },
+  })
+}
+
+export async function signInWithGoogle(idToken: string, adminAccess = false) {
+  return request<AuthResponse>('/auth/google', {
+    method: 'POST',
+    body: { idToken, adminAccess },
   })
 }
 

@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.AuthDtos.EmailLoginRequest;
 import com.example.demo.dto.AuthDtos.EmailRegisterRequest;
+import com.example.demo.dto.AuthDtos.GoogleAuthRequest;
 import com.example.demo.dto.AuthDtos.MobileLoginOtpRequest;
 import com.example.demo.dto.AuthDtos.MobileLoginOtpVerifyRequest;
 import com.example.demo.dto.AuthDtos.MobileOtpRequest;
@@ -39,6 +40,7 @@ public class AuthService {
     private final SmsSender smsSender;
     private final AdminAccessService adminAccessService;
     private final RefreshTokenService refreshTokenService;
+    private final GoogleTokenVerifier googleTokenVerifier;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private final SecureRandom secureRandom = new SecureRandom();
     private final boolean exposeOtpInResponse;
@@ -50,6 +52,7 @@ public class AuthService {
             SmsSender smsSender,
             AdminAccessService adminAccessService,
             RefreshTokenService refreshTokenService,
+            GoogleTokenVerifier googleTokenVerifier,
             @Value("${app.auth.expose-otp:false}") boolean exposeOtpInResponse
     ) {
         this.userRepository = userRepository;
@@ -58,6 +61,7 @@ public class AuthService {
         this.smsSender = smsSender;
         this.adminAccessService = adminAccessService;
         this.refreshTokenService = refreshTokenService;
+        this.googleTokenVerifier = googleTokenVerifier;
         this.exposeOtpInResponse = exposeOtpInResponse;
     }
 
@@ -160,6 +164,39 @@ public class AuthService {
             return user;
         }
         throw new ResponseStatusException(UNAUTHORIZED, "Incorrect password.");
+    }
+
+    public User authenticateWithGoogle(GoogleAuthRequest request) {
+        GoogleTokenVerifier.GoogleUser googleUser = googleTokenVerifier.verify(request.idToken());
+        String email = googleUser.email().toLowerCase();
+        boolean adminAccess = Boolean.TRUE.equals(request.adminAccess());
+
+        User existingUser = userRepository.findByEmail(email).orElse(null);
+        if (existingUser != null) {
+            if (adminAccess && !adminAccessService.isAdmin(existingUser)) {
+                throw new ResponseStatusException(BAD_REQUEST, "This account is not approved for admin access.");
+            }
+            if (existingUser.getName() == null || existingUser.getName().isBlank()) {
+                existingUser.setName(googleUser.name().isBlank() ? email : googleUser.name());
+                return userRepository.save(existingUser);
+            }
+            return existingUser;
+        }
+
+        if (adminAccess && !adminAccessService.isAdminIdentifier(email, null)) {
+            throw new ResponseStatusException(BAD_REQUEST, "This email is not approved for admin access.");
+        }
+
+        User user = new User(
+                "u_" + UUID.randomUUID().toString().replace("-", "").substring(0, 16),
+                googleUser.name().isBlank() ? email : googleUser.name(),
+                null,
+                email,
+                AuthType.gmail,
+                null,
+                Instant.now()
+        );
+        return userRepository.save(user);
     }
 
     public void changePassword(String userId, String oldPassword, String newPassword, String confirmNewPassword) {

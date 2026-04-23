@@ -4,6 +4,7 @@ import com.example.demo.dto.AuthDtos.EmailLoginRequest;
 import com.example.demo.dto.AuthDtos.EmailRegisterRequest;
 import com.example.demo.dto.AuthDtos.AuthResponse;
 import com.example.demo.dto.AuthDtos.ChangePasswordRequest;
+import com.example.demo.dto.AuthDtos.GoogleAuthRequest;
 import com.example.demo.dto.AuthDtos.MobileLoginOtpRequest;
 import com.example.demo.dto.AuthDtos.MobileLoginOtpVerifyRequest;
 import com.example.demo.dto.AuthDtos.MobileOtpRequest;
@@ -99,6 +100,13 @@ public class AuthController {
     @PostMapping("/login/email")
     public AuthResponse loginWithEmail(@Valid @RequestBody EmailLoginRequest request, HttpServletResponse response) {
         User user = authService.loginWithEmail(request);
+        setRefreshCookie(response, refreshTokenService.issueToken(user.getId()));
+        return new AuthResponse(adminAccessService.decorate(user), jwtService.generateToken(user.getId()));
+    }
+
+    @PostMapping("/google")
+    public AuthResponse authenticateWithGoogle(@Valid @RequestBody GoogleAuthRequest request, HttpServletResponse response) {
+        User user = authService.authenticateWithGoogle(request);
         setRefreshCookie(response, refreshTokenService.issueToken(user.getId()));
         return new AuthResponse(adminAccessService.decorate(user), jwtService.generateToken(user.getId()));
     }

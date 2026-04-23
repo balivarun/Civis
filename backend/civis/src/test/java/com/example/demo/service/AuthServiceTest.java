@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AuthDtos.EmailLoginRequest;
+import com.example.demo.dto.AuthDtos.GoogleAuthRequest;
 import com.example.demo.model.AuthType;
 import com.example.demo.model.User;
 import com.example.demo.repository.ComplaintRepository;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,6 +30,7 @@ class AuthServiceTest {
     private final SmsSender smsSender = mock(SmsSender.class);
     private final AdminAccessService adminAccessService = new AdminAccessService("admin@example.com", "");
     private final RefreshTokenService refreshTokenService = mock(RefreshTokenService.class);
+    private final GoogleTokenVerifier googleTokenVerifier = mock(GoogleTokenVerifier.class);
     private final AuthService authService = new AuthService(
             userRepository,
             otpRepository,
@@ -35,6 +38,7 @@ class AuthServiceTest {
             smsSender,
             adminAccessService,
             refreshTokenService,
+            googleTokenVerifier,
             false
     );
 
@@ -98,5 +102,21 @@ class AuthServiceTest {
         verify(complaintRepository).deleteByUserId("u_789");
         verify(refreshTokenService).revokeAllForUser("u_789");
         verify(userRepository).delete(user);
+    }
+
+    @Test
+    void authenticateWithGoogleCreatesUserForApprovedAdminEmail() {
+        when(googleTokenVerifier.verify("google-token")).thenReturn(
+                new GoogleTokenVerifier.GoogleUser("admin@example.com", "Admin User", "google-sub")
+        );
+        when(userRepository.findByEmail("admin@example.com")).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User user = authService.authenticateWithGoogle(new GoogleAuthRequest("google-token", true));
+
+        assertEquals("admin@example.com", user.getEmail());
+        assertEquals("Admin User", user.getName());
+        assertEquals(AuthType.gmail, user.getAuthType());
+        verify(userRepository).save(user);
     }
 }

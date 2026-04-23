@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import GoogleAuthButton from '../components/GoogleAuthButton'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from '../context/TranslationContext'
 import {
   loginWithEmail,
   requestLoginOtp,
+  signInWithGoogle,
   verifyLoginOtp,
 } from '../api/client'
 import './Auth.css'
@@ -98,7 +100,7 @@ export default function Login() {
     }
     setLoading(true)
     try {
-      const response = await loginWithEmail(email, password)
+      const response = await loginWithEmail(email, password, mode === 'admin')
       if (mode === 'admin' && !response.user.admin) {
         setLoading(false)
         setError('This account does not have admin access.')
@@ -109,6 +111,19 @@ export default function Login() {
     } catch (err) {
       setLoading(false)
       setError(err instanceof Error ? err.message : 'Failed to sign in.')
+    }
+  }
+
+  async function handleGoogleSignIn(credential: string) {
+    setError('')
+    setLoading(true)
+    try {
+      const response = await signInWithGoogle(credential, mode === 'admin')
+      login(response.user, response.token)
+      navigate(response.user.admin ? '/admin/dashboard' : '/dashboard')
+    } catch (err) {
+      setLoading(false)
+      setError(err instanceof Error ? err.message : 'Failed to sign in with Google.')
     }
   }
 
@@ -224,6 +239,24 @@ export default function Login() {
 
               {(mode === 'admin' || tab === 'gmail') && (
                 <form className="auth-form" onSubmit={handleGmailSubmit} noValidate>
+                  <div className="auth-social-block">
+                    <GoogleAuthButton
+                      buttonText="signin_with"
+                      disabled={loading}
+                      onCredential={handleGoogleSignIn}
+                      onError={(message) => setError(message)}
+                    />
+                    <p className="auth-field-note">
+                      {mode === 'admin'
+                        ? 'Use your approved admin Google account.'
+                        : 'Use your Google account for faster sign-in.'}
+                    </p>
+                  </div>
+
+                  <div className="auth-divider" aria-hidden="true">
+                    <span>or continue with email</span>
+                  </div>
+
                   <div className="field-group">
                     <label htmlFor="email">{mode === 'admin' ? 'Admin Email' : t('auth.emailLabel')}</label>
                     <input id="email" type="email" placeholder={mode === 'admin' ? 'admin@city.gov.in' : 'you@gmail.com'}
