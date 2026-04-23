@@ -37,27 +37,39 @@ export default function LandingPage() {
   ]
 
   const [statsData, setStatsData] = useState<PublicStats | null>(null)
+  const [statsLoading, setStatsLoading] = useState(true)
+  const [statsError, setStatsError] = useState('')
+  const [statsRequestKey, setStatsRequestKey] = useState(0)
 
   useEffect(() => {
     let mounted = true
-    void (async () => {
+    async function loadStats() {
       try {
+        if (!mounted) return
+        setStatsLoading(true)
+        setStatsError('')
         const data = await getPublicStats()
         if (!mounted) return
         setStatsData(data)
-      } catch {
+      } catch (err) {
         if (!mounted) return
         setStatsData(null)
+        setStatsError(err instanceof Error ? err.message : 'Unable to load public stats right now.')
+      } finally {
+        if (mounted) {
+          setStatsLoading(false)
+        }
       }
-    })()
+    }
+    void loadStats()
     return () => { mounted = false }
-  }, [])
+  }, [statsRequestKey])
 
   const stats = [
-    { value: statsData ? statsData.total.toLocaleString() : '...', label: t('landing.stats.filed') },
-    { value: statsData ? statsData.resolved.toLocaleString() : '...', label: t('landing.stats.resolved') },
-    { value: statsData ? statsData.locations.toLocaleString() : '...', label: t('landing.stats.municipalities') },
-    { value: statsData ? `${statsData.resolutionRate}%` : '...', label: t('landing.stats.rate') },
+    { value: statsData ? statsData.total.toLocaleString() : statsLoading ? '...' : '--', label: t('landing.stats.filed') },
+    { value: statsData ? statsData.resolved.toLocaleString() : statsLoading ? '...' : '--', label: t('landing.stats.resolved') },
+    { value: statsData ? statsData.locations.toLocaleString() : statsLoading ? '...' : '--', label: t('landing.stats.municipalities') },
+    { value: statsData ? `${statsData.resolutionRate}%` : statsLoading ? '...' : '--', label: t('landing.stats.rate') },
   ]
 
   const faqItems = [
@@ -111,6 +123,18 @@ export default function LandingPage() {
           </div>
         ))}
       </section>
+      {statsError && (
+        <section className="stats-feedback" role="status" aria-live="polite">
+          <p>{statsError}</p>
+          <button
+            type="button"
+            className="stats-feedback-btn"
+            onClick={() => setStatsRequestKey((value) => value + 1)}
+          >
+            Retry
+          </button>
+        </section>
+      )}
 
       {/* How It Works */}
       <section className="how-it-works" id="how-it-works">
@@ -141,7 +165,7 @@ export default function LandingPage() {
               <span className="cat-icon">{c.icon}</span>
               <span className="cat-label">{c.label}</span>
               <span className="cat-count">
-                {statsData ? (statsData.categoryCounts[c.value] ?? 0).toLocaleString() : '...'} {language === 'hi' ? 'रिपोर्ट्स' : 'reports'}
+                {statsData ? (statsData.categoryCounts[c.value] ?? 0).toLocaleString() : statsLoading ? '...' : '--'} {language === 'hi' ? 'रिपोर्ट्स' : 'reports'}
               </span>
             </button>
           ))}

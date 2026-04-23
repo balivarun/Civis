@@ -14,20 +14,9 @@ import AdminDashboard from './pages/AdminDashboard'
 import ReportComplaint from './pages/ReportComplaint'
 import ComplaintDetail from './pages/ComplaintDetail'
 import ProfilePage from './pages/ProfilePage'
+import NotFoundPage from './pages/NotFoundPage'
 import './App.css'
 import LanguageModal from './components/LanguageModal'
-
-function AppBootScreen() {
-  return (
-    <div className="app-boot-screen" role="status" aria-live="polite">
-      <div className="app-boot-card">
-        <div className="app-boot-mark">C</div>
-        <strong>Loading Civis</strong>
-        <span>Restoring your session and preparing the workspace.</span>
-      </div>
-    </div>
-  )
-}
 
 function BackendStatusBanner() {
   const { backendUnavailable, backendMessage, retrySession, isReady } = useAuth()
@@ -48,12 +37,6 @@ function BackendStatusBanner() {
 }
 
 function AppRoutes() {
-  const { isReady } = useAuth()
-
-  if (!isReady) {
-    return <AppBootScreen />
-  }
-
   return (
     <>
       <BackendStatusBanner />
@@ -77,6 +60,7 @@ function AppRoutes() {
           <Route path="/profile" element={
             <ProtectedRoute><><Navbar /><ProfilePage /></></ProtectedRoute>
           } />
+          <Route path="/404" element={<><Navbar /><NotFoundPage /></>} />
 
           {/* Pages with shared Navbar */}
           <Route path="/*" element={
@@ -86,6 +70,7 @@ function AppRoutes() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/faq" element={<FaqPage />} />
+                <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </>
           } />

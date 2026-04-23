@@ -176,6 +176,34 @@
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.stats-feedback {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.9rem 1.25rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  color: #7c2d12;
+}
+
+.stats-feedback p {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.stats-feedback-btn {
+  border: 1px solid #fdba74;
+  background: #fff7ed;
+  color: #9a3412;
+  border-radius: 999px;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .stat-item {
   min-width: 0;
   padding: 2rem 1rem;
@@ -592,6 +620,11 @@
   .cta-box {
     padding: 2.5rem 1.5rem;
   }
+
+  .stats-feedback {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
 }
 
 @media (max-width: 560px) {
@@ -705,6 +738,16 @@ html[data-theme='dark'] .hero-trust,
 html[data-theme='dark'] .section-header p,
 html[data-theme='dark'] .cat-count {
   color: var(--app-text-muted);
+}
+
+html[data-theme='dark'] .stats-feedback {
+  color: #fdba74;
+}
+
+html[data-theme='dark'] .stats-feedback-btn {
+  background: rgba(124, 45, 18, 0.24);
+  border-color: rgba(251, 146, 60, 0.3);
+  color: #fdba74;
 }
 
 html[data-theme='dark'] .city-card,
