@@ -158,18 +158,18 @@ export default function Register() {
           {stage === 'form' ? (
             <>
               <div className="auth-card-header">
-                <h1>{mode === 'admin' ? 'Create Admin Account' : t('auth.registerTitle')}</h1>
-                <p>{mode === 'admin' ? 'Only approved admin emails can create admin accounts.' : "It's free and takes under a minute"}</p>
+                <h1>{mode === 'admin' ? t('auth.adminRegisterTitle') : t('auth.registerTitle')}</h1>
+                <p>{mode === 'admin' ? t('auth.adminRegisterSub') : t('auth.registerHelperSub')}</p>
               </div>
 
               <div className="tab-row role-row">
                 <button className={`tab-btn ${mode === 'user' ? 'active' : ''}`}
                   onClick={() => { setMode('user'); setError('') }}>
-                  Citizen
+                  {t('auth.citizenLabel')}
                 </button>
                 <button className={`tab-btn ${mode === 'admin' ? 'active' : ''}`}
                   onClick={() => { setMode('admin'); setTab('gmail'); setError('') }}>
-                  Admin
+                  {t('auth.adminLabel')}
                 </button>
               </div>
 
@@ -177,11 +177,11 @@ export default function Register() {
                 <div className="tab-row">
                   <button className={`tab-btn ${tab === 'gmail' ? 'active' : ''}`}
                     onClick={() => { setTab('gmail'); setError('') }}>
-                    ✉ Email
+                    ✉ {t('auth.emailTab')}
                   </button>
                   <button className={`tab-btn ${tab === 'mobile' ? 'active' : ''}`}
                     onClick={() => { setTab('mobile'); setError('') }}>
-                    📱 Mobile OTP
+                    📱 {t('auth.mobileOtpTab')}
                   </button>
                 </div>
               )}
@@ -221,13 +221,13 @@ export default function Register() {
                     />
                     <p className="auth-field-note">
                       {mode === 'admin'
-                        ? 'Only approved admin Google accounts can continue.'
-                        : 'Create your account using Google in one step.'}
+                        ? t('auth.googleAdminNote')
+                        : t('auth.googleRegisterNote')}
                     </p>
                   </div>
 
                   <div className="auth-divider" aria-hidden="true">
-                    <span>or continue with email</span>
+                    <span>{t('auth.continueWithEmail')}</span>
                   </div>
 
                   <div className="field-group">
@@ -236,7 +236,7 @@ export default function Register() {
                       onChange={(e) => setName(e.target.value)} autoFocus required />
                   </div>
                   <div className="field-group">
-                    <label>{mode === 'admin' ? 'Admin Email' : t('auth.emailLabel')}</label>
+                    <label>{mode === 'admin' ? t('auth.adminEmailLabel') : t('auth.emailLabel')}</label>
                     <input type="email" placeholder={mode === 'admin' ? 'admin@city.gov.in' : 'you@gmail.com'} value={email}
                       onChange={(e) => setEmail(e.target.value)} required />
                   </div>
@@ -290,8 +290,8 @@ export default function Register() {
           ) : (
             <>
               <div className="auth-card-header">
-                <h1>Verify OTP</h1>
-                <p>Sent to +91 {mobile}</p>
+                <h1>{t('auth.otpTitle')}</h1>
+                <p>{t('auth.otpSentTo', { mobile })}</p>
               </div>
 
               <form className="auth-form" onSubmit={handleOtpSubmit} noValidate>
