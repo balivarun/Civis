@@ -351,7 +351,12 @@ export default function ReportComplaint() {
                 <button
                   key={c.val}
                   className={`cat-option ${category === c.val ? 'selected' : ''}`}
-                  onClick={() => { setCategory(c.val); setCategoryIcon(c.icon); setError('') }}
+                  onClick={() => {
+                    setCategory(c.val)
+                    setCategoryIcon(c.icon)
+                    setError('')
+                    setStep(2)
+                  }}
                   type="button"
                 >
                   <span className="cat-opt-icon">{c.icon}</span>

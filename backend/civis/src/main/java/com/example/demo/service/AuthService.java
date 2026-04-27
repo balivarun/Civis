@@ -69,6 +69,7 @@ public class AuthService {
         if (userRepository.findByMobile(request.mobile()).isPresent()) {
             throw new ResponseStatusException(BAD_REQUEST, "This mobile number is already registered.");
         }
+        smsSender.validateConfiguration();
         String otp = generateOtp();
         String key = otpKey("register", request.mobile());
         otpRepository.save(new OtpToken(key, otp, Instant.now().plus(OTP_TTL)));
@@ -123,6 +124,7 @@ public class AuthService {
         if (userRepository.findByMobile(request.mobile()).isEmpty()) {
             throw new ResponseStatusException(BAD_REQUEST, "No account found for this number. Please register first.");
         }
+        smsSender.validateConfiguration();
         String otp = generateOtp();
         String key = otpKey("login", request.mobile());
         otpRepository.save(new OtpToken(key, otp, Instant.now().plus(OTP_TTL)));

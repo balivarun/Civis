@@ -197,6 +197,7 @@ The dev server starts at `http://localhost:5173`.
 - Auth uses short-lived JWT access tokens plus HTTP-only refresh-token cookies.
 - Complaint APIs are protected; user identity is derived from JWT, not from client `userId` input.
 - Session is restored on page refresh via `POST /api/auth/refresh` (cookie-based).
+- In the report complaint flow, selecting a category on step 1 auto-advances to step 2 (the `Next` button is no longer required for that step).
 - Passwords are stored as BCrypt hashes.
 - Email registration enforces strong passwords: at least 8 chars with uppercase, lowercase, number, and special character.
 - OTP is hidden by default (`APP_AUTH_EXPOSE_OTP=false`) and should be integrated with SMS in production.
