@@ -54,6 +54,11 @@ public class Complaint {
     @Column(nullable = false)
     private Instant updatedAt;
 
+    @Column(nullable = false)
+    private boolean duplicate;
+
+    private String duplicateOfComplaintId;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "complaint_timeline", joinColumns = @JoinColumn(name = "complaint_id"))
     private List<TimelineEntry> timeline = new ArrayList<>();
@@ -61,7 +66,7 @@ public class Complaint {
     public Complaint() {
     }
 
-    public Complaint(String id, String userId, String category, String categoryIcon, String title, String description, String imageDataUrl, String reporterMobile, String location, String landmark, Status status, Priority priority, Instant createdAt, Instant updatedAt, List<TimelineEntry> timeline) {
+    public Complaint(String id, String userId, String category, String categoryIcon, String title, String description, String imageDataUrl, String reporterMobile, String location, String landmark, Status status, Priority priority, Instant createdAt, Instant updatedAt, boolean duplicate, String duplicateOfComplaintId, List<TimelineEntry> timeline) {
         this.id = id;
         this.userId = userId;
         this.category = category;
@@ -76,6 +81,8 @@ public class Complaint {
         this.priority = priority;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.duplicate = duplicate;
+        this.duplicateOfComplaintId = duplicateOfComplaintId;
         this.timeline = timeline;
     }
 
@@ -109,6 +116,10 @@ public class Complaint {
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+    public boolean isDuplicate() { return duplicate; }
+    public void setDuplicate(boolean duplicate) { this.duplicate = duplicate; }
+    public String getDuplicateOfComplaintId() { return duplicateOfComplaintId; }
+    public void setDuplicateOfComplaintId(String duplicateOfComplaintId) { this.duplicateOfComplaintId = duplicateOfComplaintId; }
     public List<TimelineEntry> getTimeline() { return timeline; }
     public void setTimeline(List<TimelineEntry> timeline) { this.timeline = timeline; }
 }

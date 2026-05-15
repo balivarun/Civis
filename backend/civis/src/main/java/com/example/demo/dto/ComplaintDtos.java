@@ -74,6 +74,8 @@ public final class ComplaintDtos {
             String location,
             String landmark,
             Status status,
+            boolean duplicate,
+            String duplicateOfComplaintId,
             Priority priority,
             Instant createdAt,
             Instant updatedAt

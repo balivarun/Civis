@@ -13,16 +13,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 public class ComplaintService {
+
+    private static final long DUPLICATE_LOOKBACK_HOURS = 24;
+    private static final double DUPLICATE_SIMILARITY_THRESHOLD = 0.60;
 
     private final ComplaintRepository complaintRepository;
     private final UserRepository userRepository;
@@ -79,6 +89,8 @@ public class ComplaintService {
                             complaint.getLocation(),
                             complaint.getLandmark(),
                             complaint.getStatus(),
+                            complaint.isDuplicate(),
+                            complaint.getDuplicateOfComplaintId(),
                             complaint.getPriority(),
                             complaint.getCreatedAt(),
                             complaint.getUpdatedAt()
@@ -117,27 +129,40 @@ public class ComplaintService {
             throw new ResponseStatusException(BAD_REQUEST, "Missing user.");
         }
 
+        String category = request.category().trim();
+        String title = request.title().trim();
+        String description = request.description().trim();
+        String location = request.location().trim();
+        String landmark = request.landmark() == null ? "" : request.landmark().trim();
+        String imageDataUrl = request.imageDataUrl() == null ? "" : request.imageDataUrl().trim();
+        String reporterMobile = request.mobileNumber() == null || request.mobileNumber().isBlank()
+                ? defaultString(user.getMobile())
+                : request.mobileNumber().trim();
         Instant now = Instant.now();
+        Complaint duplicateOf = findDuplicateComplaint(category, location, title, description, now).orElse(null);
+        boolean isDuplicate = duplicateOf != null;
         Complaint complaint = new Complaint(
                 "CIV-" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase(),
                 requesterUserId,
-                request.category().trim(),
+                category,
                 request.categoryIcon(),
-                request.title().trim(),
-                request.description().trim(),
-                request.imageDataUrl() == null ? "" : request.imageDataUrl().trim(),
-                request.mobileNumber() == null || request.mobileNumber().isBlank()
-                        ? defaultString(user.getMobile())
-                        : request.mobileNumber().trim(),
-                request.location().trim(),
-                request.landmark() == null ? "" : request.landmark().trim(),
+                title,
+                description,
+                imageDataUrl,
+                reporterMobile,
+                location,
+                landmark,
                 Status.Submitted,
                 request.priority(),
                 now,
                 now,
+                isDuplicate,
+                isDuplicate ? duplicateOf.getId() : null,
                 List.of(new TimelineEntry(
                         "Submitted",
-                        "Your complaint has been received and is under processing.",
+                        isDuplicate
+                                ? "Your complaint matches a recently submitted complaint and has been marked as a duplicate."
+                                : "Your complaint has been received and is under processing.",
                         now
                 ))
         );
@@ -151,6 +176,74 @@ public class ComplaintService {
 
     private String defaultString(String value) {
         return value == null ? "" : value;
+    }
+
+    private Optional<Complaint> findDuplicateComplaint(
+            String category,
+            String location,
+            String title,
+            String description,
+            Instant submittedAt
+    ) {
+        String normalizedCategory = normalizeText(category);
+        String normalizedLocation = normalizeText(location);
+        String incomingText = combineForSimilarity(title, description);
+        Instant cutoff = submittedAt.minus(DUPLICATE_LOOKBACK_HOURS, ChronoUnit.HOURS);
+
+        return complaintRepository.findByCreatedAtAfterOrderByCreatedAtDesc(cutoff).stream()
+                .filter(existing -> !defaultString(existing.getId()).isBlank())
+                .filter(existing -> normalizedCategory.equals(normalizeText(existing.getCategory())))
+                .filter(existing -> normalizedLocation.equals(normalizeText(existing.getLocation())))
+                .map(existing -> new ComplaintMatch(existing, calculateTextSimilarity(
+                        incomingText,
+                        combineForSimilarity(existing.getTitle(), existing.getDescription())
+                )))
+                .filter(match -> match.similarity() >= DUPLICATE_SIMILARITY_THRESHOLD)
+                .max(Comparator
+                        .comparingDouble(ComplaintMatch::similarity)
+                        .thenComparing(match -> match.complaint().getCreatedAt()))
+                .map(ComplaintMatch::complaint);
+    }
+
+    private double calculateTextSimilarity(String left, String right) {
+        Set<String> leftTokens = tokenize(left);
+        Set<String> rightTokens = tokenize(right);
+        if (leftTokens.isEmpty() || rightTokens.isEmpty()) {
+            return 0.0;
+        }
+
+        Set<String> intersection = new HashSet<>(leftTokens);
+        intersection.retainAll(rightTokens);
+
+        Set<String> union = new HashSet<>(leftTokens);
+        union.addAll(rightTokens);
+
+        if (union.isEmpty()) {
+            return 0.0;
+        }
+        return (double) intersection.size() / (double) union.size();
+    }
+
+    private Set<String> tokenize(String value) {
+        String normalized = normalizeText(value);
+        if (normalized.isBlank()) {
+            return Set.of();
+        }
+        return Arrays.stream(normalized.split(" "))
+                .filter(token -> !token.isBlank())
+                .collect(Collectors.toSet());
+    }
+
+    private String combineForSimilarity(String title, String description) {
+        return defaultString(title) + " " + defaultString(description);
+    }
+
+    private String normalizeText(String value) {
+        return defaultString(value)
+                .toLowerCase()
+                .replaceAll("[^a-z0-9]+", " ")
+                .trim()
+                .replaceAll("\\s+", " ");
     }
 
     public java.util.Map<String, Object> getPublicStats() {
@@ -181,5 +274,8 @@ public class ComplaintService {
             case In_Progress -> "Work on this complaint is now in progress.";
             case Resolved -> "Complaint has been marked as resolved by the admin team.";
         };
+    }
+
+    private record ComplaintMatch(Complaint complaint, double similarity) {
     }
 }

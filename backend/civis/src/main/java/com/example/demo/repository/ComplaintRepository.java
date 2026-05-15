@@ -4,12 +4,14 @@ import com.example.demo.model.Complaint;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 
 @Repository
 public interface ComplaintRepository extends JpaRepository<Complaint, String> {
     List<Complaint> findByUserIdOrderByCreatedAtDesc(String userId);
     List<Complaint> findAllByOrderByCreatedAtDesc();
+    List<Complaint> findByCreatedAtAfterOrderByCreatedAtDesc(Instant createdAt);
     void deleteByUserId(String userId);
 
     long countByStatus(com.example.demo.model.Status status);
