@@ -18,9 +18,12 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ComplaintServiceTest {
@@ -142,5 +145,62 @@ class ComplaintServiceTest {
         assertFalse(createdComplaint.isDuplicate());
         assertNull(createdComplaint.getDuplicateOfComplaintId());
         assertEquals("Your complaint has been received and is under processing.", createdComplaint.getTimeline().get(0).getNote());
+    }
+
+    @Test
+    void createComplaintRejectsDuplicateFromSameUser() {
+        User user = new User(
+                "user-1",
+                "Reporter",
+                "9876543210",
+                "reporter@example.com",
+                AuthType.gmail,
+                null,
+                Instant.now()
+        );
+        Complaint existingComplaint = new Complaint(
+                "CIV-EXIST03",
+                "user-1",
+                "Street Light",
+                "light",
+                "Street light not working",
+                "The street light near the school has been off for three nights and the road is unsafe.",
+                "",
+                "9876543210",
+                "School Road",
+                "",
+                Status.Submitted,
+                Priority.Medium,
+                Instant.now().minusSeconds(60 * 60),
+                Instant.now().minusSeconds(60 * 60),
+                false,
+                null,
+                List.of(new TimelineEntry("Submitted", "Existing complaint", Instant.now().minusSeconds(60 * 60)))
+        );
+        when(userRepository.findById("user-1")).thenReturn(Optional.of(user));
+        when(complaintRepository.findByCreatedAtAfterOrderByCreatedAtDesc(any(Instant.class)))
+                .thenReturn(List.of(existingComplaint));
+
+        org.springframework.web.server.ResponseStatusException exception = assertThrows(
+                org.springframework.web.server.ResponseStatusException.class,
+                () -> complaintService.createComplaint(
+                        "user-1",
+                        new CreateComplaintRequest(
+                                "Street Light",
+                                "light",
+                                "Street light not working again",
+                                "The street light near the school is still off and the road remains unsafe at night.",
+                                "",
+                                "School Road",
+                                "",
+                                "",
+                                Priority.Medium
+                        )
+                )
+        );
+
+        assertEquals(409, exception.getStatusCode().value());
+        assertEquals("You already submitted a similar complaint with ID CIV-EXIST03.", exception.getReason());
+        verify(complaintRepository, never()).save(any(Complaint.class));
     }
 }

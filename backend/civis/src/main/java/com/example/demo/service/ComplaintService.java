@@ -26,6 +26,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
@@ -139,7 +140,13 @@ public class ComplaintService {
                 ? defaultString(user.getMobile())
                 : request.mobileNumber().trim();
         Instant now = Instant.now();
-        Complaint duplicateOf = findDuplicateComplaint(category, location, title, description, now).orElse(null);
+        Complaint duplicateOf = findDuplicateComplaint(requesterUserId, category, location, title, description, now).orElse(null);
+        if (duplicateOf != null && requesterUserId.equals(duplicateOf.getUserId())) {
+            throw new ResponseStatusException(
+                    CONFLICT,
+                    "You already submitted a similar complaint with ID " + duplicateOf.getId() + "."
+            );
+        }
         boolean isDuplicate = duplicateOf != null;
         Complaint complaint = new Complaint(
                 "CIV-" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase(),
@@ -179,6 +186,7 @@ public class ComplaintService {
     }
 
     private Optional<Complaint> findDuplicateComplaint(
+            String requesterUserId,
             String category,
             String location,
             String title,
@@ -194,15 +202,26 @@ public class ComplaintService {
                 .filter(existing -> !defaultString(existing.getId()).isBlank())
                 .filter(existing -> normalizedCategory.equals(normalizeText(existing.getCategory())))
                 .filter(existing -> normalizedLocation.equals(normalizeText(existing.getLocation())))
-                .map(existing -> new ComplaintMatch(existing, calculateTextSimilarity(
-                        incomingText,
-                        combineForSimilarity(existing.getTitle(), existing.getDescription())
-                )))
-                .filter(match -> match.similarity() >= DUPLICATE_SIMILARITY_THRESHOLD)
+                .map(existing -> {
+                    double similarity = calculateTextSimilarity(
+                            incomingText,
+                            combineForSimilarity(existing.getTitle(), existing.getDescription())
+                    );
+                    boolean sameUser = requesterUserId.equals(existing.getUserId());
+                    return new ComplaintMatch(existing, similarity, sameUser);
+                })
+                .filter(match -> isDuplicateMatch(match))
                 .max(Comparator
                         .comparingDouble(ComplaintMatch::similarity)
                         .thenComparing(match -> match.complaint().getCreatedAt()))
                 .map(ComplaintMatch::complaint);
+    }
+
+    private boolean isDuplicateMatch(ComplaintMatch match) {
+        if (match.sameUser()) {
+            return true;
+        }
+        return match.similarity() >= DUPLICATE_SIMILARITY_THRESHOLD;
     }
 
     private double calculateTextSimilarity(String left, String right) {
@@ -276,6 +295,6 @@ public class ComplaintService {
         };
     }
 
-    private record ComplaintMatch(Complaint complaint, double similarity) {
+    private record ComplaintMatch(Complaint complaint, double similarity, boolean sameUser) {
     }
 }
