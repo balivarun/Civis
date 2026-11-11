@@ -2,12 +2,6 @@
 
 Civis is a full-stack civic issue reporting platform where citizens can register, file local complaints, and track resolution status in real time. The backend is built with Spring Boot, PostgreSQL, JWT access tokens, and secure HTTP-only refresh-token cookies; the frontend is built with React + TypeScript.
 
-## Team Members
-- Varun Bal (2211981456)
-- Abhinav Sharma (2211985001)
-- Harsh Yadav (2211981167)
-- Vansh Rana (2211981452)
-
 ## Type - Copyright
 
 ## Tech Stack
