@@ -167,7 +167,7 @@ Edit `.env`:
 DB_URL=jdbc:postgresql://localhost:5433/civis
 DB_USERNAME=postgres
 DB_PASSWORD=your_postgres_password
-JWT_SECRET=replace_with_base64_secret
+APP_AUTH_JWT_SECRET=<base64-secret-with-at-least-32-bytes>
 JWT_TTL_HOURS=24
 REFRESH_TOKEN_TTL_DAYS=30
 REFRESH_COOKIE_SECURE=false
@@ -214,14 +214,12 @@ SPRING_PROFILES_ACTIVE=postgres
 DB_URL=jdbc:postgresql://<host>:<port>/<db>
 DB_USERNAME=<user>
 DB_PASSWORD=<password>
-JWT_SECRET=<base64_secret>
+APP_AUTH_JWT_SECRET=<base64-secret-with-at-least-32-bytes>
 JWT_TTL_HOURS=24
 REFRESH_TOKEN_TTL_DAYS=30
 REFRESH_COOKIE_SECURE=true
 REFRESH_COOKIE_SAME_SITE=None
 REFRESH_COOKIE_DOMAIN=
-APP_AUTH_EXPOSE_OTP=false
-APP_CORS_ALLOWED_ORIGIN_PATTERNS=https://<your-vercel-domain>,http://localhost:*,http://127.0.0.1:*
 ```
 
 For frontend (Vercel):
