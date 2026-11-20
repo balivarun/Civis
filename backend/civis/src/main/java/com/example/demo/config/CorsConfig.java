@@ -23,6 +23,7 @@ public class CorsConfig {
         configuration.setAllowedOriginPatterns(Arrays.stream(allowedOriginPatterns.split(","))
                 .map(String::trim)
                 .filter(origin -> !origin.isEmpty())
+                .map(origin -> origin.replaceAll("/$", ""))
                 .toList());
         configuration.setAllowedMethods(List.of("GET", "POST","PATCH", "OPTIONS","DELETE"));
         configuration.setAllowedHeaders(List.of("*"));
