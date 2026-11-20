@@ -74,6 +74,14 @@ export default function GoogleAuthButton({
   onError,
 }: GoogleAuthButtonProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const onCredentialRef = useRef(onCredential)
+  const onErrorRef = useRef(onError)
+  const initializedRef = useRef(false)
+
+  useEffect(() => {
+    onCredentialRef.current = onCredential
+    onErrorRef.current = onError
+  }, [onCredential, onError])
 
   useEffect(() => {
     if (!containerRef.current) {
@@ -102,16 +110,19 @@ export default function GoogleAuthButton({
           return
         }
 
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: (response) => {
-            if (!response.credential) {
-              onError('Google sign-in did not return a credential.')
-              return
-            }
-            void onCredential(response.credential)
-          },
-        })
+        if (!initializedRef.current) {
+          window.google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: (response) => {
+              if (!response.credential) {
+                onErrorRef.current('Google sign-in did not return a credential.')
+                return
+              }
+              void onCredentialRef.current(response.credential)
+            },
+          })
+          initializedRef.current = true
+        }
 
         window.google.accounts.id.renderButton(containerRef.current, {
           theme: 'outline',
@@ -124,14 +135,14 @@ export default function GoogleAuthButton({
       })
       .catch((error: unknown) => {
         if (!cancelled) {
-          onError(error instanceof Error ? error.message : 'Failed to load Google sign-in.')
+          onErrorRef.current(error instanceof Error ? error.message : 'Failed to load Google sign-in.')
         }
       })
 
     return () => {
       cancelled = true
     }
-  }, [buttonText, disabled, onCredential, onError])
+  }, [buttonText, disabled])
 
   return <div ref={containerRef} className="google-auth-button" aria-hidden={disabled} />
 }
